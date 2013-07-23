@@ -1,0 +1,31 @@
+{
+  "name": "douban.fm",
+  "version": "0.0.3",
+  "description": "the dreaming douban.fm cli",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "douban.fm": "./bin/cli"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/turingou/douban.fm.git"
+  },
+  "keywords": [
+    "douban",
+    "fm",
+    "radio",
+    "mp3"
+  ],
+  "author": "turingou",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/turingou/douban.fm/issues"
+  },
+  "dependencies": {
+    "colorful": "*",
+    "optimist": "*"
+  }
+}
