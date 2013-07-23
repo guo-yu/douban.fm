@@ -26,6 +26,10 @@
   },
   "dependencies": {
     "colorful": "*",
-    "optimist": "*"
+    "optimist": "*",
+    "term-list": "*",
+    "player": "*",
+    "request": "*",
+    "underscore": "*"
   }
 }
