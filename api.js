@@ -21,7 +21,6 @@ exports.get = function(url, params,cb) {
 
 // post
 exports.post = function(url, params ,cb) {
-    console.log(params);
     request.post({
         url: url,
         form: params

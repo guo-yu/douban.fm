@@ -1,3 +1,9 @@
+//        __            __                  ____        
+//   ____/ /___  __  __/ /_  ____ _____    / __/___ ___ 
+//  / __  / __ \/ / / / __ \/ __ `/ __ \  / /_/ __ `__ \
+// / /_/ / /_/ / /_/ / /_/ / /_/ / / / / / __/ / / / / /
+// \__,_/\____/\__,_/_.___/\__,_/_/ /_(_)_/ /_/ /_/ /_/ 
+
 /**
  *
  * douban.fm
@@ -5,7 +11,7 @@
  * @created: [2013/07/20]
  *
  **/
-
+                                                         
 var optimist = require('optimist'),
     argv = optimist.argv,
     color = require('colorful'),
@@ -37,7 +43,9 @@ exports.auth = function(account, cb) {
         } else {
             if (result.err == 'invalidate_email' || result.err == 'wrong_email') {
                 console.log(color.red('抱歉，您的豆瓣帐号似乎出错了'));
+                cb(result.err)
             } else if (result.err == 'wrong_password') {
+                cb(result.err)
                 console.log(color.red('抱歉，您的豆瓣密码似乎出错了'));
             }
         }
@@ -91,10 +99,18 @@ exports.player = function(playList, cb) {
         _player['playing'] = list[0];
         // 播放曲目列表
         var song = playList[0];
-        console.log(color.yellow(song.albumtitle + ' ---- by ' + song.artist));
-        player.play(_player['playing'],function(){
-            console.log('第一首歌播放完了') 
-        });
+        console.log('#####################################')
+        console.log('##                                 ##')
+        console.log('##     Douban.fm - Node.js cli     ##')
+        console.log('##                                 ##')
+        console.log('#####################################')
+        console.log('正在播放：' + color.yellow(song.albumtitle));
+        console.log(color.yellow(' -- by ' + song.artist));
+        console.log('#####################################')
+        console.log('## designed and code by turingou ####')
+        console.log('##   http://github.com/turingou  ####')
+        console.log('#####################################')
+        player.play(_player['playing']);
     }
 };
 
@@ -149,7 +165,7 @@ exports.menu = function(list) {
 
 // 命令行界面
 exports.cli = function() {
-    
+
     var argument = argv._;
 
     if (argv.m) {
@@ -170,6 +186,7 @@ exports.cli = function() {
             })
         }
     } else {
+        console.log(color.yellow('正在加载...'));
         exports.list(function(list){
             exports.menu(list);
         });
