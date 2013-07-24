@@ -1,6 +1,3 @@
 {
-    "douban_account": {
-        "email":"",
-        "password":""
-    }
+    "douban_account": {}
 }
