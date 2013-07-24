@@ -9,7 +9,6 @@ exports.get = function(url, params,cb) {
             url = url + '&' + key + '=' + value
         });
     }
-    console.log(url);
     request.get({
         url: url,
         json:true
@@ -21,7 +20,8 @@ exports.get = function(url, params,cb) {
 }
 
 // post
-exports.post = function(url, params) {
+exports.post = function(url, params ,cb) {
+    console.log(params);
     request.post({
         url: url,
         form: params
