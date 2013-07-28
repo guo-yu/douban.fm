@@ -85,18 +85,21 @@ exports.list = function(cb) {
     });
 }
 
+// 操作
+exports.action = function(type) {
+    // 加红心
+    // 垃圾桶
+    // 下一首
+}
+
 // 播放器
-var _player = {};
 exports.player = function(playList, cb) {
-    if (_player.playing) {
-        player.stop(_player['playing']);
-    }
     if (playList.length) {
         var list = [];
         _.each(playList,function(item){
-            list.push(player.add(item.url))
+            list.push(item.url);
         });
-        _player['playing'] = list[0];
+        console.log(list);
         // 播放曲目列表
         var song = playList[0];
         console.log('#####################################')
@@ -110,7 +113,7 @@ exports.player = function(playList, cb) {
         console.log('## designed and code by turingou ####')
         console.log('##   http://github.com/turingou  ####')
         console.log('#####################################')
-        player.play(_player['playing']);
+        player.play(list);
     }
 };
 
@@ -183,6 +186,12 @@ exports.cli = function() {
                     user_name: user.user_name,
                     user_id: user.user_id
                 });
+                console.log(color.green('欢迎你，' + user.user_name + '。您的豆瓣账户已经成功修改为：' + user.email))
+                return false;
+                // console.log(color.yellow('正在加载...'));
+                // exports.list(function(list){
+                //     exports.menu(list);
+                // });
             })
         }
     } else {
