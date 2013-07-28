@@ -1,6 +1,6 @@
 Douban.fm Node cli ![](https://badge.fury.io/js/douban.fm.png)
 ---
-豆瓣电台命令行工具
+豆瓣电台命令行工具与api包装集
 
 ### 如何安装
 
@@ -13,7 +13,7 @@ Douban.fm Node cli ![](https://badge.fury.io/js/douban.fm.png)
 ````
 $ douban.fm // 开启电台，使用方向键操作选择收听哪个电台
 
-$ sudo douban.fm -m yourEmail@yourDomain.com password // 设置豆瓣账户密码（私人电台使用）
+$ sudo douban.fm -m yourEmail@domain.com password // 设置豆瓣账户密码（私人电台使用）
 ````
 
 #### 快捷键操作
