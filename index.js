@@ -93,51 +93,54 @@ exports.action = function(type) {
 }
 
 // 播放器
-exports.player = function(playList, cb) {
+exports.player = function(menu, channel, playList) {
+    this.label = channel.label;
+    this.channel = channel;
+    this.playList = playList;
+    this.menu = menu;
+};
 
-    var _panel = function(song) {
-        console.log('#####################################')
-        console.log('##                                 ##')
-        console.log('##     Douban.fm - Node.js cli     ##')
-        console.log('##                                 ##')
-        console.log('#####################################')
-        console.log('正在播放：' + color.yellow(song.albumtitle));
-        console.log(color.yellow(' -- by ' + song.artist));
-        console.log('#####################################')
-        console.log('## designed and code by turingou ####')
-        console.log('##   http://github.com/turingou  ####')
-        console.log('#####################################')
-        return false;
-    };
+// 更新播放状态
+exports.player.prototype.update = function(info) {
+    this.channel.label = this.label + ' ' + info;
+    this.menu.draw();
+};
 
-    var play = function(playList) {
-        
-        var list = [];
-        _.each(playList, function(item) {
-            list.push(item.url);
-        });
+// 播放
+exports.player.prototype.play = function(playList) {
 
-        // 立即播放
-        Player.play(list, function(player) {
-            // 当五首歌播放完成时
-        }).on('playing', function(item) {
-            var song = playList[item.sid - 1];
-            var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]'); 
-            console.log( love + '『' + color.green(song.title) + '』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']');
-            // console.log(song);
-        }).on('playend', function(item) {
-            // 当一首歌播放完时
-            // console.log('id:' + item.sid + ' play done, switching to next one ...');
-        }).on('error', function(err) {
-            // 当流媒体出现播放错误时
-            console.log('Opps!!!');
-            console.log(err);
-        });
+    var list = [],
+        self = this;
+
+    _.each(playList, function(item) {
+        list.push(item.url);
+    });
+
+    // 立即播放
+    return Player.play(list, function(player) {
+        // 当五首歌播放完成时
+    }).on('playing', function(item) {
+
+        var song = playList[item.sid - 1],
+            love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]'),
+            alert = love + '『 ' + color.green(song.title) + ' 』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']';
+        self.update(alert);
+
+    }).on('playend', function(item) {
+        self.update('正在切换下一首...');
+    }).on('error', function(err) {
+        // 捕捉错误不成功。
+        self.update('Error...');
+    });
+
+};
+
+// 立即播放
+exports.player.prototype.start = function() {
+    if (this.playList.length && this.playList.length > 0) {
+        this.update('正在加载...');
+        this.player = this.play(this.playList);
     }
-
-    if (playList.length) {
-        play(playList);
-    };
 };
 
 // 菜单
@@ -150,7 +153,8 @@ exports.menu = function(list) {
             markerLength: 2
         });
 
-        _.each(list, function(item) {
+        _.each(list, function(item, index) {
+            item['index'] = index;
             menu.add(item, item.name);
         });
 
@@ -162,8 +166,14 @@ exports.menu = function(list) {
                 var pkg = require('./pkg').fetch(),
                     user = pkg.douban_account;
 
-                if (item.cid == 0 && !user.token) {
-                    console.log(color.red('请先设置豆瓣账户才能收听私人电台哦~'))
+                // 检查是否是私人兆赫
+                if (item.channel_id == 0 && !user.token) {
+                    var current = menu.at(item.index);
+                    if (!current.alerted) {
+                        current.alerted = true;
+                        current.label = current.label + color.yellow(' 请先设置豆瓣账户再收听私人兆赫哦~ $ sudo douban.fm -m [account] [password]');
+                        menu.draw();
+                    };
                     return false;
                 };
 
@@ -173,9 +183,9 @@ exports.menu = function(list) {
                     type: 'n'
                 }, user, function(songs) {
                     // 加入播放列表开始播放
-                    menu.stop();
-                    console.log(color.green('正在播放『' + item.name + '』频道...'));
-                    exports.player(songs);
+                    var current = menu.at(item.index);
+                    var player = new exports.player(menu, current, songs);
+                    player.start();
                 });
 
             }
