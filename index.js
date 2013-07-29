@@ -11,12 +11,12 @@
  * @created: [2013/07/20]
  *
  **/
-                                                         
+
 var optimist = require('optimist'),
     argv = optimist.argv,
     color = require('colorful'),
     List = require('term-list'),
-    player = require('player'),
+    Player = require('player'),
     _ = require('underscore'),
     api = require('./api'),
     pkg = require('./pkg').fetch();
@@ -32,7 +32,7 @@ exports.config = function(type, params) {
 // 校验豆瓣账户是否正确
 exports.auth = function(account, cb) {
     api.post('http://www.douban.com/j/app/login', {
-        app_name: 'radio_desktop_win', 
+        app_name: 'radio_desktop_win',
         version: 100,
         email: account.email.toString(),
         password: account.password.toString()
@@ -53,9 +53,9 @@ exports.auth = function(account, cb) {
 };
 
 // 获取频道曲目
-exports.channel = function(channel,user,cb) {
+exports.channel = function(channel, user, cb) {
     var params = {
-        app_name: 'radio_desktop_win', 
+        app_name: 'radio_desktop_win',
         version: 100,
         channel: channel.id,
         type: channel.type
@@ -65,7 +65,7 @@ exports.channel = function(channel,user,cb) {
         params['expire'] = user.expire;
         params['token'] = user.token;
     };
-    api.get('http://www.douban.com/j/app/radio/people',params,function(result){
+    api.get('http://www.douban.com/j/app/radio/people', params, function(result) {
         if (result.r == 0) {
             cb(result.song);
         } else {
@@ -94,14 +94,8 @@ exports.action = function(type) {
 
 // 播放器
 exports.player = function(playList, cb) {
-    if (playList.length) {
-        var list = [];
-        _.each(playList,function(item){
-            list.push(item.url);
-        });
-        console.log(list);
-        // 播放曲目列表
-        var song = playList[0];
+
+    var _panel = function(song) {
         console.log('#####################################')
         console.log('##                                 ##')
         console.log('##     Douban.fm - Node.js cli     ##')
@@ -113,8 +107,37 @@ exports.player = function(playList, cb) {
         console.log('## designed and code by turingou ####')
         console.log('##   http://github.com/turingou  ####')
         console.log('#####################################')
-        player.play(list);
+        return false;
+    };
+
+    var play = function(playList) {
+        
+        var list = [];
+        _.each(playList, function(item) {
+            list.push(item.url);
+        });
+
+        // 立即播放
+        Player.play(list, function(player) {
+            // 当五首歌播放完成时
+        }).on('playing', function(item) {
+            var song = playList[item.sid - 1];
+            var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]'); 
+            console.log( love + '『' + color.green(song.title) + '』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']');
+            // console.log(song);
+        }).on('playend', function(item) {
+            // 当一首歌播放完时
+            // console.log('id:' + item.sid + ' play done, switching to next one ...');
+        }).on('error', function(err) {
+            // 当流媒体出现播放错误时
+            console.log('Opps!!!');
+            console.log(err);
+        });
     }
+
+    if (playList.length) {
+        play(playList);
+    };
 };
 
 // 菜单
@@ -122,34 +145,36 @@ exports.menu = function(list) {
 
     if (list.length) {
 
-        var menu = new List({ marker: '\033[36m› \033[0m', markerLength: 2 });
+        var menu = new List({
+            marker: '\033[36m› \033[0m',
+            markerLength: 2
+        });
 
         _.each(list, function(item) {
-            menu.add(item.channel_id, item.name);
+            menu.add(item, item.name);
         });
 
         menu.start();
-
-        menu.on('keypress', function(key, cid) {
+        menu.on('keypress', function(key, item) {
 
             if (key.name == 'return') {
 
                 var pkg = require('./pkg').fetch(),
                     user = pkg.douban_account;
 
-                if (cid == 0 && !user.token) {
+                if (item.cid == 0 && !user.token) {
                     console.log(color.red('请先设置豆瓣账户才能收听私人电台哦~'))
                     return false;
                 };
 
-                // 获取相应频道的信息
+                // 获取相应频道的曲目
                 exports.channel({
-                    id: cid,
+                    id: item.channel_id,
                     type: 'n'
-                },user,function(songs){
+                }, user, function(songs) {
                     // 加入播放列表开始播放
                     menu.stop();
-                    console.log(color.green('正在播放『' + list[cid].name + '』...'));
+                    console.log(color.green('正在播放『' + item.name + '』频道...'));
                     exports.player(songs);
                 });
 
@@ -170,6 +195,12 @@ exports.menu = function(list) {
 exports.cli = function() {
 
     var argument = argv._;
+    var init = function() {
+        console.log(color.yellow('正在加载...'));
+        exports.list(function(list) {
+            exports.menu(list);
+        });
+    }
 
     if (argv.m) {
         if (argument.length == 1) {
@@ -187,18 +218,11 @@ exports.cli = function() {
                     user_id: user.user_id
                 });
                 console.log(color.green('欢迎你，' + user.user_name + '。您的豆瓣账户已经成功修改为：' + user.email))
-                return false;
-                // console.log(color.yellow('正在加载...'));
-                // exports.list(function(list){
-                //     exports.menu(list);
-                // });
+                init()
             })
         }
     } else {
-        console.log(color.yellow('正在加载...'));
-        exports.list(function(list){
-            exports.menu(list);
-        });
+        init()
     }
 
 }
