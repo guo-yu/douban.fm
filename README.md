@@ -24,11 +24,11 @@ $ douban.fm
 $ sudo doubanfm -m email@domain.com password // 
 ````
 
-### Hotkey
+#### CLI Hotkey
 
-working on global hotkey.
+I'm working on global hotkey.
 
-## Sample code
+### Sample code
 
 ````javascript
 var doubanfm = require('douban.fm');
