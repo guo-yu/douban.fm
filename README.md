@@ -1,32 +1,38 @@
-Douban.fm Node cli ![](https://badge.fury.io/js/douban.fm.png)
+![](http://ww3.sinaimg.cn/large/61ff0de3gw1e77q7mth9dj200z00z3ya.jpg) douban.fm ![](https://badge.fury.io/js/douban.fm.png)
 ---
-豆瓣电台命令行工具与api包装集
+a cli wrapper of douban.fm
 
-### 如何安装
-
-`$ sudo npm install douban.fm -g`
-
-### 如何使用
-
-#### 命令行操作
+### How to install
 
 ````
-$ douban.fm // 开启电台，使用方向键操作选择收听哪个电台
-
-$ sudo douban.fm -m yourEmail@domain.com password // 设置豆瓣账户密码（私人电台使用）
+$ sudo npm install douban.fm -g
 ````
 
-#### 快捷键操作
+### Usaage
 
-douban.fm cli 正在设计全局快捷键操作
+#### Use CLI
 
-### 在node程序中使用
+##### Start douban.fm
+````
+$ douban.fm
+````
+
+##### Set your passport for Privite Hz
+````
+$ sudo doubanfm -m email@domain.com password // 
+````
+
+#### Hotkey
+
+working on global hotkey.
+
+### Sample code
 
 ````javascript
-var fm = require('douban.fm');
+var doubanfm = require('douban.fm');
 
-// 账户验权
-fm.auth({
+// passport auth
+doubanfm.auth({
     email: 'xxx',
     password: 'xxx'
 },function(result){
@@ -34,20 +40,29 @@ fm.auth({
     // 授权成功会返回token
 });
 
-// 获取频道列表
-fm.list(function(list){
+// fetch channels
+doubanfm.list(function(list){
     console.log(list)
 });
 
-// 获取某个频道的歌曲列表
-var user = {
-    token: 'xxx'
-};
-
-fm.channel({
+// fetch songs
+doubanfm.channel({
     id: channel.id,
-    type: 'n' // 这个type请参考 http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
+    type: 'n' // check this guide http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
 },user,function(songs){
     console.log(songs)
 });
 ````
+
+## Run unit-test (Mocha)
+
+````
+$ git clone https://github.com/turingou/douban.fm.git
+$ cd douban.fm
+$ npm install 
+$ npm test
+````
+
+## Changelog
+
+- `0.0.5` cli supported

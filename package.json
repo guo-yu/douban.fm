@@ -1,10 +1,10 @@
 {
   "name": "douban.fm",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "douban.fm cli based on node",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha ./test/test.js"
   },
   "bin": {
     "douban.fm": "./bin/cli"
@@ -31,5 +31,9 @@
     "player": "*",
     "request": "*",
     "underscore": "*"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
   }
 }
