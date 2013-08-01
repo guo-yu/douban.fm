@@ -4,31 +4,31 @@ a cli wrapper of douban.fm based on node
 
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3jw1e77q9b6ra9j20p00gkjsf.jpg)
 
-### How to install
+## How to install
 
 ````
 $ sudo npm install douban.fm -g
 ````
 
-### Usaage
+## Useage
 
-#### Use CLI
+### Use CLI
 
-##### Start douban.fm
+#### Start douban.fm
 ````
 $ douban.fm
 ````
 
-##### Set your passport for Privite Hz
+#### Set your passport for Privite Hz
 ````
 $ sudo doubanfm -m email@domain.com password // 
 ````
 
-#### Hotkey
+### Hotkey
 
 working on global hotkey.
 
-### Sample code
+## Sample code
 
 ````javascript
 var doubanfm = require('douban.fm');
@@ -38,8 +38,7 @@ doubanfm.auth({
     email: 'xxx',
     password: 'xxx'
 },function(result){
-    // do sth.
-    // 授权成功会返回token
+    // do sth with result token.
 });
 
 // fetch channels
