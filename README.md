@@ -1,6 +1,8 @@
 ![](http://ww3.sinaimg.cn/large/61ff0de3gw1e77q7mth9dj200z00z3ya.jpg) douban.fm ![](https://badge.fury.io/js/douban.fm.png)
 ---
-a cli wrapper of douban.fm
+a cli wrapper of douban.fm based on node
+
+![screenshot](http://ww1.sinaimg.cn/large/61ff0de3jw1e77q9b6ra9j20p00gkjsf.jpg)
 
 ### How to install
 
