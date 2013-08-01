@@ -139,7 +139,7 @@ exports.player.prototype.play = function(playList) {
 exports.player.prototype.start = function() {
     if (this.playList.length && this.playList.length > 0) {
         this.update('正在加载...');
-        this.player = this.play(this.playList);
+        this._player = this.play(this.playList);
     }
 };
 
@@ -152,6 +152,7 @@ exports.menu = function(list) {
             marker: '\033[36m› \033[0m',
             markerLength: 2
         });
+        var player;
 
         _.each(list, function(item, index) {
             item['index'] = index;
@@ -184,11 +185,23 @@ exports.menu = function(list) {
                 }, user, function(songs) {
                     // 加入播放列表开始播放
                     var current = menu.at(item.index);
-                    var player = new exports.player(menu, current, songs);
+                    player = new exports.player(menu, current, songs);
                     player.start();
                 });
 
+            } else if (key.name == 'backspace') {
+                // if (player) {
+                //     // console.log(player._player);
+                //     player._player.stop();
+                // }
+            } else if (key.name == 'l') {
+                // console.log('add loved !!!');
+            } else if (key.name == 'd') {
+                // console.log('deleted !!!');
+            } else if (key.name == 'p') {
+                // console.log('passed !!!');
             }
+            
         });
 
         menu.on('empty', function() {
