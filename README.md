@@ -1,34 +1,27 @@
 ![](http://ww3.sinaimg.cn/large/61ff0de3gw1e77q7mth9dj200z00z3ya.jpg) douban.fm ![](https://badge.fury.io/js/douban.fm.png)
 ---
-a cli wrapper of douban.fm based on node
+a cli wrapper of douban.fm based on Node.js
 
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3jw1e77q9b6ra9j20p00gkjsf.jpg)
 
-## How to install
-
+### How to install
 ````
 $ sudo npm install douban.fm -g
 ````
+### Useage
 
-## Useage
+#### Use CLI
 
-### Use CLI
-
-#### Start douban.fm
+Start douban.fm
 ````
 $ douban.fm
 ````
-
-#### Set your passport for Privite Hz
+Set your passport for Privite Hz
 ````
 $ sudo doubanfm -m email@domain.com password // 
 ````
 
-#### CLI Hotkey
-
-I'm working on global hotkey.
-
-### Sample code
+#### Sample code
 
 ````javascript
 var doubanfm = require('douban.fm');
@@ -55,7 +48,7 @@ doubanfm.channel({
 });
 ````
 
-## Run unit-test (Mocha)
+### Run unit-test (Mocha)
 
 ````
 $ git clone https://github.com/turingou/douban.fm.git
@@ -64,6 +57,6 @@ $ npm install
 $ npm test
 ````
 
-## Changelog
+### Changelog
 
 - `0.0.5` cli supported
