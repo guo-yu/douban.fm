@@ -4,7 +4,8 @@
 // / /_/ / /_/ / /_/ / /_/ / /_/ / / / / / __/ / / / / /
 // \__,_/\____/\__,_/_.___/\__,_/_/ /_(_)_/ /_/ /_/ /_/ 
 //
-// @name: Douban.fm command line interface based on Node.js
+// @brief: Douban.fm command line interface based on Node.js
 // @author: [turingou](http://guoyu.me)
 
-module.exports = require('./player').init();
+exports.sdk = require('./sdk');
+exports.player = require('./player');
