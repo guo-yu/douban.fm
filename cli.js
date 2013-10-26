@@ -24,8 +24,14 @@ var config = {
 };
 
 var Menu = {
+    update: function(index, str) {
+        if (this.menu) {
+            var currentLine = this.menu.at(index);
+            if (currentLine.label.indexOf(str) == -1) currentLine.label = currentLine.label + ' ' + str;
+            this.menu.draw();
+        }
+    },
     actions: function(key, item, user) {
-        var player;
         var self = this;
         var menu = self.menu;
         // 回车播放
@@ -33,27 +39,20 @@ var Menu = {
             var account = user && user.douban_account ? user.douban_account : {};
             // 检查是否是私人兆赫
             if (item.channel_id == 0 && !account.token) {
-                var current = menu.at(item.index);
-                if (!current.alerted) {
-                    current.alerted = true;
-                    current.label = current.label + color.yellow(' 请先设置豆瓣账户再收听私人兆赫哦~ $ sudo douban.fm -m [account] [password]');
-                    menu.draw();
-                };
+                self.update(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ sudo douban.fm -m [account] [password]'));
+            } else {
                 return false;
-            };
-
+            }
             // 获取相应频道的曲目
             api.channel({
                 id: item.channel_id,
                 type: 'n'
             }, account, function(err, songs) {
                 if (!err) {
-                    // 加入播放列表开始播放
-                    var current = menu.at(item.index);
-                    player = new Player(menu, current, songs);
-                    player.start();
+                    self.player = new Player(songs).play();
+                    console.log(self.player);
                 } else {
-                    consoler.error(err);
+                    self.update(item.index, color.red(err.toString()));
                 }
             });
 

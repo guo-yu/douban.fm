@@ -6,3 +6,4 @@ config-*.*
 *.mp3
 psd
 thumb
+config.json
