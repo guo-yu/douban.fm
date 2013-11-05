@@ -24,10 +24,9 @@ var config = {
 };
 
 var Menu = {
-    update: function(index, str) {
+    update: function(index, banner) {
         if (this.menu) {
-            var currentLine = this.menu.at(index);
-            if (currentLine.label.indexOf(str) == -1) currentLine.label = currentLine.label + ' ' + str;
+            this.menu.at(index).label = this.navs[index] + ' ' + banner;
             this.menu.draw();
         }
     },
@@ -59,6 +58,10 @@ var Menu = {
                         var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]');
                         var alert = love + '『 ' + color.green(song.title) + ' 』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']';
                         self.update(item.index, alert);
+                        // setTimeout(function(){
+                        //     console.log('it is gona stop !!!');
+                        //     self.player.stop();
+                        // },3000);
                     });
                     self.player.on('playend', function(song) {
                         console.log('begain switch...')
@@ -69,17 +72,14 @@ var Menu = {
             });
 
         } else if (key.name == 'backspace') {
-            // 下一首
-            // if (player) {
-            //     // console.log(player._player);
-            //     player._player.stop();
-            // }
+            if (self.player) self.player.stop();
         } else if (key.name == 'l') {
             // 加红心
         }
     },
     init: function(list) {
         var self = this;
+        self.navs = [];
         config.read(function(err, user) {
             self.menu = new List({
                 marker: '\033[36m› \033[0m',
@@ -88,6 +88,7 @@ var Menu = {
             _.each(list, function(item, index) {
                 item['index'] = index;
                 self.menu.add(item, item.name);
+                self.navs.push(item.name);
             });
             // start menu
             self.menu.start();
