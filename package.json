@@ -1,6 +1,6 @@
 {
   "name": "douban.fm",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "a cli wrapper of douban.fm based on Node.js",
   "main": "index.js",
   "author": "turingou",

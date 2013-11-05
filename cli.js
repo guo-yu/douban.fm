@@ -6,7 +6,7 @@ var fs = require('fs'),
     _ = require('underscore'),
     List = require('term-list'),
     api = require('./sdk'),
-    Player = require('./player');
+    Player = require('player');
 
 var config = {
     read: function(callback) {
@@ -40,7 +40,6 @@ var Menu = {
             // 检查是否是私人兆赫
             if (item.channel_id == 0 && !account.token) {
                 self.update(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ sudo douban.fm -m [account] [password]'));
-            } else {
                 return false;
             }
             // 获取相应频道的曲目
@@ -49,8 +48,21 @@ var Menu = {
                 type: 'n'
             }, account, function(err, songs) {
                 if (!err) {
-                    self.player = new Player(songs).play();
-                    console.log(self.player);
+                    self.player = new Player(songs, {
+                        srckey: 'url'
+                    });
+                    self.player.play();
+                    self.player.on('downloading', function(song) {
+                        self.update(item.index, '正在下载...');
+                    });
+                    self.player.on('playing', function(song) {
+                        var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]');
+                        var alert = love + '『 ' + color.green(song.title) + ' 』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']';
+                        self.update(item.index, alert);
+                    });
+                    self.player.on('playend', function(song) {
+                        console.log('begain switch...')
+                    });
                 } else {
                     self.update(item.index, color.red(err.toString()));
                 }
