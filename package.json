@@ -31,7 +31,8 @@
     "underscore": "*",
     "consoler":"*",
     "beer": "*",
-    "colorful": "*"
+    "colorful": "*",
+    "mkdirp": "*"
   },
   "devDependencies": {
     "mocha": "*",
