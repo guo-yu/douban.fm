@@ -53,13 +53,9 @@ Fm.prototype.actions = function(key, item, user) {
                     var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]');
                     var alert = love + '『 ' + color.green(song.title) + ' 』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']';
                     self.updateMenu(item.index, alert);
-                    // setTimeout(function(){
-                    //     console.log('it is gona stop !!!');
-                    //     self.player.stop();
-                    // },3000);
                 });
                 self.player.on('playend', function(song) {
-                    console.log('begain switch...')
+                    
                 });
             } else {
                 self.updateMenu(item.index, color.red(err.toString()));
@@ -68,8 +64,8 @@ Fm.prototype.actions = function(key, item, user) {
 
     } else if (key.name == 'backspace') {
         if (self.player) self.player.stop();
-    } else if (key.name == 'l') {
-        // 加红心
+    } else if (key.name == 'n') {
+        if (self.player) self.player.next();
     }
 }
 
