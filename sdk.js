@@ -22,7 +22,7 @@ exports.auth = function(account, callback) {
             if (result.r == 0) {
                 callback(null, result);
             } else {
-                consoler.error(errorMap(result.err));
+                consoler.error(errorMap[result.err]);
                 callback(result.err);
             }
         } else {

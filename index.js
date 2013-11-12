@@ -5,7 +5,7 @@
 // \__,_/\____/\__,_/_.___/\__,_/_/ /_(_)_/ /_/ /_/ /_/ 
 //
 // @brief: Douban.fm command line interface based on Node.js
-// @author: [turingou](http://guoyu.me)
+// @author: 新浪微博@郭宇 [turingou](http://guoyu.me)
 
 var fs = require('fs'),
     path = require('path'),
@@ -23,16 +23,17 @@ var getUserHome = function() {
 
 var Fm = function(params) {
     this.home = params && params.home ? params.home : path.join(getUserHome(), 'douban.fm');
+    this.love = path.join(this.home,'love');
 }
 
 Fm.prototype.actions = function(key, item, user) {
     var self = this;
     // 回车播放
     if (key.name == 'return') {
-        var account = user && user.douban_account ? user.douban_account : {};
+        var account = user && user.account ? user.account : {};
         // 检查是否是私人兆赫
         if (item.channel_id == 0 && !account.token) {
-            self.updateMenu(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ sudo douban.fm -m [account] [password]'));
+            self.updateMenu(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ douban.fm -m [account] [password]'));
             return false;
         }
         // 获取相应频道的曲目
@@ -155,7 +156,13 @@ Fm.prototype.readConfigs = function(callback) {
 }
 
 Fm.prototype.saveConfigs = function(params, callback) {
-    fs.writeFile(path.join(this.home, '.configs.json'), JSON.stringify(params), callback);
+    fs.writeFile(path.join(this.home, '.configs.json'), JSON.stringify(params), function(err){
+        if (!err) {
+            callback(null, params);
+        } else {
+            callback(err);
+        }
+    });
 }
 
 Fm.prototype.check = function(dir, callback) {
@@ -173,7 +180,7 @@ Fm.prototype.init = function() {
     var self = this;
     self.check(self.home, function(exist) {
         if (!exist) {
-            mkdirp(self.home, function(err) {
+            mkdirp(self.love, function(err) {
                 if (!err) {
                     self.createMenu();
                 } else {
