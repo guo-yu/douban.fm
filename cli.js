@@ -16,7 +16,7 @@ module.exports = function() {
                 if (!err) {
                     var user = configs.account;
                     consoler.success('欢迎你，' + user.user_name + '。您的豆瓣账户已经成功修改为：' + user.email);
-                    init();
+                    fm.init();
                 } else {
                     consoler.error(err);
                 }
