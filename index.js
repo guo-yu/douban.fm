@@ -9,12 +9,12 @@
 
 var fs = require('fs'),
     path = require('path'),
+    _ = require('underscore'),
     mkdirp = require('mkdirp'),
-    consoler = require('consoler'),
     Player = require('player'),
     color = require('colorful'),
     List = require('term-list'),
-    _ = require('underscore'),
+    consoler = require('consoler'),
     sdk = require('./sdk');
 
 var getUserHome = function() {
@@ -24,7 +24,7 @@ var getUserHome = function() {
 var Fm = function(params) {
     this.home = params && params.home ? params.home : path.join(getUserHome(), 'douban.fm');
     this.love = path.join(this.home,'love');
-}
+};
 
 Fm.prototype.actions = function(key, item, user) {
     var self = this;
@@ -67,6 +67,10 @@ Fm.prototype.actions = function(key, item, user) {
         if (self.player) self.player.stop();
     } else if (key.name == 'n') {
         if (self.player) self.player.next();
+    } else if (key.name == 'q') {
+        process.exit();
+    } else {
+        return false;
     }
 }
 
