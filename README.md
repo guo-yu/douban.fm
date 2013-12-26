@@ -29,6 +29,7 @@ $ douban.fm -h /Users/[USERNAME]/Music/douban.fm
 n           - >     本频道列表的下一首歌曲
 backspace   - >     停止播放
 return      - >     播放相应频道
+q           - >     退出豆瓣电台
 ````
 
 #### 范例代码
@@ -39,12 +40,12 @@ var Fm = require('douban.fm');
 Fm.auth({
     email: 'xxx',
     password: 'xxx'
-},function(result){
+},function(err, result){
     // do sth with result token.
 });
 
 // 获取频道
-Fm.sdk.list(function(list){
+Fm.sdk.list(function(err, list){
     console.log(list)
 });
 
@@ -52,7 +53,7 @@ Fm.sdk.list(function(list){
 Fm.sdk.channel({
     id: channel.id,
     type: 'n' // check this guide http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
-},user,function(songs){
+},user,function(err, songs){
     console.log(songs)
 });
 ````
