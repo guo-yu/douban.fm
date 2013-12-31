@@ -8,6 +8,7 @@ var errorMap = {
     "wrong_password": "抱歉，您的豆瓣密码似乎出错了"
 };
 
+// 模拟登录
 exports.auth = function(account, callback) {
     api.post('http://www.douban.com/j/app/login', {
         form: {
@@ -17,19 +18,12 @@ exports.auth = function(account, callback) {
             password: account.password.toString()
         }
     }, function(err, result) {
-        if (!err) {
-            var result = result.body;
-            if (result.r == 0) {
-                callback(null, result);
-            } else {
-                consoler.error(errorMap[result.err]);
-                callback(result.err);
-            }
-        } else {
-            callback(err);
-        }
+        if (err) return callback(err);
+        var result = result.body;
+        if (result.r == 0) return callback(null, result);
+        return callback(errorMap[result.err]);
     });
-}
+};
 
 // 获取频道曲目
 exports.channel = function(channel, user, callback) {
@@ -40,35 +34,21 @@ exports.channel = function(channel, user, callback) {
         type: channel.type
     };
     api.get('http://www.douban.com/j/app/radio/people', {
-        query: user && _.isObject(user) ? _.extend(user,params) : params
+        query: user && _.isObject(user) ? _.extend(user, params) : params
     }, function(err, result) {
-        if (!err) {
-            var result = result.body;
-            if (result.r == 0) {
-                callback(null, result.song);
-            } else {
-                callback(result.err);
-            }
-        } else {
-            callback(err);
-        }
+        if (err) return callback(err);
+        var result = result.body;
+        if (result.r == 0) return callback(null, result.song);
+        return callback(result.err);
     });
-}
+};
 
 // 获取频道列表
 exports.list = function(callback) {
     api.get('http://www.douban.com/j/app/radio/channels', {}, function(err, result) {
-        if (!err) {
-            // 这里没有判断错误
-            var result = result.body;
-            if (result.channels && result.channels.length) {
-                callback(null, result.channels);
-            } else {
-                console.log(result);
-                callback(result.err);
-            }
-        } else {
-            callback(err);
-        }
+        if (err) return callback(err);
+        var result = result.body;
+        if (result.channels && result.channels.length) return callback(null, result.channels);            
+        callback(new Error(result.err));
     });
-}
+};
