@@ -24,6 +24,12 @@ var Fm = function(params) {
 Fm.prototype.play = function(item, user) {
     var self = this;
     var account = user && user.account ? user.account : {};
+    // 如果正在播放
+    // TODO：暂停播放如果不是当前频道的时候还要清除标签
+    if (self.player && self.player.status === 'playing') {
+        self.player.stop();
+        self.player.status = 'stoped';
+    }
     // 检查是否是私人兆赫
     if (item.channel_id == 0 && !account.token) return self.update(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ douban.fm -m [account] [password]'));
     // 获取相应频道的曲目
@@ -46,7 +52,7 @@ Fm.prototype.play = function(item, user) {
             self.update(item.index, alert);
         });
         self.player.on('playend', function(song) {
-
+            // TODO: 在五首歌播放完成时，应当请求下一首歌
         });
     });
 }
