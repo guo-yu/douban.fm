@@ -67,9 +67,29 @@ $ npm test
 ````
 
 ### Changelog
-- `0.0.8` 修复bugs
-- `0.0.7` 支持播放下一首，暂停播放，下载歌曲到本地播放
-- `0.0.5` 支持命令行界面
+ * 0.0.9: format codes
+ * 0.0.9: 添加退出电台快捷键
+ * 0.0.8: 添加开源协议，更新说明
+ * 0.0.8: bugs fixed , ship to 0.0.8 stable
+ * 0.0.7: ship to 0.0.7
+ * 0.0.7: bugs fixed
+ * 0.0.7: code rewriting
+ * 0.0.7: fixed label redraw
+ * 0.0.7: code rewriting
+ * split module player
+ * 0.0.7: 大规模重构
+ * update usage
+ * update readme
+ * add screenshot
+ * add logo
+ * ship to 0.0.4
+ * 继续改界面，现在好看多啦~
+ * 更新界面
+ * morning~
+ * 更新说明文档
+ * 实现播放功能
+ * 新增界面
+ * hello doubanfm
 
 ### MIT license
 Copyright (c) 2013 turing <i@guoyu.me>
