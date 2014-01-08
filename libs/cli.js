@@ -7,7 +7,10 @@ exports = module.exports = function() {
     var home = argv.h ? argv.h : null;
     var argument = argv._,
         fm = new Fm(home);
-    if (!argv.m) return fm.init();
+    var ready = function() {
+        consoler.loading('正在加载...');
+    };
+    if (!argv.m) return fm.init(ready);
     if (argument.length != 1) return consoler.error('请输入正确的豆瓣电台账户密码，以空格分割');
     fm.auth({
         email: argv.m,
@@ -16,6 +19,6 @@ exports = module.exports = function() {
         if (err) return consoler.error(err);
         var user = configs.account;
         consoler.success('欢迎你，' + user.user_name + '。您的豆瓣账户已经成功修改为：' + user.email);
-        fm.init();
+        fm.init(ready);
     });
 };

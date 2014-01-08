@@ -5,101 +5,102 @@ var fs = require('fs'),
     Player = require('player'),
     color = require('colorful'),
     List = require('term-list'),
-    consoler = require('consoler'),
+    utils = require('./utils'),
     sdk = require('./sdk');
 
-var getUserHome = function() {
-    return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+var shorthands = {
+    'return': 'play',
+    'backspace': 'stop',
+    'n': 'next',
+    'q': 'quit'
 };
 
 var Fm = function(params) {
-    this.home = params && params.home ? params.home : path.join(getUserHome(), 'douban.fm');
-    this.love = path.join(this.home,'love');
+    this.home = params && params.home ? params.home : path.join(utils.home(), 'douban.fm');
+    this.love = path.join(this.home, 'love');
+    this.shorthands = shorthands;
 };
 
-Fm.prototype.actions = function(key, item, user) {
+Fm.prototype.play = function(item, user) {
     var self = this;
-    // 回车播放
-    if (key.name == 'return') {
-        var account = user && user.account ? user.account : {};
-        // 检查是否是私人兆赫
-        if (item.channel_id == 0 && !account.token) return self.updateMenu(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ douban.fm -m [account] [password]'));
-        // 获取相应频道的曲目
-        sdk.channel({
-            id: item.channel_id,
-            type: 'n'
-        }, account, function(err, songs) {
-            if (err) return self.updateMenu(item.index, color.red(err.toString()));
-            self.player = new Player(songs, {
-                srckey: 'url',
-                downloads: self.home
-            });
-            self.player.play();
-            self.player.on('downloading', function(song) {
-                self.updateMenu(item.index, '正在下载...');
-            });
-            self.player.on('playing', function(song) {
-                var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]');
-                var alert = love + '『 ' + color.green(song.title) + ' 』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']';
-                self.updateMenu(item.index, alert);
-            });
-            self.player.on('playend', function(song) {
-                
-            });
+    var account = user && user.account ? user.account : {};
+    // 检查是否是私人兆赫
+    if (item.channel_id == 0 && !account.token) return self.update(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ douban.fm -m [account] [password]'));
+    // 获取相应频道的曲目
+    sdk.channel({
+        id: item.channel_id,
+        type: 'n'
+    }, account, function(err, songs) {
+        if (err) return self.update(item.index, color.red(err.toString()));
+        self.player = new Player(songs, {
+            srckey: 'url',
+            downloads: self.home
         });
+        self.player.play();
+        self.player.on('downloading', function(song) {
+            self.update(item.index, '正在下载...');
+        });
+        self.player.on('playing', function(song) {
+            var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]');
+            var alert = love + '『 ' + color.green(song.title) + ' 』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']';
+            self.update(item.index, alert);
+        });
+        self.player.on('playend', function(song) {
 
-    } else if (key.name == 'backspace') {
-        if (self.player) self.player.stop();
-    } else if (key.name == 'n') {
-        if (self.player) self.player.next();
-    } else if (key.name == 'q') {
-        return process.exit();
-    } else {
-        return false;
-    }
-}
-
-Fm.prototype.initMenu = function(list, user) {
-    var self = this;
-    // config menu
-    self.navs = [];
-    self.menu = new List({
-        marker: '\033[36m› \033[0m',
-        markerLength: 2
-    });
-    _.each(list, function(item, index) {
-        item['index'] = index;
-        self.menu.add(item, item.name);
-        self.navs.push(item.name);
-    });
-    // start menu
-    self.menu.start();
-    // bind events
-    self.menu.on('keypress', function(key, item) {
-        self.actions(key, item, user);
-    });
-    self.menu.on('empty', function() {
-        menu.stop();
+        });
     });
 }
 
-Fm.prototype.updateMenu = function(index, banner) {
+Fm.prototype.next = function() {
+    if (this.player) this.player.next();
+}
+
+Fm.prototype.stop = function() {
+    if (this.player) this.player.stop();
+}
+
+Fm.prototype.quit = function() {
+    return process.exit();
+}
+
+Fm.prototype.update = function(index, banner) {
     if (!this.menu) return false;
     this.menu.at(index).label = this.navs[index] + ' ' + banner;
     this.menu.draw();
     return false;
 };
 
-Fm.prototype.createMenu = function() {
+Fm.prototype.createMenu = function(callback) {
     var self = this;
-    consoler.loading('正在加载...');
+    var shorthands = self.shorthands;
     sdk.list(function(err, list) {
-        if (err) return consoler.error(err);
+        if (err) return console.log(err);
         self.readConfigs(function(err, user) {
-            if (err) return consoler.error(err);
-            self.initMenu(list, user);
+            if (err) return console.log(err);
+            // init menu
+            self.navs = [];
+            self.menu = new List({
+                marker: '\033[36m› \033[0m',
+                markerLength: 2
+            });
+            _.each(list, function(item, index) {
+                item['index'] = index;
+                self.menu.add(item, item.name);
+                self.navs.push(item.name);
+            });
+            // start menu
+            self.menu.start();
+            // bind events
+            self.menu.on('keypress', function(key, item) {
+                if (!shorthands[key.name]) return false;
+                return self[shorthands[key.name]](item, user);
+            });
+            self.menu.on('empty', function() {
+                menu.stop();
+            });
         });
     });
+    if (callback && typeof(callback) === 'function') return callback();
 };
 
 Fm.prototype.auth = function(params, callback) {
@@ -133,23 +134,19 @@ Fm.prototype.readConfigs = function(callback) {
 };
 
 Fm.prototype.saveConfigs = function(params, callback) {
-    fs.writeFile(path.join(this.home, '.configs.json'), JSON.stringify(params), function(err){
+    fs.writeFile(path.join(this.home, '.configs.json'), JSON.stringify(params), function(err) {
         callback(err, params);
     });
 };
 
-Fm.prototype.check = function(dir, callback) {
-    fs.exists(dir, callback);
-};
-
 // init player
-Fm.prototype.init = function() {
+Fm.prototype.init = function(callback) {
     var self = this;
-    self.check(self.home, function(exist) {
-        if (exist) return self.createMenu();
+    fs.exists(self.home, function(exist) {
+        if (exist) return self.createMenu(callback);
         mkdirp(self.love, function(err) {
             if (err) return console.log(err);
-            return self.createMenu();
+            return self.createMenu(callback);
         });
     })
 };
