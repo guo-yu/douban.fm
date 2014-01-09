@@ -1,12 +1,7 @@
-var consoler = require('consoler'),
-    api = require('beer'),
-    _ = require('underscore');
-
-var errorMap = {
-    "invalidate_email": "抱歉，您的豆瓣帐号似乎出错了",
-    "wrong_email": "抱歉，您的豆瓣帐号似乎出错了",
-    "wrong_password": "抱歉，您的豆瓣密码似乎出错了"
-};
+var api = require('beer'),
+    consoler = require('consoler'),
+    _ = require('underscore'),
+    errors = require('./errors');
 
 // 模拟登录
 exports.auth = function(account, callback) {
@@ -21,7 +16,7 @@ exports.auth = function(account, callback) {
         if (err) return callback(err);
         var result = result.body;
         if (result.r == 0) return callback(null, result);
-        return callback(errorMap[result.err]);
+        return callback(errors[result.err]);
     });
 };
 

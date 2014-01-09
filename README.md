@@ -1,6 +1,6 @@
 ![](http://ww3.sinaimg.cn/large/61ff0de3gw1e77q7mth9dj200z00z3ya.jpg) douban.fm ![](https://badge.fury.io/js/douban.fm.png)
 ---
-a cli wrapper of douban.fm based on Node.js
+豆瓣电台命令行版，基于 Node.js
 
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3jw1e77q9b6ra9j20p00gkjsf.jpg)
 
@@ -50,9 +50,11 @@ Fm.sdk.list(function(err, list){
 });
 
 // 或者歌曲列表
+// 这里有一份指导博客:
+// http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
 Fm.sdk.channel({
     id: channel.id,
-    type: 'n' // check this guide http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
+    type: 'n'
 },user,function(err, songs){
     console.log(songs)
 });
