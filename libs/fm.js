@@ -6,7 +6,8 @@ var fs = require('fs'),
     color = require('colorful'),
     List = require('term-list'),
     utils = require('./utils'),
-    sdk = require('./sdk');
+    sdk = require('./sdk'),
+    errors = require('./errors');
 
 var shorthands = {
     'return': 'play',
@@ -30,8 +31,8 @@ Fm.prototype.play = function(item, user) {
         self.player.stop();
         self.player.status = 'stoped';
     }
-    // 检查是否是私人兆赫
-    if (item.channel_id == 0 && !account.token) return self.update(item.index, color.yellow('请先设置豆瓣账户再收听私人兆赫哦~ $ douban.fm -m [account] [password]'));
+    // 检查是否是私人兆赫，如果没有设置账户直接返回
+    if (item.channel_id == 0 && !account.token) return self.update(item.index, color.yellow(errors.account_missing));
     // 获取相应频道的曲目
     sdk.channel({
         id: item.channel_id,
