@@ -17,6 +17,7 @@ var shorthands = {
     'return': 'play',
     'backspace': 'stop',
     'g': 'goto',
+    'l': 'loving',
     'n': 'next',
     'q': 'quit'
 };
@@ -40,11 +41,14 @@ Fm.prototype.play = function(channel, user) {
         self.player = null;
     }
     self.channel = channel.index;
+    self.update(channel.index, color.grey('加载歌曲中，请稍等...'));
     // 获取相应频道的曲目
-    sdk.channel({
-        id: channel.channel_id,
-        type: 'n'
-    }, account, function(err, songs) {
+    sdk.fetch({
+        channel: channel.channel_id,
+        user_id: account.user_id,
+        expire: account.expire,
+        token: account.token
+    }, function(err, songs) {
         if (err) return self.update(channel.index, color.red(err.toString()));
         self.player = new Player(songs, {
             srckey: 'url',
@@ -54,21 +58,22 @@ Fm.prototype.play = function(channel, user) {
         // 同步下载模式
         // 同步下载不太好，但是在解决 steam 的无法 catch 到抛错之前没有办法。
         self.player.on('downloading', function(song) {
-            self.update(channel.index, color.grey('正在下载...'));
+            self.update(channel.index, color.grey('正在下载歌曲...'));
         });
         // 更新歌单
         self.player.on('playing', function(song) {
             self.update(
                 channel.index,
                 printf(
-                    '%s %s %s %s %s %s %s',
+                    '%s %s %s %s %s %s %s %s',
                     song.like == 1 ? color.red('♥') : color.grey('♥'),
                     color.green(song.title),
                     color.grey(song.kbps + 'kbps'),
                     color.grey('... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...'),
                     color.yellow(song.albumtitle),
                     color.grey('•'),
-                    song.artist
+                    song.artist,
+                    color.grey(song.public_time)
                 )
             );
         });
@@ -79,10 +84,33 @@ Fm.prototype.play = function(channel, user) {
     });
 }
 
-Fm.prototype.goto = function(channel, user) {
+Fm.prototype.goto = function() {
     if (!this.player) return false;
     if (!this.player.playing) return false;
     return exeq(['open http://music.douban.com' + this.player.playing.album]).run();
+}
+
+Fm.prototype.loving = function(channel, user) {
+    if (!this.player) return false;
+    if (!this.player.playing) return false;
+    var self = this;
+    var account = user && user.account ? user.account : {};
+    var song = this.player.playing;
+    var query = {
+        sid: song.sid,
+        channel: self.channel,
+        user_id: account.user_id,
+        expire: account.expire,
+        token: account.token
+    };
+    if (song.like == 1) query.type = 'u';
+    sdk.love(query, function(err, result){
+        // 这里要考虑怎么不影响当前的歌曲名字部分刷新
+        if (err) return self.update(self.channel, '加红心失败，请稍后再试');
+        // fs.writeFileSync('text.md',JSON.stringify(result));
+        // 这里加红心成功后要给提示
+        return self.update(self.channel, '添加红心成功!');
+    });
 }
 
 Fm.prototype.next = function() {
@@ -109,7 +137,7 @@ Fm.prototype.update = function(index, banner) {
 Fm.prototype.createMenu = function(callback) {
     var self = this;
     var shorthands = self.shorthands;
-    sdk.list(function(err, list) {
+    sdk.channels(function(err, list) {
         if (err) return console.log(err);
         self.configs(function(err, user) {
             if (err) return console.log(err);
@@ -129,6 +157,7 @@ Fm.prototype.createMenu = function(callback) {
             ));
             // add channels
             _.each(list, function(channel, index) {
+                if (index > 15) return false; // 屏幕里放不下那么多电台的 -,-||
                 channel.index = index;
                 self.menu.add(index, channel.name);
                 self.channels[index] = channel;
