@@ -7,6 +7,7 @@ var fs = require('fs'),
     List = require('term-list'),
     printf = require('sprintf').sprintf,
     params = require('paramrule'),
+    exeq = require('exeq'),
     sys = require('../package'),
     sdk = require('./sdk'),
     utils = require('./utils'),
@@ -31,11 +32,13 @@ Fm.prototype.play = function(channel, user) {
     // 检查是否是私人兆赫，如果没有设置账户直接返回
     if (channel.channel_id == 0 && !account.token) return self.update(channel.index, color.yellow(errors.account_missing));
     // 如果正在播放，重置播放器，清除标签
-    if (self.player && self.player.status === 'playing') {
-        if (self.channelID) self.update(self.channelID, '');
+    if (self.player && (self.player.status === 'playing' || self.player.status === 'downloading')) {
+        if (typeof(self.channel) != undefined) self.update(self.channel, '');
         self.player.stop();
         self.player.status = 'stoped';
+        self.player = null;
     }
+    self.channel = channel.index;
     // 获取相应频道的曲目
     sdk.channel({
         id: channel.channel_id,
@@ -54,7 +57,6 @@ Fm.prototype.play = function(channel, user) {
         });
         // 更新歌单
         self.player.on('playing', function(song) {
-            self.channelID = channel.index;
             self.update(
                 channel.index,
                 printf(
@@ -130,7 +132,7 @@ Fm.prototype.createMenu = function(callback) {
             // bind events
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
-                if (index < 0) return false;
+                if (index < 0) return exeq(['open ' + sys.repository.url]).run();
                 return self[shorthands[key.name]](self.playlist[index], user);
             });
             self.menu.on('empty', function() {

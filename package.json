@@ -34,7 +34,8 @@
     "colorful": "*",
     "mkdirp": "*",
     "paramrule": "*",
-    "sprintf": "*"
+    "sprintf": "*",
+    "exeq": "*"
   },
   "devDependencies": {
     "mocha": "*",
