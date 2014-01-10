@@ -1,7 +1,7 @@
 {
   "name": "douban.fm",
   "version": "0.0.9",
-  "description": "a cli wrapper of douban.fm based on Node.js",
+  "description": "a tiny and smart cli player of douban.fm based on Node.js",
   "main": "index.js",
   "author": "turing <o.u.turing@gmail.com>",
   "license": "MIT",

@@ -16,6 +16,7 @@ var fs = require('fs'),
 var shorthands = {
     'return': 'play',
     'backspace': 'stop',
+    'g': 'goto',
     'n': 'next',
     'q': 'quit'
 };
@@ -78,6 +79,12 @@ Fm.prototype.play = function(channel, user) {
     });
 }
 
+Fm.prototype.goto = function(channel, user) {
+    if (!this.player) return false;
+    if (!this.player.playing) return false;
+    return exeq(['open http://music.douban.com' + this.player.playing.album]).run();
+}
+
 Fm.prototype.next = function() {
     if (this.player) return this.player.next();
     return false;
@@ -94,7 +101,7 @@ Fm.prototype.quit = function() {
 
 Fm.prototype.update = function(index, banner) {
     if (!this.menu) return false;
-    this.menu.at(index + 2).label = this.playlist[index].name + ' ' + banner;
+    this.menu.at(index + 2).label = this.channels[index].name + ' ' + banner;
     this.menu.draw();
     return false;
 };
@@ -107,7 +114,7 @@ Fm.prototype.createMenu = function(callback) {
         self.configs(function(err, user) {
             if (err) return console.log(err);
             // init menu
-            self.playlist = {};
+            self.channels = {};
             self.menu = new List({
                 marker: '\033[36m› \033[0m',
                 markerLength: 2
@@ -124,7 +131,7 @@ Fm.prototype.createMenu = function(callback) {
             _.each(list, function(channel, index) {
                 channel.index = index;
                 self.menu.add(index, channel.name);
-                self.playlist[index] = channel;
+                self.channels[index] = channel;
             });
             // start menu
             self.menu.start();
@@ -133,7 +140,7 @@ Fm.prototype.createMenu = function(callback) {
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
                 if (index < 0) return exeq(['open ' + sys.repository.url]).run();
-                return self[shorthands[key.name]](self.playlist[index], user);
+                return self[shorthands[key.name]](self.channels[index], user);
             });
             self.menu.on('empty', function() {
                 menu.stop();
