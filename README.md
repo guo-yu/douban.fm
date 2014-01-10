@@ -2,7 +2,7 @@
 ---
 简洁优雅的豆瓣电台命令行版，基于 Node.js
 
-![screenshot](http://ww1.sinaimg.cn/large/61ff0de3jw1e77q9b6ra9j20p00gkjsf.jpg)
+![screenshot](http://ww1.sinaimg.cn/large/61ff0de3tw1ecf5t6a13jj20mk0egabu.jpg)
 
 ### 如何安装
 ````
