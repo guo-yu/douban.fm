@@ -3,7 +3,7 @@
   "version": "0.0.9",
   "description": "a cli wrapper of douban.fm based on Node.js",
   "main": "index.js",
-  "author": "turingou",
+  "author": "turing <o.u.turing@gmail.com>",
   "license": "MIT",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha ./test/test.js"
@@ -25,14 +25,16 @@
     "url": "https://github.com/turingou/douban.fm/issues"
   },
   "dependencies": {
+    "player": "*",
+    "beer": "*",
     "optimist": "*",
     "term-list": "*",
-    "player": "*",
     "underscore": "*",
     "consoler":"*",
-    "beer": "*",
     "colorful": "*",
-    "mkdirp": "*"
+    "mkdirp": "*",
+    "paramrule": "*",
+    "sprintf": "*"
   },
   "devDependencies": {
     "mocha": "*",

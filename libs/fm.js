@@ -5,8 +5,11 @@ var fs = require('fs'),
     Player = require('player'),
     color = require('colorful'),
     List = require('term-list'),
-    utils = require('./utils'),
+    printf = require('sprintf').sprintf,
+    params = require('paramrule'),
+    sys = require('../package'),
     sdk = require('./sdk'),
+    utils = require('./utils'),
     errors = require('./errors');
 
 var shorthands = {
@@ -22,48 +25,65 @@ var Fm = function(params) {
     this.shorthands = shorthands;
 };
 
-Fm.prototype.play = function(item, user) {
+Fm.prototype.play = function(channel, user) {
     var self = this;
     var account = user && user.account ? user.account : {};
-    // 如果正在播放
-    // TODO：暂停播放如果不是当前频道的时候还要清除标签
+    // 检查是否是私人兆赫，如果没有设置账户直接返回
+    if (channel.channel_id == 0 && !account.token) return self.update(channel.index, color.yellow(errors.account_missing));
+    // 如果正在播放，重置播放器，清除标签
     if (self.player && self.player.status === 'playing') {
+        if (self.channelID) self.update(self.channelID, '');
         self.player.stop();
         self.player.status = 'stoped';
     }
-    // 检查是否是私人兆赫，如果没有设置账户直接返回
-    if (item.channel_id == 0 && !account.token) return self.update(item.index, color.yellow(errors.account_missing));
     // 获取相应频道的曲目
     sdk.channel({
-        id: item.channel_id,
+        id: channel.channel_id,
         type: 'n'
     }, account, function(err, songs) {
-        if (err) return self.update(item.index, color.red(err.toString()));
+        if (err) return self.update(channel.index, color.red(err.toString()));
         self.player = new Player(songs, {
             srckey: 'url',
             downloads: self.home
         });
         self.player.play();
+        // 同步下载模式
+        // 同步下载不太好，但是在解决 steam 的无法 catch 到抛错之前没有办法。
         self.player.on('downloading', function(song) {
-            self.update(item.index, '正在下载...');
+            self.update(channel.index, color.grey('正在下载...'));
         });
+        // 更新歌单
         self.player.on('playing', function(song) {
-            var love = (song.like == 1) ? color.yellow('[♥]') : color.grey('[♥]');
-            var alert = love + '『 ' + color.green(song.title) + ' 』(' + song.kbps + 'kbps)' + color.grey(' ... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ... ') + ' [专辑：' + song.albumtitle + '] [歌手：' + song.artist + ']';
-            self.update(item.index, alert);
+            self.channelID = channel.index;
+            self.update(
+                channel.index,
+                printf(
+                    '%s %s %s %s %s %s %s',
+                    song.like == 1 ? color.red('♥') : color.grey('♥'),
+                    color.green(song.title),
+                    color.grey(song.kbps + 'kbps'),
+                    color.grey('... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...'),
+                    color.yellow(song.albumtitle),
+                    color.grey('•'),
+                    song.artist
+                )
+            );
         });
+        // TODO: 在五首歌播放完成时，应当请求下一首歌
         self.player.on('playend', function(song) {
-            // TODO: 在五首歌播放完成时，应当请求下一首歌
+
         });
     });
 }
 
 Fm.prototype.next = function() {
-    if (this.player) this.player.next();
+    if (this.player) return this.player.next();
+    return false;
 }
 
 Fm.prototype.stop = function() {
-    if (this.player) this.player.stop();
+    if (this.player) return this.player.stop();
+    return false;
 }
 
 Fm.prototype.quit = function() {
@@ -72,7 +92,7 @@ Fm.prototype.quit = function() {
 
 Fm.prototype.update = function(index, banner) {
     if (!this.menu) return false;
-    this.menu.at(index).label = this.navs[index] + ' ' + banner;
+    this.menu.at(index + 2).label = this.playlist[index].name + ' ' + banner;
     this.menu.draw();
     return false;
 };
@@ -82,25 +102,36 @@ Fm.prototype.createMenu = function(callback) {
     var shorthands = self.shorthands;
     sdk.list(function(err, list) {
         if (err) return console.log(err);
-        self.readConfigs(function(err, user) {
+        self.configs(function(err, user) {
             if (err) return console.log(err);
             // init menu
-            self.navs = [];
+            self.playlist = {};
             self.menu = new List({
                 marker: '\033[36m› \033[0m',
                 markerLength: 2
             });
-            _.each(list, function(item, index) {
-                item['index'] = index;
-                self.menu.add(item, item.name);
-                self.navs.push(item.name);
+            // add padding-top
+            self.menu.add(-2, '');
+            // add logo
+            self.menu.add(-1, printf(
+                '%s %s',
+                color.yellow('Douban FM'),
+                color.grey('v' + sys.version)
+            ));
+            // add channels
+            _.each(list, function(channel, index) {
+                channel.index = index;
+                self.menu.add(index, channel.name);
+                self.playlist[index] = channel;
             });
             // start menu
             self.menu.start();
+            self.menu.select(-1);
             // bind events
-            self.menu.on('keypress', function(key, item) {
+            self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
-                return self[shorthands[key.name]](item, user);
+                if (index < 0) return false;
+                return self[shorthands[key.name]](self.playlist[index], user);
             });
             self.menu.on('empty', function() {
                 menu.stop();
@@ -114,7 +145,7 @@ Fm.prototype.auth = function(params, callback) {
     var self = this;
     sdk.auth(params, function(err, user) {
         if (err) return callback(err);
-        self.saveConfigs({
+        self.configs({
             account: {
                 email: user.email,
                 password: params.password,
@@ -127,22 +158,26 @@ Fm.prototype.auth = function(params, callback) {
     });
 };
 
-Fm.prototype.readConfigs = function(callback) {
+Fm.prototype.configs = function() {
     var self = this;
-    fs.readFile(path.join(this.home, '.configs.json'), function(err, f) {
-        if (err) return callback(err, null);
-        try {
-            self.configs = JSON.parse(f);
-            callback(err, self.configs);
-        } catch (err) {
-            callback(err);
+    params.parse(arguments, ['', '*'], function(params, callback) {
+        if (!params) {
+            // read configs
+            fs.readFile(path.join(self.home, '.configs.json'), function(err, f) {
+                if (err) return callback(err, null);
+                try {
+                    self.configs = JSON.parse(f);
+                    callback(err, self.configs);
+                } catch (err) {
+                    callback(err);
+                }
+            });
+        } else {
+            // save params
+            fs.writeFile(path.join(self.home, '.configs.json'), JSON.stringify(params), function(err) {
+                callback(err, params);
+            });
         }
-    });
-};
-
-Fm.prototype.saveConfigs = function(params, callback) {
-    fs.writeFile(path.join(this.home, '.configs.json'), JSON.stringify(params), function(err) {
-        callback(err, params);
     });
 };
 
