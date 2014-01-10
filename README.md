@@ -1,6 +1,6 @@
 ![](http://ww3.sinaimg.cn/large/61ff0de3gw1e77q7mth9dj200z00z3ya.jpg) douban.fm ![](https://badge.fury.io/js/douban.fm.png)
 ---
-豆瓣电台命令行版，基于 Node.js
+简洁优雅的豆瓣电台命令行版，基于 Node.js
 
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3jw1e77q9b6ra9j20p00gkjsf.jpg)
 
@@ -26,10 +26,12 @@ $ douban.fm -h /Users/[USERNAME]/Music/douban.fm
 #### 快捷键列表
 在相应的命令行菜单中，按下以下快捷键：
 ````
-n           - >     本频道列表的下一首歌曲
-backspace   - >     停止播放
-return      - >     播放相应频道
-q           - >     退出豆瓣电台
+[return]      - >     播放另一个频道，或者重新播放当前频道 (PLAY)
+[backspace]   - >     停止播放当前歌曲或频道 (DELETE)
+[n]           - >     本频道列表的下一首歌曲 (NEXT)
+[l]           - >     添加到红心列表或者删除红心 (LOVE)
+[g]           - >     跳转到当前播放歌曲的专辑页面 (GOTO)
+[q]           - >     退出豆瓣电台 (QUIT)
 ````
 
 #### 范例代码

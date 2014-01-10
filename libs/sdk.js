@@ -21,15 +21,14 @@ exports.auth = function(account, callback) {
 };
 
 // 获取频道曲目
-exports.channel = function(channel, user, callback) {
-    var params = {
+exports.fetch = function(params, callback) {
+    var configs = {
         app_name: 'radio_desktop_win',
         version: 100,
-        channel: channel.id,
-        type: channel.type
+        type: 'n'
     };
     api.get('http://www.douban.com/j/app/radio/people', {
-        query: user && _.isObject(user) ? _.extend(user, params) : params
+        query: _.extend(configs, params)
     }, function(err, result) {
         if (err) return callback(err);
         var result = result.body;
@@ -38,8 +37,13 @@ exports.channel = function(channel, user, callback) {
     });
 };
 
+exports.love = function(params, callback) {
+    // params must have sid
+    exports.fetch(_.extend({ type: 'r' }, params), callback);
+}
+
 // 获取频道列表
-exports.list = function(callback) {
+exports.channels = function(callback) {
     api.get('http://www.douban.com/j/app/radio/channels', {}, function(err, result) {
         if (err) return callback(err);
         var result = result.body;
