@@ -37,10 +37,10 @@ exports.fetch = function(params, callback) {
     });
 };
 
+// 切换设置红心曲目
 exports.love = function(params, callback) {
-    // params must have sid
     exports.fetch(_.extend({ type: 'r' }, params), callback);
-}
+};
 
 // 获取频道列表
 exports.channels = function(callback) {
