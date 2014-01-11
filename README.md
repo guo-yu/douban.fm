@@ -15,14 +15,11 @@ $ [sudo] npm install douban.fm -g
 ````
 $ douban.fm
 ````
-设置私人频道的账户密码，配置文件和歌曲将会保存在 `~/douban.fm` 目录
+收听私人频道，账户密码、配置文件与歌曲将会保存在 `~/douban.fm` 目录
 ````
 $ douban.fm -m [email@domain.com] [password] 
 ````
-如果你不想保存在这里，可以这样自定义保存的位置，比如：
-````
-$ douban.fm -h /Users/[USERNAME]/Music/douban.fm
-````
+
 #### 快捷键列表
 在相应的命令行菜单中，按下以下快捷键：
 ````
