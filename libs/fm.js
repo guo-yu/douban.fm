@@ -56,7 +56,7 @@ Fm.prototype.play = function(channel, user) {
         });
         self.player.play();
         // 同步下载模式
-        // 同步下载不太好，但是在解决 steam 的无法 catch 到抛错之前没有办法。
+        // 同步下载不太好，但是在解决 stream 的无法 catch 到抛错之前没有办法。
         self.player.on('downloading', function(song) {
             self.update(channel.index, color.grey('正在下载歌曲...'));
         });
@@ -93,9 +93,10 @@ Fm.prototype.goto = function() {
 Fm.prototype.loving = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
+    if (!user || !user.account) return false;
     var self = this;
     var account = user && user.account ? user.account : {};
-    var song = this.player.playing;
+    var song = self.player.playing;
     var query = {
         sid: song.sid,
         channel: self.channel,
@@ -103,13 +104,26 @@ Fm.prototype.loving = function(channel, user) {
         expire: account.expire,
         token: account.token
     };
-    if (song.like == 1) query.type = 'u';
-    sdk.love(query, function(err, result){
-        // 这里要考虑怎么不影响当前的歌曲名字部分刷新
-        if (err) return self.update(self.channel, '加红心失败，请稍后再试');
-        // fs.writeFileSync('text.md',JSON.stringify(result));
-        // 这里加红心成功后要给提示
-        return self.update(self.channel, '添加红心成功!');
+    if (song.like) query.type = 'u';
+    sdk.love(query, function(err, result) {
+        var tips = !(song.like) ? color.red('♥') : color.grey('♥');
+        if (err) tips = color.red('x');
+        if (!err) self.player.playing.like = !song.like;
+        // 这里有冗余代码
+        return self.update(
+            self.channel,
+            printf(
+                '%s %s %s %s %s %s %s %s',
+                tips,
+                color.green(song.title),
+                color.grey(song.kbps + 'kbps'),
+                color.grey('... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...'),
+                color.yellow(song.albumtitle),
+                color.grey('•'),
+                song.artist,
+                color.grey(song.public_time)
+            )
+        );
     });
 }
 
@@ -138,9 +152,8 @@ Fm.prototype.createMenu = function(callback) {
     var self = this;
     var shorthands = self.shorthands;
     sdk.channels(function(err, list) {
-        if (err) return console.log(err);
+        if (err) return consoler.error('获取豆瓣电台频道出错，请稍后再试');
         self.configs(function(err, user) {
-            if (err) return console.log(err);
             // init menu
             self.channels = {};
             self.menu = new List({
@@ -168,7 +181,7 @@ Fm.prototype.createMenu = function(callback) {
             // bind events
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
-                if (index < 0) return exeq(['open ' + sys.repository.url]).run();
+                if (index < 0 && key.name != 'q') return exeq(['open ' + sys.repository.url]).run();
                 return self[shorthands[key.name]](self.channels[index], user);
             });
             self.menu.on('empty', function() {
@@ -225,7 +238,7 @@ Fm.prototype.init = function(callback) {
     fs.exists(self.home, function(exist) {
         if (exist) return self.createMenu(callback);
         mkdirp(self.love, function(err) {
-            if (err) return console.log(err);
+            if (err) return consoler.error('创建歌曲文件夹出错');
             return self.createMenu(callback);
         });
     })

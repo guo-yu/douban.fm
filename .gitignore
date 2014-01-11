@@ -7,3 +7,4 @@ config-*.*
 psd
 thumb
 config.json
+json/*.json
