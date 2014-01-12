@@ -1,5 +1,4 @@
 var api = require('beer'),
-    consoler = require('consoler'),
     _ = require('underscore'),
     errors = require('./errors');
 

@@ -41,7 +41,7 @@ Fm.prototype.play = function(channel, user) {
         self.player = null;
     }
     self.channel = channel.index;
-    self.update(channel.index, color.grey('加载歌曲中，请稍等...'));
+    self.update(channel.index, color.grey('加载列表中，请稍等...'));
     // 获取相应频道的曲目
     sdk.fetch({
         channel: channel.channel_id,
@@ -57,8 +57,8 @@ Fm.prototype.play = function(channel, user) {
         self.player.play();
         // 同步下载模式
         // 同步下载不太好，但是在解决 stream 的无法 catch 到抛错之前没有办法。
-        self.player.on('downloading', function(song) {
-            self.update(channel.index, color.grey('正在下载歌曲...'));
+        self.player.on('downloading', function(url) {
+            self.update(channel.index, color.grey('下载歌曲中，请稍等...'));
         });
         // 更新歌单
         self.player.on('playing', function(song) {
@@ -76,10 +76,19 @@ Fm.prototype.play = function(channel, user) {
                     color.grey(song.public_time)
                 )
             );
-        });
-        // TODO: 在五首歌播放完成时，应当请求下一首歌
-        self.player.on('playend', function(song) {
-
+            if (song._id !== self.player.list.length - 1) return false;
+            return sdk.fetch({
+                channel: channel.channel_id,
+                user_id: account.user_id,
+                expire: account.expire,
+                token: account.token
+            }, function(err, songs) {
+                if (err) return false;
+                songs.forEach(function(s, index){
+                    s._id = self.player.list.length;
+                    self.player.add(s);
+                });
+            });
         });
     });
 }
