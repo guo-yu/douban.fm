@@ -17,10 +17,11 @@ var fs = require('fs'),
 var shorthands = {
     'return': 'play',
     'backspace': 'stop',
-    'g': 'goto',
+    'g': 'go',
     'l': 'loving',
     'n': 'next',
-    'q': 'quit'
+    'q': 'quit',
+    's': 'share'
 };
 
 var Fm = function(params) {
@@ -95,12 +96,6 @@ Fm.prototype.play = function(channel, user) {
             });
         });
     });
-}
-
-Fm.prototype.goto = function() {
-    if (!this.player) return false;
-    if (!this.player.playing) return false;
-    return exeq(['open http://music.douban.com' + this.player.playing.album]).run();
 }
 
 Fm.prototype.loving = function(channel, user) {
@@ -183,6 +178,47 @@ Fm.prototype.redraw = function() {
     if (!this.menu) return false;
     this.menu.draw();
     return false;
+}
+
+Fm.prototype.go = function(channel, user, link) {
+    if (!this.player) return false;
+    if (!this.player.playing) return false;
+    return exeq(['open ' + (link ? link : 'http://music.douban.com' + this.player.playing.album)]).run();
+}
+
+Fm.prototype.share = function(channel, user) {
+    if (!this.player) return false;
+    if (!this.player.playing) return false;
+    var song = this.player.playing;
+    return this.go(null, null,
+        'http://service.weibo.com/share/share.php?' +
+        '&type=button' +
+        '&style=number' +
+        '&appkey=5rjNpN' + // api key guoyu.me: [1kf7C9] douban.fm: [5rjNpN]
+        '&ralateUid=1644105187' + // related uid @guoyu
+        '&url=' +
+        sys.repository.url +
+        '&pic=' +
+        (song.picture ? song.picture : 'http://ww1.sinaimg.cn/large/61ff0de3tw1ecf5t6a13jj20mk0egabu.jpg') +
+        '%7C%7C' +
+        'http://ww1.sinaimg.cn/large/61ff0de3tw1ecf5t6a13jj20mk0egabu.jpg' +
+        '&title=' +
+        encodeURIComponent(
+            [
+                user.account ? user.account.user_name : '',
+                '正在使用豆瓣电台命令行版 v' + sys.version + ' 收听 ',
+                song.like ? '[心]' : '',
+                song.title,
+                song.kbps + 'kbps',
+                '... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...',
+                song.albumtitle,
+                '•',
+                song.artist,
+                song.public_time,
+                'http://music.douban.com' + song.album
+            ].join(' ')
+        )
+    );
 }
 
 Fm.prototype.createMenu = function(callback) {
