@@ -180,17 +180,23 @@ Fm.prototype.redraw = function() {
     return false;
 }
 
+Fm.prototype.album = function(link) {
+    if (!link) return false;
+    return link.indexOf('http') === -1 ? 'http://music.douban.com' + link : link;
+}
+
 Fm.prototype.go = function(channel, user, link) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
-    return exeq(['open ' + (link ? link : 'http://music.douban.com' + this.player.playing.album)]).run();
+    return exeq(['open ' + (link ? link : this.album(this.player.playing.album))]).run();
 }
 
 Fm.prototype.share = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
-    var song = this.player.playing;
-    return this.go(null, null,
+    var self = this;
+    var song = self.player.playing;
+    return self.go(null, null,
         'http://service.weibo.com/share/share.php?' +
         '&type=button' +
         '&style=number' +
@@ -199,13 +205,13 @@ Fm.prototype.share = function(channel, user) {
         '&url=' +
         sys.repository.url +
         '&pic=' +
-        song.picture +
+        (song.picture ? song.picture.replace('mpic','lpic') : '') +
         '%7C%7C' +
         'http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg' +
         '&title=' +
         encodeURIComponent(
             [
-                user.account ? user.account.user_name : '',
+                user && user.account ? user.account.user_name : '',
                 '正在使用豆瓣电台命令行版 v' + sys.version + ' 收听 ',
                 song.like ? '[心]' : '',
                 song.title,
@@ -215,7 +221,7 @@ Fm.prototype.share = function(channel, user) {
                 '•',
                 song.artist,
                 song.public_time,
-                'http://music.douban.com' + song.album
+                self.album(song.album)
             ].join(' ')
         )
     );
