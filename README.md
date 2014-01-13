@@ -2,7 +2,7 @@
 ---
 简洁优雅的豆瓣电台命令行版，基于 Node.js
 
-![screenshot](http://ww1.sinaimg.cn/large/61ff0de3tw1ecf5t6a13jj20mk0egabu.jpg)
+![screenshot](http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg)
 
 ### 如何安装
 ````
@@ -19,6 +19,7 @@ $ douban.fm
 ````
 $ douban.fm -m [email@domain.com] [password] 
 ````
+支持 pro 用户收听高码率 mp3，pro 用户默认会先寻找 192kbps 的歌曲播放，非 pro 用户不受影响。
 
 #### 快捷键列表
 在相应的命令行菜单中，按下以下快捷键：
@@ -27,6 +28,7 @@ $ douban.fm -m [email@domain.com] [password]
 [backspace]   - >     停止播放当前歌曲或频道 (DELETE)
 [n]           - >     本频道列表的下一首歌曲 (NEXT)
 [l]           - >     添加到红心列表或者删除红心 (LOVE)
+[s]           - >     分享当前歌曲到新浪微博 (SHARE)
 [g]           - >     跳转到当前播放歌曲的专辑页面 (GOTO)
 [q]           - >     退出豆瓣电台 (QUIT)
 ````
@@ -36,7 +38,7 @@ $ douban.fm -m [email@domain.com] [password]
 var Fm = require('douban.fm');
 
 // 授权
-Fm.auth({
+Fm.sdk.auth({
     email: 'xxx',
     password: 'xxx'
 },function(err, result){

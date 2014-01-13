@@ -199,9 +199,9 @@ Fm.prototype.share = function(channel, user) {
         '&url=' +
         sys.repository.url +
         '&pic=' +
-        (song.picture ? song.picture : 'http://ww1.sinaimg.cn/large/61ff0de3tw1ecf5t6a13jj20mk0egabu.jpg') +
+        song.picture +
         '%7C%7C' +
-        'http://ww1.sinaimg.cn/large/61ff0de3tw1ecf5t6a13jj20mk0egabu.jpg' +
+        'http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg' +
         '&title=' +
         encodeURIComponent(
             [
