@@ -7,6 +7,7 @@ var fs = require('fs'),
     List = require('term-list'),
     printf = require('sprintf').sprintf,
     params = require('paramrule'),
+    consoler = require('consoler'),
     exeq = require('exeq'),
     sys = require('../package'),
     sdk = require('./sdk'),
@@ -47,15 +48,16 @@ Fm.prototype.play = function(channel, user) {
         channel: channel.channel_id,
         user_id: account.user_id,
         expire: account.expire,
-        token: account.token
-    }, function(err, songs) {
+        token: account.token,
+        kbps: 192
+    }, function(err, songs, result) {
         if (err) return self.update(channel.index, color.red(err.toString()));
+        if (result && !result.warning) self.update(-1, color.yellow_bg('PRO'));
         self.player = new Player(songs, {
             srckey: 'url',
             downloads: self.home
         });
         self.player.play();
-        // 同步下载模式
         // 同步下载不太好，但是在解决 stream 的无法 catch 到抛错之前没有办法。
         self.player.on('downloading', function(url) {
             self.update(channel.index, color.grey('下载歌曲中，请稍等...'));
@@ -76,15 +78,17 @@ Fm.prototype.play = function(channel, user) {
                     color.grey(song.public_time)
                 )
             );
-            if (song._id !== self.player.list.length - 1) return false;
+            if (song._id < self.player.list.length - 1) return false;
             return sdk.fetch({
                 channel: channel.channel_id,
                 user_id: account.user_id,
                 expire: account.expire,
-                token: account.token
+                token: account.token,
+                kbps: 192
             }, function(err, songs) {
                 if (err) return false;
-                songs.forEach(function(s, index){
+                if (!songs) return false;
+                return songs.forEach(function(s, index){
                     s._id = self.player.list.length;
                     self.player.add(s);
                 });
@@ -152,7 +156,11 @@ Fm.prototype.quit = function() {
 
 Fm.prototype.update = function(index, banner) {
     if (!this.menu) return false;
-    this.menu.at(index + 2).label = this.channels[index].name + ' ' + banner;
+    this.menu.at(index + 2).label = 
+        (this.channels[index].name ? 
+            this.channels[index].name : 
+            this.menu.at(index + 2).label
+        ) + ' ' + banner;
     this.menu.draw();
     return false;
 };
@@ -173,9 +181,12 @@ Fm.prototype.createMenu = function(callback) {
             self.menu.add(-2, '');
             // add logo
             self.menu.add(-1, printf(
-                '%s %s',
+                '%s %s %s',
                 color.yellow('Douban FM'),
-                color.grey('v' + sys.version)
+                color.grey('v' + sys.version),
+                user && user.account && user.account.user_name ?
+                    color.grey('/ ' + user.account.user_name) : 
+                    ''
             ));
             // add channels
             _.each(list, function(channel, index) {
@@ -208,7 +219,6 @@ Fm.prototype.auth = function(params, callback) {
         self.configs({
             account: {
                 email: user.email,
-                password: params.password,
                 token: user.token,
                 expire: user.expire,
                 user_name: user.user_name,
@@ -223,11 +233,10 @@ Fm.prototype.configs = function() {
     params.parse(arguments, ['', '*'], function(params, callback) {
         if (!params) {
             // read configs
-            fs.readFile(path.join(self.home, '.configs.json'), function(err, f) {
+            fs.readFile(path.join(self.home, '.configs.json'), function(err, data) {
                 if (err) return callback(err, null);
                 try {
-                    self.configs = JSON.parse(f);
-                    callback(err, self.configs);
+                    callback(err, JSON.parse(data));
                 } catch (err) {
                     callback(err);
                 }
@@ -247,7 +256,7 @@ Fm.prototype.init = function(callback) {
     fs.exists(self.home, function(exist) {
         if (exist) return self.createMenu(callback);
         mkdirp(self.love, function(err) {
-            if (err) return consoler.error('创建歌曲文件夹出错');
+            if (err) return consoler.error('创建歌曲文件夹出错，请检查权限');
             return self.createMenu(callback);
         });
     })
