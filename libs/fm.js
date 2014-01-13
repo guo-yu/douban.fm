@@ -52,7 +52,7 @@ Fm.prototype.play = function(channel, user) {
         kbps: 192
     }, function(err, songs, result) {
         if (err) return self.update(channel.index, color.red(err.toString()));
-        if (result && !result.warning) self.update(-1, color.yellow_bg('PRO'));
+        if (result && !result.warning) self.update(-1, color.inverse(self.menu.at(1).label.indexOf('PRO') === -1 ? ' PRO ': ''));
         self.player = new Player(songs, {
             srckey: 'url',
             downloads: self.home
@@ -157,7 +157,7 @@ Fm.prototype.quit = function() {
 Fm.prototype.update = function(index, banner) {
     if (!this.menu) return false;
     this.menu.at(index + 2).label = 
-        (this.channels[index].name ? 
+        (this.channels[index] ? 
             this.channels[index].name : 
             this.menu.at(index + 2).label
         ) + ' ' + banner;
