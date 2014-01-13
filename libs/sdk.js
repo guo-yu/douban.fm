@@ -31,7 +31,7 @@ exports.fetch = function(params, callback) {
     }, function(err, result) {
         if (err) return callback(err);
         var result = result.body;
-        if (result.r == 0) return callback(null, result.song);
+        if (result.r == 0) return callback(null, result.song, result);
         return callback(result.err);
     });
 };
