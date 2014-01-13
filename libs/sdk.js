@@ -4,7 +4,7 @@ var api = require('beer'),
 
 // 模拟登录
 exports.auth = function(account, callback) {
-    api.post('http://douban.fm/j/app/login', {
+    api.post('http://www.douban.com/j/app/login', {
         form: {
             app_name: 'radio_desktop_win',
             version: 100,

@@ -52,7 +52,7 @@ Fm.prototype.play = function(channel, user) {
         kbps: 192
     }, function(err, songs, result) {
         if (err) return self.update(channel.index, color.red(err.toString()));
-        if (result && !result.warning) self.update(-1, color.inverse(self.menu.at(1).label.indexOf('PRO') === -1 ? ' PRO ': ''));
+        if (result && !result.warning) self.label(-1, color.inverse(' PRO '));
         self.player = new Player(songs, {
             srckey: 'url',
             downloads: self.home
@@ -88,7 +88,7 @@ Fm.prototype.play = function(channel, user) {
             }, function(err, songs) {
                 if (err) return false;
                 if (!songs) return false;
-                return songs.forEach(function(s, index){
+                return songs.forEach(function(s, index) {
                     s._id = self.player.list.length;
                     self.player.add(s);
                 });
@@ -118,11 +118,13 @@ Fm.prototype.loving = function(channel, user) {
         token: account.token
     };
     if (song.like) query.type = 'u';
+    self.label(-1, '正在加载...');
     sdk.love(query, function(err, result) {
         var tips = !(song.like) ? color.red('♥') : color.grey('♥');
         if (err) tips = color.red('x');
         if (!err) self.player.playing.like = !song.like;
         // 这里有冗余代码
+        self.clear(-1, '正在加载...');
         return self.update(
             self.channel,
             printf(
@@ -154,16 +156,34 @@ Fm.prototype.quit = function() {
     return process.exit();
 }
 
+Fm.prototype.label = function(index, banner) {
+    if (!this.menu) return false;
+    var original = this.menu.at(index + 2).label;
+    if (original.indexOf(banner) > -1) return false;
+    this.menu.at(index + 2).label = original + ' ' + banner;
+    return this.redraw();
+}
+
 Fm.prototype.update = function(index, banner) {
     if (!this.menu) return false;
-    this.menu.at(index + 2).label = 
-        (this.channels[index] ? 
-            this.channels[index].name : 
-            this.menu.at(index + 2).label
-        ) + ' ' + banner;
+    if (!this.channels[index]) return this.label(index, banner);
+    this.menu.at(index + 2).label = this.channels[index].name + ' ' + banner;
+    return this.redraw();
+}
+
+Fm.prototype.clear = function(index, banner) {
+    if (!this.menu) return false;
+    var item = this.menu.at(index + 2);
+    if (item.label.indexOf(banner) === -1) return false;
+    item.label = item.label.substr(0, item.label.indexOf(' ' + banner));
+    return this.redraw();
+}
+
+Fm.prototype.redraw = function() {
+    if (!this.menu) return false;
     this.menu.draw();
     return false;
-};
+}
 
 Fm.prototype.createMenu = function(callback) {
     var self = this;
@@ -185,8 +205,8 @@ Fm.prototype.createMenu = function(callback) {
                 color.yellow('Douban FM'),
                 color.grey('v' + sys.version),
                 user && user.account && user.account.user_name ?
-                    color.grey('/ ' + user.account.user_name) : 
-                    ''
+                color.grey('/ ' + user.account.user_name) :
+                ''
             ));
             // add channels
             _.each(list, function(channel, index) {
