@@ -4,7 +4,7 @@ var api = require('beer'),
 
 // 模拟登录
 exports.auth = function(account, callback) {
-    api.post('http://www.douban.com/j/app/login', {
+    api.post('http://douban.fm/j/app/login', {
         form: {
             app_name: 'radio_desktop_win',
             version: 100,
@@ -26,7 +26,7 @@ exports.fetch = function(params, callback) {
         version: 100,
         type: 'n'
     };
-    api.get('http://www.douban.com/j/app/radio/people', {
+    api.get('http://douban.fm/j/app/radio/people', {
         query: _.extend(configs, params)
     }, function(err, result) {
         if (err) return callback(err);
@@ -43,7 +43,7 @@ exports.love = function(params, callback) {
 
 // 获取频道列表
 exports.channels = function(callback) {
-    api.get('http://www.douban.com/j/app/radio/channels', {}, function(err, result) {
+    api.get('http://douban.fm/j/app/radio/channels', {}, function(err, result) {
         if (err) return callback(err);
         var result = result.body;
         if (result.channels && result.channels.length) return callback(null, result.channels);            
