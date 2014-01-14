@@ -30,12 +30,13 @@
     "optimist": "*",
     "term-list": "*",
     "underscore": "*",
-    "consoler":"*",
+    "consoler": "*",
     "colorful": "*",
     "mkdirp": "*",
     "paramrule": "*",
     "sprintf": "*",
-    "exeq": "*"
+    "exeq": "*",
+    "prompt": "~0.2.12"
   },
   "devDependencies": {
     "mocha": "*",
