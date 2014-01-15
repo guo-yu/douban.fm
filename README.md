@@ -80,35 +80,14 @@ $ npm test
 ````
 
 ### Changelog
- * 0.0.9: format codes
- * 0.0.9: 添加退出电台快捷键
- * 0.0.8: 添加开源协议，更新说明
- * 0.0.8: bugs fixed , ship to 0.0.8 stable
- * 0.0.7: ship to 0.0.7
- * 0.0.7: bugs fixed
- * 0.0.7: code rewriting
- * 0.0.7: fixed label redraw
- * 0.0.7: code rewriting
- * split module player
- * 0.0.7: 大规模重构
- * update usage
- * update readme
- * add screenshot
- * add logo
- * ship to 0.0.4
- * 继续改界面，现在好看多啦~
- * 更新界面
- * morning~
- * 更新说明文档
- * 实现播放功能
- * 新增界面
- * hello doubanfm
+
+详见 [History.md](./History.md)
 
 ### MIT license
-Copyright (c) 2013 turing <i@guoyu.me>
+Copyright (c) 2013 turing &lt;i@guoyu.me&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software and associated documentation files (the &quot;Software&quot;), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -117,10 +96,14 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+---
+![docor](https://cdn1.iconfinder.com/data/icons/windows8_icons_iconpharm/26/doctor.png)
+built upon love by [docor](https://github.com/turingou/docor.git) v0.1.2

@@ -1,45 +1,45 @@
 {
-  "name": "douban.fm",
-  "version": "0.1.0",
-  "description": "a tiny and smart cli player of douban.fm based on Node.js",
-  "main": "index.js",
-  "author": "turing <o.u.turing@gmail.com>",
-  "license": "MIT",
-  "scripts": {
-    "test": "./node_modules/mocha/bin/mocha ./test/test.js"
-  },
-  "bin": {
-    "douban.fm": "./bin/cli"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/turingou/douban.fm.git"
-  },
-  "keywords": [
-    "douban",
-    "fm",
-    "radio",
-    "mp3"
-  ],
-  "bugs": {
-    "url": "https://github.com/turingou/douban.fm/issues"
-  },
-  "dependencies": {
-    "player": "*",
-    "beer": "*",
-    "optimist": "*",
-    "term-list": "*",
-    "underscore": "*",
-    "consoler": "*",
-    "colorful": "*",
-    "mkdirp": "*",
-    "paramrule": "*",
-    "sprintf": "*",
-    "exeq": "*",
-    "prompt": "~0.2.12"
-  },
-  "devDependencies": {
-    "mocha": "*",
-    "should": "*"
-  }
+    "name": "douban.fm",
+    "version": "0.1.1",
+    "description": "a tiny and smart cli player of douban.fm based on Node.js",
+    "main": "index.js",
+    "author": "turing <o.u.turing@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "test": "./node_modules/mocha/bin/mocha ./test/test.js"
+    },
+    "bin": {
+        "douban.fm": "./bin/cli"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/turingou/douban.fm.git"
+    },
+    "keywords": [
+        "douban",
+        "fm",
+        "radio",
+        "mp3"
+    ],
+    "bugs": {
+        "url": "https://github.com/turingou/douban.fm/issues"
+    },
+    "dependencies": {
+        "player": "*",
+        "beer": "*",
+        "optimist": "*",
+        "term-list": "*",
+        "underscore": "*",
+        "consoler": "*",
+        "colorful": "*",
+        "mkdirp": "*",
+        "paramrule": "*",
+        "sprintf": "*",
+        "exeq": "*",
+        "prompt": "~0.2.12"
+    },
+    "devDependencies": {
+        "mocha": "*",
+        "should": "*"
+    }
 }
