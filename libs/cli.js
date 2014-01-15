@@ -66,8 +66,7 @@ var actions = {
 };
 
 exports = module.exports = function() {
-    var argv = process.argv,
-        command = argv[2],
+    var command = process.argv[2],
         fm = new Fm();
     if (!command) return fm.init(actions.ready);
     if (!actions[command] || command === 'ready') return actions.help();

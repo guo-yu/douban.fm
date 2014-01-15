@@ -25,18 +25,17 @@
         "url": "https://github.com/turingou/douban.fm/issues"
     },
     "dependencies": {
-        "player": "*",
         "beer": "*",
-        "optimist": "*",
-        "term-list": "*",
-        "underscore": "*",
-        "consoler": "*",
-        "colorful": "*",
-        "mkdirp": "*",
-        "paramrule": "*",
-        "sprintf": "*",
         "exeq": "*",
-        "prompt": "~0.2.12"
+        "player": "*",
+        "prompt": "~0.2.12",
+        "mkdirp": "*",
+        "colorful": "*",
+        "consoler": "*",
+        "sprintf": "*",
+        "paramrule": "*",
+        "term-list": "*",
+        "underscore": "*"
     },
     "devDependencies": {
         "mocha": "*",
