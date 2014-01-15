@@ -20,7 +20,7 @@ $ [sudo] npm install douban.fm -g
 * 曾经安装过 xcode 并已同意用户协议，确保更新 xcode 版本后同意过用户协议
 * 非 Mac OSX 用户需要检查 `node-speaker` 模块的外部依赖情况，详见 [node-speaker 文档](https://github.com/TooTallNate/node-speaker/#audio-backend-selection)，按照你使用的操作系统安装相应外部依赖
 * 确保权限一致。如果没有使用 sudo 则尝试使用 sudo 安装
-* 各种 linux 发行版外部依赖问题，先确认是否安装了 libasound2，如果没有，尝试 `sudo apt-get install libasound2-dev`
+* 各种 linux 发行版外部依赖问题，先确认是否安装了 libasound2，如果没有，尝试 `sudo apt-get install libasound2-dev`，fedora 下 `yum install alsa-lib-devel`
 
 如果遇到无法解决的问题，请到 [issue](https://github.com/turingou/douban.fm/issues) 板块先检索是否有人遇到相同的错误，或者直接发帖求助。
 
