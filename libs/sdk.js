@@ -43,10 +43,17 @@ exports.love = function(params, callback) {
 
 // 获取频道列表
 exports.channels = function(callback) {
+    var privateHz = {
+        seq_id: -3,
+        abbr_en: "",
+        name: "红心兆赫",
+        channel_id: -3,
+        name_en: ""
+    };
     api.get('http://douban.fm/j/app/radio/channels', {}, function(err, result) {
         if (err) return callback(err);
         var result = result.body;
-        if (result.channels && result.channels.length) return callback(null, result.channels);            
-        callback(new Error(result.err));
+        if (!result.channels) return callback(new Error(result.err));
+        return callback(null, [privateHz].concat(result.channels));
     });
 };
