@@ -32,10 +32,16 @@ $ douban.fm
 ````
 收听私人频道需要设置账户信息。账户信息、配置文件与歌曲将会保存在 `~/douban.fm` 目录
 ````
-$ douban.fm -m email@domain.com mypassword
+$ douban.fm config
+$ prompt: Douban Email: 输入豆瓣账户邮箱
+$ prompt: Douban Password: 输入豆瓣账户密码
+````
+如果你忘了快捷键设置，可以打开帮助菜单：
+````
+$ douban.fm help
 ````
 
-### 快捷键列表
+### 菜单快捷键列表
 
 在相应的命令行菜单中，按下以下快捷键，可以在收听豆瓣电台的过程中，标注自己喜欢的红心歌曲，
 跳转到专辑的介绍页面，或者分享这首歌曲到你的新浪微博。
