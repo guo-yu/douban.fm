@@ -5,8 +5,13 @@
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg)
 
 ### 如何安装
+从 NPM 中安装稳定的版本
 ````
 $ [sudo] npm install douban.fm -g
+````
+从 Git 仓库中安装最新的开发版本：
+````
+$ [sudo] npm install -g 
 ````
 
 ### 模块依赖
