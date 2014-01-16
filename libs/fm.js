@@ -36,7 +36,8 @@ Fm.prototype.play = function(channel, user) {
     // 检查是否是私人兆赫，如果没有设置账户直接返回
     if (channel.channel_id == 0 && !account.token) return self.update(channel.index, color.yellow(errors.account_missing));
     // 如果正在播放，重置播放器，清除标签
-    if (self.player && (self.player.status === 'playing' || self.player.status === 'downloading')) {
+    if (self.player && self.player.status === 'downloading') return false;
+    if (self.player && self.player.status === 'playing') {
         if (typeof(self.channel) != undefined) self.update(self.channel, '');
         self.player.stop();
         self.player.status = 'stoped';
