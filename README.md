@@ -11,7 +11,7 @@ $ [sudo] npm install douban.fm -g
 ````
 从 Git 仓库中安装最新的开发版本：
 ````
-$ [sudo] npm install -g 
+$ [sudo] npm install -g https://github.com/turingou/douban.fm.git
 ````
 
 ### 模块依赖

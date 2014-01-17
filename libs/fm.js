@@ -31,20 +31,26 @@ var Fm = function(params) {
 };
 
 Fm.prototype.play = function(channel, user) {
-    var self = this;
-    var account = user && user.account ? user.account : {};
+    
+    var self = this,
+        account = user && user.account ? user.account : {},
+        privateHz = (channel.channel_id == 0 || channel.channel_id == -3) && !account.token;
+
     // 检查是否是私人兆赫，如果没有设置账户直接返回
-    if (channel.channel_id == 0 && !account.token) return self.update(channel.index, color.yellow(errors.account_missing));
-    // 如果正在播放，重置播放器，清除标签
-    if (self.player && self.player.status === 'downloading') return false;
-    if (self.player && self.player.status === 'playing') {
+    if (privateHz) return self.update(channel.index, color.yellow(errors.account_missing));
+    if (self.status === 'fetching' || self.status === 'downloading') return false;
+    if (self.status === 'playing') {
         if (typeof(self.channel) != undefined) self.update(self.channel, '');
         self.player.stop();
         self.player.status = 'stoped';
         self.player = null;
     }
+
+    self.clear(-1, color.yellow('||'));
     self.channel = channel.index;
+    self.status = 'fetching';
     self.update(channel.index, color.grey('加载列表中，请稍等...'));
+
     // 获取相应频道的曲目
     sdk.fetch({
         channel: channel.channel_id,
@@ -55,17 +61,20 @@ Fm.prototype.play = function(channel, user) {
     }, function(err, songs, result) {
         if (err) return self.update(channel.index, color.red(err.toString()));
         if (result && !result.warning) self.label(-1, color.inverse(' PRO '));
+        self.status = 'ready';
         self.player = new Player(songs, {
             srckey: 'url',
             downloads: self.home
         });
         self.player.play();
-        // 同步下载不太好，但是在解决 stream 的无法 catch 到抛错之前没有办法。
+        // 同步下载不太好，但是在解决 stream 的无法获取抛错之前没有好办法
         self.player.on('downloading', function(url) {
+            self.status = 'downloading';
             self.update(channel.index, color.grey('下载歌曲中，请稍等...'));
         });
         // 更新歌单
         self.player.on('playing', function(song) {
+            self.status = 'playing';
             self.update(
                 channel.index,
                 printf(
@@ -81,6 +90,7 @@ Fm.prototype.play = function(channel, user) {
                 )
             );
             if (song._id < self.player.list.length - 1) return false;
+            self.status = 'switching';
             return sdk.fetch({
                 channel: channel.channel_id,
                 user_id: account.user_id,
@@ -89,6 +99,7 @@ Fm.prototype.play = function(channel, user) {
                 kbps: 192
             }, function(err, songs) {
                 if (err) return false;
+                // 没有对尝试获取列表失败进行处理，如果失败2次，则不会再播放任何歌曲
                 if (!songs) return false;
                 return songs.forEach(function(s, index) {
                     s._id = self.player.list.length;
@@ -119,7 +130,7 @@ Fm.prototype.loving = function(channel, user) {
         var tips = !(song.like) ? color.red('♥') : color.grey('♥');
         if (err) tips = color.red('x');
         if (!err) self.player.playing.like = !song.like;
-        // 这里有冗余代码
+        // TODO: 这里有冗余代码
         self.clear(-1, '正在加载...');
         return self.update(
             self.channel,
@@ -139,13 +150,14 @@ Fm.prototype.loving = function(channel, user) {
 }
 
 Fm.prototype.next = function() {
-    if (this.player) return this.player.next();
-    return false;
+    if (!this.player) return false;
+    return this.player.next();
 }
 
 Fm.prototype.stop = function() {
-    if (this.player) return this.player.stop();
-    return false;
+    if (!this.player) return false;
+    this.label(-1, color.yellow('||'));
+    return this.player.stop();
 }
 
 Fm.prototype.quit = function() {
