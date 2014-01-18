@@ -47,6 +47,7 @@ Fm.prototype.play = function(channel, user) {
     }
 
     self.clear(-1, color.yellow('||'));
+    self.clear(-1, color.yellow('>>'));
     self.channel = channel.index;
     self.status = 'fetching';
     self.update(channel.index, color.grey('加载列表中，请稍等...'));
@@ -75,6 +76,7 @@ Fm.prototype.play = function(channel, user) {
         // 更新歌单
         self.player.on('playing', function(song) {
             self.status = 'playing';
+            self.label(-1, color.yellow('>>'));
             self.update(
                 channel.index,
                 printf(
@@ -156,6 +158,7 @@ Fm.prototype.next = function() {
 
 Fm.prototype.stop = function() {
     if (!this.player) return false;
+    this.clear(-1, color.yellow('>>'));
     this.label(-1, color.yellow('||'));
     return this.player.stop();
 }
