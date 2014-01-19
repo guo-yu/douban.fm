@@ -31,7 +31,7 @@ var Fm = function(params) {
 };
 
 Fm.prototype.play = function(channel, user) {
-    
+
     var self = this,
         account = user && user.account ? user.account : {},
         privateHz = (channel.channel_id == 0 || channel.channel_id == -3) && !account.token;
@@ -204,7 +204,9 @@ Fm.prototype.album = function(link) {
 Fm.prototype.go = function(channel, user, link) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
-    return exeq(['open ' + (link ? link : this.album(this.player.playing.album))]).run();
+    return exeq([
+        'open ' + (link ? link : this.album(this.player.playing.album))
+    ]).run();
 }
 
 Fm.prototype.share = function(channel, user) {
@@ -216,19 +218,18 @@ Fm.prototype.share = function(channel, user) {
         'http://service.weibo.com/share/share.php?' +
         '&type=button' +
         '&style=number' +
-        '&appkey=5rjNpN' + // api key guoyu.me: [1kf7C9] douban.fm: [5rjNpN]
-        '&ralateUid=1644105187' + // related uid @guoyu
+        '&appkey=5rjNpN' +
+        '&ralateUid=1644105187' +
         '&url=' +
         sys.repository.url +
         '&pic=' +
-        (song.picture ? song.picture.replace('mpic','lpic') : '') +
+        (song.picture ? song.picture.replace('mpic', 'lpic') : '') +
         '%7C%7C' +
         'http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg' +
         '&title=' +
         encodeURIComponent(
             [
-                user && user.account ? user.account.user_name : '',
-                '正在使用豆瓣电台命令行版 v' + sys.version + ' 收听 ',
+                '我正在用豆瓣电台命令行版 v' + sys.version + ' 收听 ',
                 song.like ? '[心]' : '',
                 song.title,
                 song.kbps + 'kbps',
