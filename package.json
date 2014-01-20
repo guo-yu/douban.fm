@@ -9,7 +9,8 @@
         "test": "./node_modules/mocha/bin/mocha ./test/test.js"
     },
     "bin": {
-        "douban.fm": "./bin/cli"
+        "douban.fm": "./bin/cli",
+        "doubanfm": "./bin/cli"
     },
     "repository": {
         "type": "git",
