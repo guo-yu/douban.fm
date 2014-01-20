@@ -11,7 +11,7 @@ $ [sudo] npm install douban.fm -g
 ````
 从 Git 仓库中安装最新的开发版本：
 ````
-$ [sudo] npm install -g https://github.com/turingou/douban.fm.git
+$ [sudo] npm install git://github.com/turingou/douban.fm.git -g
 ````
 
 ### 模块依赖
@@ -101,7 +101,7 @@ Fm.sdk.channel({
 ````
 $ git clone https://github.com/turingou/douban.fm.git
 $ cd douban.fm
-$ npm install 
+$ npm install
 $ npm test
 ````
 
