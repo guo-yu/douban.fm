@@ -164,6 +164,7 @@ Fm.prototype.stop = function() {
 }
 
 Fm.prototype.quit = function() {
+    if (this.menu) this.menu.stop();
     return process.exit();
 }
 
