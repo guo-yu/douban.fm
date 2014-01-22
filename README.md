@@ -19,6 +19,8 @@ $ [sudo] npm install git://github.com/turingou/douban.fm.git -g
 由于需要使用到 speaker 等模块，安装时需要编译文件，对安装环境有一定要求。
 推荐在 Mac OSX 下使用，在安装之前或安装遇到问题时，确保以下依赖状态正常：
 
+#### linux & mac
+
 * 安装了 python 2.x 并配置好环境变量
 * 安装了 node-gyp 编译工具
 * 安装了 xcode，或已安装 xcodebuild 工具和 command line tools 工具集
@@ -26,8 +28,18 @@ $ [sudo] npm install git://github.com/turingou/douban.fm.git -g
 * 非 Mac OSX 用户需要检查 `node-speaker` 模块的外部依赖情况，详见 [node-speaker 文档](https://github.com/TooTallNate/node-speaker/#audio-backend-selection)，按照你使用的操作系统安装相应外部依赖
 * 确保权限一致。如果没有使用 sudo 则尝试使用 sudo 安装
 * 各种 linux 发行版外部依赖问题，先确认是否安装了 libasound2，如果没有，尝试 `sudo apt-get install libasound2-dev`，fedora 下 `yum install alsa-lib-devel`
+ 
+#### windows
+
+* 最新版本的 *x86*  [Node.js for Windows](http://nodejs.org/download/),注意不要安装  *x64* 版本。
+* 安装 [Visual C++ 2010 Express](http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express)。
+* 安装 [Python 2.7](http://www.python.org/download/), installed in the default location of `C:\Python27`。
+
+安装的时候都用默认的下一步吧,保险起见再重启一下电脑,现在,你的windows系统就可以安装带有c++ addons的Node.js 模块了。 
 
 如果遇到无法解决的问题，请到 [issue](https://github.com/turingou/douban.fm/issues) 板块先检索是否有人遇到相同的错误，或者直接发帖求助。
+
+
 
 ### 使用方法
 
