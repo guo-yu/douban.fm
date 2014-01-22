@@ -28,7 +28,8 @@ var fs = require('fs'),
     sys = require('../package'),
     sdk = require('./sdk'),
     utils = require('./utils'),
-    errors = require('./errors');
+    errors = require('./errors'),
+    openBrowser = process.platform === 'win32' ? 'start' : 'open';
 
 var shorthands = {
     'return': 'play',
@@ -222,7 +223,7 @@ Fm.prototype.go = function(channel, user, link) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
     return exeq([
-        'open ' + (link ? link : this.album(this.player.playing.album))
+        openBrowser + ' ' + (link ? link : this.album(this.player.playing.album))
     ]).run();
 }
 
@@ -231,8 +232,8 @@ Fm.prototype.share = function(channel, user) {
     if (!this.player.playing) return false;
     var self = this;
     var song = self.player.playing;
-    return self.go(null, null,
-        'http://service.weibo.com/share/share.php?' +
+    
+    var shareText = 'http://service.weibo.com/share/share.php?' +
         '&type=button' +
         '&style=number' +
         '&appkey=5rjNpN' +
@@ -257,8 +258,14 @@ Fm.prototype.share = function(channel, user) {
                 song.public_time,
                 self.album(song.album)
             ].join(' ')
-        )
-    );
+        );
+
+    if(process.platform === 'win32'){
+        //win 下终端 & 需要转义
+        shareText = shareText.replace(/&/g, '^&');
+    }
+    
+    return self.go(null, null, shareText);
 }
 
 Fm.prototype.createMenu = function(callback) {
