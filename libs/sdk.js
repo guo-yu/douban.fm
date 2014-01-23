@@ -57,3 +57,20 @@ exports.channels = function(callback) {
         return callback(null, [privateHz].concat(result.channels));
     });
 };
+
+exports.lrc = function(title,artist,callback){
+    api.get('http://geci.me/api/lyric/'+title+'/' + artist, {}, function(err, result) {
+        if (err) return callback(err);
+        var result = result.body;
+        if (result.count > 0){
+            var lrc = result.result[0].lrc;
+            api.get(lrc, {}, function(err, result) {
+                if (err) return callback(err);
+                var result = result.body;
+                callback(result);
+            });
+        }else{
+            callback(result.err);
+        }
+    });
+}

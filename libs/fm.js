@@ -38,13 +38,15 @@ var shorthands = {
     'l': 'loving',
     'n': 'next',
     'q': 'quit',
-    's': 'share'
+    's': 'share',
+    'b': 'lrc'
 };
 
 var Fm = function(params) {
     this.home = params && params.home ? params.home : path.join(utils.home(), 'douban.fm');
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
+    this.song;
 };
 
 Fm.prototype.play = function(channel, user) {
@@ -94,6 +96,7 @@ Fm.prototype.play = function(channel, user) {
         self.player.on('playing', function(song) {
             self.status = 'playing';
             self.label(-1, color.yellow('>>'));
+            self.song = song;
             self.update(
                 channel.index,
                 printf(
@@ -225,6 +228,15 @@ Fm.prototype.go = function(channel, user, link) {
     return exeq([
         openBrowser + ' ' + (link ? link : this.album(this.player.playing.album))
     ]).run();
+}
+
+Fm.prototype.lrc = function() {
+    var title = this.song.title;
+    var author = this.song.artist;
+    sdk.lrc(title,author,function(data){
+        //TODO 更好输出和 滚动?
+        console.log(data);
+    });
 }
 
 Fm.prototype.share = function(channel, user) {
