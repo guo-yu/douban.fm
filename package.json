@@ -36,7 +36,8 @@
         "sprintf": "*",
         "paramrule": "*",
         "term-list": "*",
-        "underscore": "*"
+        "underscore": "*",
+        "lrc": "*"
     },
     "devDependencies": {
         "mocha": "*",

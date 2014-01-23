@@ -25,6 +25,7 @@ var fs = require('fs'),
     params = require('paramrule'),
     consoler = require('consoler'),
     exeq = require('exeq'),
+    Lrc = require('lrc').Lrc,
     sys = require('../package'),
     sdk = require('./sdk'),
     utils = require('./utils'),
@@ -39,7 +40,7 @@ var shorthands = {
     'n': 'next',
     'q': 'quit',
     's': 'share',
-    'b': 'lrc'
+    'b': 'showLrc'
 };
 
 var Fm = function(params) {
@@ -97,6 +98,7 @@ Fm.prototype.play = function(channel, user) {
             self.status = 'playing';
             self.label(-1, color.yellow('>>'));
             self.song = song;
+            self.playLrc();
             self.update(
                 channel.index,
                 printf(
@@ -230,14 +232,28 @@ Fm.prototype.go = function(channel, user, link) {
     ]).run();
 }
 
-Fm.prototype.lrc = function() {
+Fm.prototype.playLrc = function() {
+    var self = this;
     var title = this.song.title;
     var author = this.song.artist;
     sdk.lrc(title,author,function(data){
         //TODO 更好输出和 滚动?
-        console.log(data);
+        if(!data){
+            self.outputLrc('没找到歌词');
+        }else{
+            var lrc = new Lrc(data.toString(),function(line,extra){
+                self.outputLrc(line);
+            });
+            lrc.play(0);
+        }
+        
     });
 }
+
+Fm.prototype.outputLrc = function(lrc) {
+    console.log(lrc);
+}
+
 
 Fm.prototype.share = function(channel, user) {
     if (!this.player) return false;
