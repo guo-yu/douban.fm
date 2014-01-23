@@ -237,15 +237,18 @@ Fm.prototype.playLrc = function() {
     var self = this;
     var title = this.song.title;
     var author = this.song.artist;
+    if(self.lrc){
+        self.lrc.stop();
+    }
     sdk.lrc(title,author,function(data){
         if(!data){
             self.outputLrc('没找到歌词');
         }else{
             self.outputLrc('正在拼命加载歌词....');
-            var lrc = new Lrc(data.toString(),function(line,extra){
+            self.lrc = new Lrc(data.toString(),function(line,extra){
                 self.outputLrc(line);
             });
-            lrc.play(0);
+            self.lrc.play(0);
         }
         
     });
