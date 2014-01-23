@@ -359,7 +359,6 @@ Fm.prototype.createMenu = function(callback) {
             });
         });
     });
-    // this.line = new Line();
     if (callback && typeof(callback) === 'function') return callback();
 };
 
