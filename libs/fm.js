@@ -237,10 +237,10 @@ Fm.prototype.playLrc = function() {
     var title = this.song.title;
     var author = this.song.artist;
     sdk.lrc(title,author,function(data){
-        //TODO 更好输出和 滚动?
         if(!data){
             self.outputLrc('没找到歌词');
         }else{
+            self.outputLrc('正在拼命加载歌词....');
             var lrc = new Lrc(data.toString(),function(line,extra){
                 self.outputLrc(line);
             });
@@ -251,7 +251,9 @@ Fm.prototype.playLrc = function() {
 }
 
 Fm.prototype.outputLrc = function(lrc) {
-    console.log(lrc);
+    this.menu.remove(this.menuIndex);
+    this.menu.add(this.menuIndex,lrc);
+    this.menu.draw();
 }
 
 
@@ -299,6 +301,7 @@ Fm.prototype.share = function(channel, user) {
 Fm.prototype.createMenu = function(callback) {
     var self = this;
     var shorthands = self.shorthands;
+    self.menuIndex = 0;
     sdk.channels(function(err, list) {
         if (err) return consoler.error('获取豆瓣电台频道出错，请稍后再试');
         self.configs(function(err, user) {
@@ -325,6 +328,7 @@ Fm.prototype.createMenu = function(callback) {
                 channel.index = index;
                 self.menu.add(index, channel.name);
                 self.channels[index] = channel;
+                self.menuIndex++;
             });
             // start menu
             self.menu.start();
@@ -340,6 +344,7 @@ Fm.prototype.createMenu = function(callback) {
             });
         });
     });
+    // this.line = new Line();
     if (callback && typeof(callback) === 'function') return callback();
 };
 
