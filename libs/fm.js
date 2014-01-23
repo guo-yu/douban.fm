@@ -40,7 +40,7 @@ var shorthands = {
     'n': 'next',
     'q': 'quit',
     's': 'share',
-    'b': 'showLrc'
+    'r': 'showLrc'
 };
 
 var Fm = function(params) {
@@ -48,6 +48,7 @@ var Fm = function(params) {
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
     this.song;
+    this.isShowLrc = true;
 };
 
 Fm.prototype.play = function(channel, user) {
@@ -251,9 +252,23 @@ Fm.prototype.playLrc = function() {
 }
 
 Fm.prototype.outputLrc = function(lrc) {
-    this.menu.remove(this.menuIndex);
-    this.menu.add(this.menuIndex,lrc);
-    this.menu.draw();
+    if(this.isShowLrc){
+        this.menu.remove(this.menuIndex);
+        this.menu.add(this.menuIndex,'歌词:   '+lrc);
+        this.menu.draw();
+    }
+}
+
+Fm.prototype.showLrc = function(lrc) {
+    if(this.isShowLrc){
+        this.isShowLrc = false;
+        this.menu.remove(this.menuIndex);
+        this.menu.draw();
+    }else{
+        this.isShowLrc = true;
+        this.menu.add(this.menuIndex,'歌词开启');
+        this.menu.draw();
+    }
 }
 
 
