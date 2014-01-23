@@ -47,7 +47,6 @@ var Fm = function(params) {
     this.home = params && params.home ? params.home : path.join(utils.home(), 'douban.fm');
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
-    this.song;
     this.isShowLrc = true;
 };
 
@@ -98,8 +97,7 @@ Fm.prototype.play = function(channel, user) {
         self.player.on('playing', function(song) {
             self.status = 'playing';
             self.label(-1, color.yellow('>>'));
-            self.song = song;
-            self.playLrc();
+            self.playLrc(song);
             self.update(
                 channel.index,
                 printf(
@@ -233,20 +231,20 @@ Fm.prototype.go = function(channel, user, link) {
     ]).run();
 }
 
-Fm.prototype.playLrc = function() {
+Fm.prototype.playLrc = function(song) {
     var self = this;
-    var title = this.song.title;
-    var author = this.song.artist;
+    var title = song.title;
+    var author = song.artist;
     if(self.lrc){
         self.lrc.stop();
     }
     sdk.lrc(title,author,function(data){
         if(!data){
-            self.outputLrc('没找到歌词');
+            self.printLrc('没找到歌词');
         }else{
-            self.outputLrc('正在拼命加载歌词....');
+            self.printLrc('正在拼命加载歌词....');
             self.lrc = new Lrc(data.toString(),function(line,extra){
-                self.outputLrc(line);
+                self.printLrc(line);
             });
             self.lrc.play(0);
         }
@@ -254,7 +252,7 @@ Fm.prototype.playLrc = function() {
     });
 }
 
-Fm.prototype.outputLrc = function(lrc) {
+Fm.prototype.printLrc = function(lrc) {
     if(this.isShowLrc){
         this.menu.remove(this.menuIndex);
         this.menu.add(this.menuIndex,'歌词:   '+lrc);
