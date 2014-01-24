@@ -14,7 +14,7 @@ TermList.prototype.adds = function(items, max) {
     if (items.length === 0) return false;
     var self = this,
         menu = this.menu,
-        limit = 15 || max;
+        limit = 16 || max;
     items.forEach(function(item, index){
         if (index > limit) return false;
         if (typeof(item) === 'object') item.index = index;
@@ -27,26 +27,28 @@ TermList.prototype.adds = function(items, max) {
 TermList.prototype.on = function(event, callback) {
     var menu = this.menu;
     menu.on(event, callback);
-    menu.on('empty', function() {
-        menu.stop();
-    });
     return this;
 }
 
 TermList.prototype.start = function(by) {
     this.menu.start();
-    if (by) self.menu.select(by);
+    if (by) this.menu.select(by);
     return this;
+}
+
+TermList.prototype.stop = function() {
+    if (this.menu) this.menu.stop();
+    return false;
 }
 
 TermList.prototype.update = function(index, text) {
     var menu = this.menu;
-    var item = menu.items[index];
+    var item = this.items[index];
     if (!item) return false;
-    var original = typeof(item) === 'string' ? item : item.name;
+    var original = (typeof(item) === 'string') ? item : item.name;
     var t = text ? ' ' + text : '';
     menu.at(index).label = original + t;
-    menu.redraw();
+    menu.draw();
     return false;
 }
 
