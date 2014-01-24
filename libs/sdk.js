@@ -58,19 +58,18 @@ exports.channels = function(callback) {
     });
 };
 
-exports.lrc = function(title,artist,callback){
-    api.get('http://geci.me/api/lyric/'+title+'/' + artist, {}, function(err, result) {
+// 获取歌词
+// 获取歌词的速度或许太慢...
+exports.lrc = function(title, artist, callback) {
+    api.get('http://geci.me/api/lyric/' + title + '/' + artist, {}, function(err, result) {
         if (err) return callback(err);
         var result = result.body;
-        if (result.count > 0){
-            var lrc = result.result[0].lrc;
-            api.get(lrc, {}, function(err, result) {
-                if (err) return callback(err);
-                var result = result.body;
-                callback(result);
-            });
-        }else{
-            callback(result.err);
-        }
+        if (result.count <= 0) return callback(result.err);
+        var lrc = result.result[0].lrc;
+        api.get(lrc, {}, function(err, result) {
+            if (err) return callback(err);
+            var result = result.body;
+            return callback(result);
+        });
     });
 }

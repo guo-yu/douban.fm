@@ -69,6 +69,7 @@ $ douban.fm help
 [n]           - >     本频道列表的下一首歌曲 (NEXT)
 [l]           - >     添加到红心列表或者删除红心 (LOVE)
 [s]           - >     分享当前歌曲到新浪微博 (SHARE)
+[r]           - >     开启或关闭歌词 (LRC)
 [g]           - >     跳转到当前播放歌曲的专辑页面 (GOTO)
 [q]           - >     退出豆瓣电台 (QUIT)
 ````
@@ -76,6 +77,9 @@ $ douban.fm help
 ### Pro 用户
 支持 pro 用户收听高码率 mp3，pro 用户默认会先寻找 192kbps 的歌曲播放，非 pro 用户不受影响。
 在同样的网络情况下，收听高码率的电台可能意味着加载资源的速度更慢，但是目前豆瓣电台命令行版还不支持随时自定义码率。
+
+### 歌词显示
+豆瓣电台命令行版 `>= 0.1.2` 版本支持显示歌词功能，默认开启，可以使用快捷键 `R` 关闭。
 
 ### 范例代码
 
@@ -108,6 +112,17 @@ Fm.sdk.channel({
     console.log(songs)
 });
 ````
+
+### 致谢
+
+豆瓣电台命令行版作为一款开源命令行播放器，有你们的参与才能日趋完善：
+
+- 感谢 [ZoomQuiet](https://github.com/ZoomQuiet) 不遗余力地试用和建议。
+- 感谢 [zhuangya](https://github.com/zhuangya) 改良了配置账户的操作 [#32](https://github.com/turingou/douban.fm/pull/32)
+- 感谢 [anson0370](https://github.com/anson0370) 解决了退出后光标消失的 bug [#53](https://github.com/turingou/douban.fm/pull/53)
+- 感谢 [youxiachai](https://github.com/youxiachai) 增加了对 windows 的分享支持 [#54](https://github.com/turingou/douban.fm/pull/54)
+- 感谢 [buhe](https://github.com/buhe) 增加显示歌词的功能 [#58](https://github.com/turingou/douban.fm/pull/58)
+- 感谢 [JacksonTian](https://github.com/JacksonTian) 改善了 `player` 模块 [#2](https://github.com/turingou/player/pull/2)
 
 ### 单元测试 (Mocha)
 ````
