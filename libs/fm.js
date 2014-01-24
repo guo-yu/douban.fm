@@ -66,7 +66,7 @@ Fm.prototype.play = function(channel, user) {
     }, function(err, songs, result) {
         if (err) return menu.update(channel.index, color.red(err.toString()));
         // 标记 PRO 账户
-        if (result && !result.warning) menu.update(1, color.inverse(' PRO '));
+        if (result && !result.warning) menu.update(0, color.inverse(' PRO '));
         self.status = 'ready';
         self.player = new Player(songs, {
             srckey: 'url',
@@ -81,7 +81,7 @@ Fm.prototype.play = function(channel, user) {
         // 更新歌单
         self.player.on('playing', function(song) {
             self.status = 'playing';
-            menu.update(1, color.yellow('>>'));
+            menu.update(0, color.yellow('>>'));
             // lrc.playLrc(self, song);
             menu.update(
                 channel.index,
