@@ -1,20 +1,18 @@
 var fs = require('fs'),
     path = require('path'),
     exeq = require('exeq'),
-    _ = require('underscore'),
     mkdirp = require('mkdirp'),
     Player = require('player'),
     color = require('colorful'),
-    List = require('term-list'),
     printf = require('sprintf').sprintf,
     params = require('paramrule'),
     consoler = require('consoler'),
     sys = require('../package'),
-    termList = require('./term-list'),
     sdk = require('./sdk'),
     lrc = require('./lrc'),
     utils = require('./utils'),
-    errors = require('./errors');
+    errors = require('./errors'),
+    termList = require('./term-list');
 
 // 快捷键列表
 var shorthands = {
@@ -38,25 +36,25 @@ var Fm = function(params) {
 Fm.prototype.play = function(channel, user) {
 
     var self = this,
+        menu = self.menu,
         account = user && user.account ? user.account : {},
         privateHz = (channel.channel_id == 0 || channel.channel_id == -3) && !account.token;
 
     // 检查是否是私人兆赫，如果没有设置账户直接返回
-    if (privateHz) return self.update(channel.index, color.yellow(errors.account_missing));
+    if (privateHz) return menu.update(channel.index, color.yellow(errors.account_missing));
     if (self.status === 'fetching' || self.status === 'downloading') return false;
     if (self.status === 'playing') {
-        if (typeof(self.channel) != undefined) self.update(self.channel, '');
+        if (typeof(self.channel) != undefined) menu.clear(self.channel);
         self.player.stop();
         self.player.status = 'stoped';
         self.player = null;
     }
 
     // 清除标志状态，加载标志
-    self.clear(-1, color.yellow('||'));
-    self.clear(-1, color.yellow('>>'));
+    menu.clear(1);
     self.channel = channel.index;
     self.status = 'fetching';
-    self.update(channel.index, color.grey('加载列表中，请稍等...'));
+    menu.update(channel.index, color.grey('加载列表中，请稍等...'));
 
     // 获取相应频道的曲目
     sdk.fetch({
@@ -66,9 +64,9 @@ Fm.prototype.play = function(channel, user) {
         token: account.token,
         kbps: 192
     }, function(err, songs, result) {
-        if (err) return self.update(channel.index, color.red(err.toString()));
+        if (err) return menu.update(channel.index, color.red(err.toString()));
         // 标记 PRO 账户
-        if (result && !result.warning) self.label(-1, color.inverse(' PRO '));
+        if (result && !result.warning) menu.label(1, color.inverse(' PRO '));
         self.status = 'ready';
         self.player = new Player(songs, {
             srckey: 'url',
@@ -78,14 +76,14 @@ Fm.prototype.play = function(channel, user) {
         // 同步下载不太好，但是在解决 stream 的无法获取抛错之前没有好办法
         self.player.on('downloading', function(url) {
             self.status = 'downloading';
-            self.update(channel.index, color.grey('下载歌曲中，请稍等...'));
+            menu.update(channel.index, color.grey('下载歌曲中，请稍等...'));
         });
         // 更新歌单
         self.player.on('playing', function(song) {
             self.status = 'playing';
-            self.label(-1, color.yellow('>>'));
+            menu.label(1, color.yellow('>>'));
             lrc.playLrc(self, song);
-            self.update(
+            menu.update(
                 channel.index,
                 printf(
                     '%s %s %s %s %s %s %s %s',
@@ -124,9 +122,10 @@ Fm.prototype.loving = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
     if (!user || !user.account) return false;
-    var self = this;
-    var account = user && user.account ? user.account : {};
-    var song = self.player.playing;
+    var self = this,
+        menu = self.menu,
+        account = user && user.account ? user.account : {},
+        song = self.player.playing;
     var query = {
         sid: song.sid,
         channel: self.channel,
@@ -135,14 +134,14 @@ Fm.prototype.loving = function(channel, user) {
         token: account.token
     };
     if (song.like) query.type = 'u';
-    self.label(-1, '正在加载...');
+    menu.update(1, '正在加载...');
     sdk.love(query, function(err, result) {
         var tips = !(song.like) ? color.red('♥') : color.grey('♥');
         if (err) tips = color.red('x');
         if (!err) self.player.playing.like = !song.like;
         // TODO: 这里有冗余代码
-        self.clear(-1, '正在加载...');
-        return self.update(
+        menu.clear(-1);
+        return menu.update(
             self.channel,
             printf(
                 '%s %s %s %s %s %s %s %s',
@@ -167,8 +166,8 @@ Fm.prototype.next = function() {
 Fm.prototype.stop = function() {
     if (!this.player) return false;
     var menu = this.menu;
-    menu.clear(-1, color.yellow('>>'));
-    menu.label(-1, color.yellow('||'));
+    menu.clear(1);
+    menu.label(1, color.yellow('||'));
     return this.player.stop();
 }
 
