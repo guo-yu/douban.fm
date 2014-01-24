@@ -254,20 +254,32 @@ Fm.prototype.playLrc = function(song) {
 
 Fm.prototype.printLrc = function(lrc) {
     if(this.isShowLrc){
+        var currentMenu = this.currentMenu;
         this.menu.remove(this.menuIndex);
         this.menu.add(this.menuIndex,'歌词:   '+lrc);
+        if(currentMenu){
+            this.menu.select(currentMenu);
+        }
         this.menu.draw();
     }
 }
 
 Fm.prototype.showLrc = function(lrc) {
     if(this.isShowLrc){
+        var currentMenu = this.currentMenu;
         this.isShowLrc = false;
         this.menu.remove(this.menuIndex);
+        if(currentMenu){
+            this.menu.select(currentMenu);
+        }
         this.menu.draw();
     }else{
         this.isShowLrc = true;
+        var currentMenu = this.currentMenu;
         this.menu.add(this.menuIndex,'歌词开启');
+        if(currentMenu){
+            this.menu.select(currentMenu);
+        }
         this.menu.draw();
     }
 }
@@ -353,6 +365,7 @@ Fm.prototype.createMenu = function(callback) {
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
                 if (index < 0 && key.name != 'q') return exeq(['open ' + sys.repository.url]).run();
+                self.currentMenu = index;
                 return self[shorthands[key.name]](self.channels[index], user);
             });
             self.menu.on('empty', function() {
