@@ -1,5 +1,6 @@
 var fs = require('fs'),
     path = require('path'),
+    exeq = require('exeq'),
     _ = require('underscore'),
     mkdirp = require('mkdirp'),
     Player = require('player'),
@@ -8,10 +9,10 @@ var fs = require('fs'),
     printf = require('sprintf').sprintf,
     params = require('paramrule'),
     consoler = require('consoler'),
-    exeq = require('exeq'),
-    Lrc = require('lrc').Lrc,
     sys = require('../package'),
+    termList = require('./term-list'),
     sdk = require('./sdk'),
+    lrc = require('./lrc'),
     utils = require('./utils'),
     errors = require('./errors');
 
@@ -165,43 +166,15 @@ Fm.prototype.next = function() {
 
 Fm.prototype.stop = function() {
     if (!this.player) return false;
-    this.clear(-1, color.yellow('>>'));
-    this.label(-1, color.yellow('||'));
+    var menu = this.menu;
+    menu.clear(-1, color.yellow('>>'));
+    menu.label(-1, color.yellow('||'));
     return this.player.stop();
 }
 
 Fm.prototype.quit = function() {
     if (this.menu) this.menu.stop();
     return process.exit();
-}
-
-Fm.prototype.label = function(index, banner) {
-    if (!this.menu) return false;
-    var original = this.menu.at(index + 2).label;
-    if (original.indexOf(banner) > -1) return false;
-    this.menu.at(index + 2).label = original + ' ' + banner;
-    return this.redraw();
-}
-
-Fm.prototype.update = function(index, banner) {
-    if (!this.menu) return false;
-    if (!this.channels[index]) return this.label(index, banner);
-    this.menu.at(index + 2).label = this.channels[index].name + ' ' + banner;
-    return this.redraw();
-}
-
-Fm.prototype.clear = function(index, banner) {
-    if (!this.menu) return false;
-    var item = this.menu.at(index + 2);
-    if (item.label.indexOf(banner) === -1) return false;
-    item.label = item.label.substr(0, item.label.indexOf(' ' + banner));
-    return this.redraw();
-}
-
-Fm.prototype.redraw = function() {
-    if (!this.menu) return false;
-    this.menu.draw();
-    return false;
 }
 
 Fm.prototype.go = function(channel, user, link) {
@@ -249,50 +222,31 @@ Fm.prototype.share = function(channel, user) {
 }
 
 Fm.prototype.createMenu = function(callback) {
-    var self = this;
-    var shorthands = self.shorthands;
-    self.menuIndex = 0;
+    var self = this,
+        shorthands = self.shorthands;
+    // self.menuIndex = 0;
     sdk.channels(function(err, list) {
         if (err) return consoler.error('获取豆瓣电台频道出错，请稍后再试');
         self.configs(function(err, user) {
-            // init menu
-            self.channels = {};
-            self.menu = new List({
-                marker: '\033[36m› \033[0m',
-                markerLength: 2
-            });
-            // add padding-top
-            self.menu.add(-2, '');
-            // add logo
-            self.menu.add(-1, printf(
-                '%s %s %s',
-                color.yellow('Douban FM'),
-                color.grey('v' + sys.version),
-                user && user.account && user.account.user_name ?
-                color.grey('/ ' + user.account.user_name) :
-                ''
-            ));
-            // add channels
-            _.each(list, function(channel, index) {
-                if (index > 15) return false; // 屏幕里放不下那么多电台的 -,-||
-                channel.index = index;
-                self.menu.add(index, channel.name);
-                self.channels[index] = channel;
-                self.menuIndex++;
-            });
-            // start menu
-            self.menu.start();
-            self.menu.select(-1);
-            // bind events
-            self.menu.on('keypress', function(key, index) {
+            self.menu = new termList();
+            self.menu.adds(
+                ['',
+                printf(
+                    '%s %s %s',
+                    color.yellow('Douban FM'),
+                    color.grey('v' + sys.version),
+                    user && user.account && user.account.user_name ?
+                    color.grey('/ ' + user.account.user_name) :
+                    ''
+                )].concat(list)
+            )
+            self.menu.on('keypress', function(key, index){
                 if (!shorthands[key.name]) return false;
-                if (index < 0 && key.name != 'q') return utils.go(sys.repository.url);
-                self.currentMenu = index;
-                return self[shorthands[key.name]](self.channels[index], user);
+                if (index < 2 && key.name != 'q') return utils.go(sys.repository.url);
+                // self.currentMenu = index;
+                return self[shorthands[key.name]](self.menu.items[index], user);
             });
-            self.menu.on('empty', function() {
-                menu.stop();
-            });
+            self.menu.start(1);
         });
     });
     if (!callback || typeof(callback) !== 'function') return false;
@@ -335,7 +289,6 @@ Fm.prototype.configs = function() {
     });
 };
 
-// init player
 Fm.prototype.init = function(callback) {
     var self = this;
     fs.exists(self.home, function(exist) {

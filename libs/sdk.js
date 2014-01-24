@@ -65,11 +65,11 @@ exports.lrc = function(title, artist, callback) {
         if (err) return callback(err);
         var result = result.body;
         if (result.count <= 0) return callback(result.err);
+        if (!result.result[0]) return callback(result.err);
         var lrc = result.result[0].lrc;
         api.get(lrc, {}, function(err, result) {
             if (err) return callback(err);
-            var result = result.body;
-            return callback(result);
+            return callback(result.body);
         });
     });
 }
