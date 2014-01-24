@@ -6,17 +6,20 @@ var defaults = {
 
 var TermList = function(params) {
     this.menu = new List(params || defaults);
+    this.items = [];
 }
 
 TermList.prototype.adds = function(items, max) {
     if (!items) return false;
     if (items.length === 0) return false;
-    var menu = this.menu;
-    var limit = 15 || max;
-    this.items = items;
+    var self = this,
+        menu = this.menu,
+        limit = 15 || max;
     items.forEach(function(item, index){
         if (index > limit) return false;
-        menu.add(index, typeof(item) === 'string' ? item : item.name)
+        if (typeof(item) === 'object') item.index = index;
+        self.items.push(item);
+        menu.add(index, typeof(item) === 'string' ? item : item.name);
     });
     return this;
 }
