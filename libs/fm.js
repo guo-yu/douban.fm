@@ -30,7 +30,7 @@ var Fm = function(params) {
     this.home = params && params.home ? params.home : path.join(utils.home(), 'douban.fm');
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
-    this.isShowLrc = true;
+    this.isShowLrc = false;
 };
 
 Fm.prototype.play = function(channel, user) {
@@ -51,7 +51,7 @@ Fm.prototype.play = function(channel, user) {
     }
 
     // 清除标志状态，加载标志
-    menu.clear(1);
+    menu.clear(0);
     self.channel = channel.index;
     self.status = 'fetching';
     menu.update(channel.index, color.grey('加载列表中，请稍等...'));
@@ -66,7 +66,7 @@ Fm.prototype.play = function(channel, user) {
     }, function(err, songs, result) {
         if (err) return menu.update(channel.index, color.red(err.toString()));
         // 标记 PRO 账户
-        if (result && !result.warning) menu.label(1, color.inverse(' PRO '));
+        if (result && !result.warning) menu.update(1, color.inverse(' PRO '));
         self.status = 'ready';
         self.player = new Player(songs, {
             srckey: 'url',
@@ -81,8 +81,8 @@ Fm.prototype.play = function(channel, user) {
         // 更新歌单
         self.player.on('playing', function(song) {
             self.status = 'playing';
-            menu.label(1, color.yellow('>>'));
-            lrc.playLrc(self, song);
+            menu.update(1, color.yellow('>>'));
+            // lrc.playLrc(self, song);
             menu.update(
                 channel.index,
                 printf(
@@ -134,13 +134,13 @@ Fm.prototype.loving = function(channel, user) {
         token: account.token
     };
     if (song.like) query.type = 'u';
-    menu.update(1, '正在加载...');
+    menu.update(0, '正在加载...');
     sdk.love(query, function(err, result) {
         var tips = !(song.like) ? color.red('♥') : color.grey('♥');
         if (err) tips = color.red('x');
         if (!err) self.player.playing.like = !song.like;
         // TODO: 这里有冗余代码
-        menu.clear(-1);
+        menu.clear(0);
         return menu.update(
             self.channel,
             printf(
@@ -166,13 +166,13 @@ Fm.prototype.next = function() {
 Fm.prototype.stop = function() {
     if (!this.player) return false;
     var menu = this.menu;
-    menu.clear(1);
-    menu.label(1, color.yellow('||'));
+    menu.clear(0);
+    menu.update(0, color.yellow('||'));
     return this.player.stop();
 }
 
 Fm.prototype.quit = function() {
-    if (this.menu) this.menu.stop();
+    this.menu.stop();
     return process.exit();
 }
 
@@ -229,7 +229,7 @@ Fm.prototype.createMenu = function(callback) {
         self.configs(function(err, user) {
             self.menu = new termList();
             self.menu.adds(
-                ['',
+                [
                 printf(
                     '%s %s %s',
                     color.yellow('Douban FM'),
@@ -241,9 +241,12 @@ Fm.prototype.createMenu = function(callback) {
             )
             self.menu.on('keypress', function(key, index){
                 if (!shorthands[key.name]) return false;
-                if (index < 2 && key.name != 'q') return utils.go(sys.repository.url);
+                if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
                 // self.currentMenu = index;
                 return self[shorthands[key.name]](self.menu.items[index], user);
+            });
+            self.menu.on('empty', function() {
+                self.menu.stop();
             });
             self.menu.start(1);
         });
