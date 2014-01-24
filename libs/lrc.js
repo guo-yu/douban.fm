@@ -1,4 +1,5 @@
-var sdk = require('./sdk');
+var Lrc = require('lrc').Lrc,
+    sdk = require('./sdk');
 
 exports.printLrc = function(self, lrc) {
     if (!self.menu) return false;
