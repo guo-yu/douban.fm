@@ -64,6 +64,9 @@ exports.lrc = function(title, artist, callback) {
         if (err) return callback(err);
         var songs = result.body;
         if (songs.count <= 0) return callback(songs.err);
+        if (!songs.result) return callback(new Error('lrc not found'))
+        if (!songs.result[0]) return callback(new Error('lrc not found'))
+        if (!songs.result[0].lrc) return callback(new Error('lrc not found'))
         api.get(songs.result[0].lrc, {}, function(err, result) {
             if (err) return callback(err);
             return callback(null, result.body);
