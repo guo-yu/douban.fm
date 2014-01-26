@@ -1,39 +1,23 @@
 var Lrc = require('lrc').Lrc,
+    color = require('colorful'),
     sdk = require('./sdk');
 
-exports.printLrc = function(self, lrc) {
+exports.print = function(self, lrc) {
     if (!self.menu) return false;
     if (!self.isShowLrc) return false;
-    var currentMenu = self.currentMenu;
-    self.menu.remove(self.menuIndex);
-    self.menu.add(self.menuIndex, '歌词:   ' + lrc);
-    if (currentMenu) self.menu.select(currentMenu);
-    self.menu.draw();
+    self.menu.update(self.channel, lrc);
+    return false;
 }
 
-exports.playLrc = function(self, song) {
-    var title = song.title;
-    var author = song.artist;
+exports.fetch = function(self, song) {
     if (self.lrc) self.lrc.stop();
-    sdk.lrc(title, author, function(data) {
-        if (!data) return exports.printLrc(self, '没找到歌词');
-        exports.printLrc(self, '正在拼命加载歌词....');
-        self.lrc = new Lrc(data.toString(), function(line, extra) {
-            exports.printLrc(self, line);
+    sdk.lrc(song.title, song.artist, function(err, lrc) {
+        if (err) return self.menu.update(0, color.grey('抱歉, 没找到歌词'));
+        if (!lrc) return self.menu.update(0, color.grey('抱歉, 没找到歌词'));
+        exports.print(self, color.grey('正在加载歌词....'));
+        self.lrc = new Lrc(lrc.toString(), function(line, extra) {
+            exports.print(self, line);
         });
         self.lrc.play(0);
     });
-}
-
-exports.showLrc = function(self) {
-    var currentMenu = self.currentMenu;
-    if (self.isShowLrc) {
-        self.menu.remove(self.menuIndex);
-    } else {
-        self.menu.add(self.menuIndex, '歌词开启');
-    }
-    self.isShowLrc = !!!self.isShowLrc;
-    if (currentMenu) self.menu.select(currentMenu);
-    self.menu.draw();
-    return false;
 }

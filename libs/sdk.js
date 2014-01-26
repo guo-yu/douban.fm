@@ -59,17 +59,14 @@ exports.channels = function(callback) {
 };
 
 // 获取歌词
-// 获取歌词的速度或许太慢...
 exports.lrc = function(title, artist, callback) {
     api.get('http://geci.me/api/lyric/' + title + '/' + artist, {}, function(err, result) {
         if (err) return callback(err);
-        var result = result.body;
-        if (result.count <= 0) return callback(result.err);
-        if (!result.result[0]) return callback(result.err);
-        var lrc = result.result[0].lrc;
-        api.get(lrc, {}, function(err, result) {
+        var songs = result.body;
+        if (songs.count <= 0) return callback(songs.err);
+        api.get(songs.result[0].lrc, {}, function(err, result) {
             if (err) return callback(err);
-            return callback(result.body);
+            return callback(null, result.body);
         });
     });
-}
+};

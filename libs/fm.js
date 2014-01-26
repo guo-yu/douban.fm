@@ -82,7 +82,7 @@ Fm.prototype.play = function(channel, user) {
         self.player.on('playing', function(song) {
             self.status = 'playing';
             menu.update(0, color.yellow('>>'));
-            // lrc.playLrc(self, song);
+            if (self.isShowLrc) lrc.fetch(self, song);
             menu.update(
                 channel.index,
                 printf(
@@ -176,14 +176,17 @@ Fm.prototype.quit = function() {
     return process.exit();
 }
 
-Fm.prototype.go = function(channel, user, link) {
+Fm.prototype.go = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
-    return utils.go(link ? link : utils.album(this.player.playing.album));
+    return utils.go(utils.album(this.player.playing.album));
 }
 
 Fm.prototype.showLrc = function(channel, user) {
-    return lrc.showLrc(this, channel, user);
+    this.isShowLrc = !!!this.isShowLrc;
+    this.menu.clear(0);
+    this.menu.update(0, this.isShowLrc ? '歌词开启' : '歌词关闭');
+    return false;
 }
 
 Fm.prototype.share = function(channel, user) {
@@ -223,7 +226,6 @@ Fm.prototype.share = function(channel, user) {
 Fm.prototype.createMenu = function(callback) {
     var self = this,
         shorthands = self.shorthands;
-    // self.menuIndex = 0;
     sdk.channels(function(err, list) {
         if (err) return consoler.error('获取豆瓣电台频道出错，请稍后再试');
         self.configs(function(err, user) {
@@ -242,7 +244,6 @@ Fm.prototype.createMenu = function(callback) {
             self.menu.on('keypress', function(key, index){
                 if (!shorthands[key.name]) return false;
                 if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
-                // self.currentMenu = index;
                 return self[shorthands[key.name]](self.menu.items[index], user);
             });
             self.menu.on('empty', function() {
