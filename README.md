@@ -5,14 +5,18 @@
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg)
 
 ### 如何安装
-从 NPM 中安装稳定的版本
+从 NPM 中安装稳定的版本，使用 [cnpm](http://cnpmjs.org/) 镜像源加速安装
 ````
-$ [sudo] npm install douban.fm -g --disturl=http://dist.u.qiniudn.com --registry=http://r.cnpmjs.org
+$ [sudo] npm install douban.fm -g \
+         --disturl=http://dist.u.qiniudn.com \
+         --registry=http://r.cnpmjs.org
 ````
 
 从 Git 仓库中安装最新的开发版本：
 ````
-$ [sudo] npm install git://github.com/turingou/douban.fm.git -g --disturl=http://dist.u.qiniudn.com --registry=http://r.cnpmjs.org
+$ [sudo] npm install git://github.com/turingou/douban.fm.git -g \
+         --disturl=http://dist.u.qiniudn.com \
+         --registry=http://r.cnpmjs.org
 ````
 
 ### 模块依赖
