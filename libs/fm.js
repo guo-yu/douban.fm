@@ -31,6 +31,9 @@ var Fm = function(params) {
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
     this.isShowLrc = false;
+
+    // ensure dir exists
+    mkdirp.sync(this.love);
 };
 
 Fm.prototype.play = function(channel, user) {
