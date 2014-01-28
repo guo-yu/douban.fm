@@ -2,6 +2,22 @@ var api = require('beer'),
     _ = require('underscore'),
     errors = require('./errors');
 
+var privateHz = {
+    seq_id: -3,
+    abbr_en: "",
+    name: "红心兆赫",
+    channel_id: -3,
+    name_en: ""
+}
+
+var localHz = function() {
+    seq_id: -4,
+    abbr_en: 'localhz',
+    name: '本地电台',
+    channel_id: -99,
+    name_en: 'localHz'
+}
+
 // 模拟登录
 exports.auth = function(account, callback) {
     api.post('http://www.douban.com/j/app/login', {
@@ -38,23 +54,18 @@ exports.fetch = function(params, callback) {
 
 // 切换设置红心曲目
 exports.love = function(params, callback) {
-    exports.fetch(_.extend({ type: 'r' }, params), callback);
+    exports.fetch(_.extend({
+        type: 'r'
+    }, params), callback);
 };
 
 // 获取频道列表
 exports.channels = function(callback) {
-    var privateHz = {
-        seq_id: -3,
-        abbr_en: "",
-        name: "红心兆赫",
-        channel_id: -3,
-        name_en: ""
-    };
     api.get('http://douban.fm/j/app/radio/channels', {}, function(err, result) {
         if (err) return callback(err);
         var result = result.body;
         if (!result.channels) return callback(new Error(result.err));
-        return callback(null, [privateHz].concat(result.channels));
+        return callback(null, [localHz, privateHz].concat(result.channels));
     });
 };
 
