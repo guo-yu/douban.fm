@@ -1,21 +1,15 @@
-var api = require('beer'),
+var fs = require('fs'),
+    path = require('path'),
+    api = require('beer'),
     _ = require('underscore'),
     errors = require('./errors');
 
-var privateHz = {
+var privateMhz = {
     seq_id: -3,
     abbr_en: "",
     name: "红心兆赫",
     channel_id: -3,
     name_en: ""
-}
-
-var localHz = function() {
-    seq_id: -4,
-    abbr_en: 'localhz',
-    name: '本地电台',
-    channel_id: -99,
-    name_en: 'localHz'
 }
 
 // 模拟登录
@@ -37,6 +31,7 @@ exports.auth = function(account, callback) {
 
 // 获取频道曲目
 exports.fetch = function(params, callback) {
+    if (params && params.local) return exports.local(params.local, callback);
     var configs = {
         app_name: 'radio_desktop_win',
         version: 100,
@@ -52,6 +47,24 @@ exports.fetch = function(params, callback) {
     });
 };
 
+// 获取本地音乐地址
+exports.local = function(dir, callback) {
+    return fs.readdir(dir, function(err, songs) {
+        if (err) return callback(err);
+        if (!songs || songs.length === 0) return callback(new Error('没有找到本地音乐'));
+        var list = [];
+        // TODO: 这里要尽量能再拿到这首歌曲的真实信息
+        songs.forEach(function(song) {
+            if (song.lastIndexOf('.mp3') !== (song.length - 4)) return false;
+            list.push({
+                like: false,
+                url: path.resolve(dir, song)
+            });
+        });
+        callback(null, list);
+    });
+}
+
 // 切换设置红心曲目
 exports.love = function(params, callback) {
     exports.fetch(_.extend({
@@ -65,7 +78,7 @@ exports.channels = function(callback) {
         if (err) return callback(err);
         var result = result.body;
         if (!result.channels) return callback(new Error(result.err));
-        return callback(null, [localHz, privateHz].concat(result.channels));
+        return callback(null, [privateMhz].concat(result.channels));
     });
 };
 

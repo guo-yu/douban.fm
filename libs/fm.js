@@ -31,7 +31,6 @@ var Fm = function(params) {
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
     this.isShowLrc = false;
-
     // ensure dir exists
     mkdirp.sync(this.love);
 };
@@ -41,10 +40,10 @@ Fm.prototype.play = function(channel, user) {
     var self = this,
         menu = self.menu,
         account = user && user.account ? user.account : {},
-        privateHz = (channel.channel_id == 0 || channel.channel_id == -3) && !account.token;
+        privateMhz = (channel.channel_id == 0 || channel.channel_id == -3) && !account.token;
 
     // 检查是否是私人兆赫，如果没有设置账户直接返回
-    if (privateHz) return menu.update(channel.index, color.yellow(errors.account_missing));
+    if (privateMhz) return menu.update(channel.index, color.yellow(errors.account_missing));
     if (self.status === 'fetching' || self.status === 'downloading') return false;
     if (self.status === 'playing') {
         if (typeof(self.channel) != undefined) menu.clear(self.channel);
@@ -61,6 +60,7 @@ Fm.prototype.play = function(channel, user) {
 
     // 获取相应频道的曲目
     sdk.fetch({
+        local: (channel.channel_id == -99) ? self.home : false,
         channel: channel.channel_id,
         user_id: account.user_id,
         expire: account.expire,
@@ -125,6 +125,7 @@ Fm.prototype.loving = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
     if (!user || !user.account) return false;
+    if (channel.channel_id == -99) return false; // 暂时无法给本地电台加红心
     var self = this,
         menu = self.menu,
         account = user && user.account ? user.account : {},
@@ -182,10 +183,12 @@ Fm.prototype.quit = function() {
 Fm.prototype.go = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
+    if (channel.channel_id == -99) return false;
     return utils.go(utils.album(this.player.playing.album));
 }
 
 Fm.prototype.showLrc = function(channel, user) {
+    if (channel.channel_id == -99) return false;
     this.isShowLrc = !!!this.isShowLrc;
     this.menu.clear(0);
     this.menu.update(0, this.isShowLrc ? '歌词开启' : '歌词关闭');
@@ -195,6 +198,7 @@ Fm.prototype.showLrc = function(channel, user) {
 Fm.prototype.share = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
+    if (channel.channel_id == -99) return false;
     var song = this.player.playing;
     var shareText = 'http://service.weibo.com/share/share.php?' +
         '&type=button' +
@@ -234,15 +238,20 @@ Fm.prototype.createMenu = function(callback) {
         self.configs(function(err, user) {
             self.menu = new termList();
             self.menu.adds(
-                [
-                printf(
+                [printf(
                     '%s %s %s',
                     color.yellow('Douban FM'),
                     color.grey('v' + sys.version),
                     user && user.account && user.account.user_name ?
                     color.grey('/ ' + user.account.user_name) :
                     ''
-                )].concat(list)
+                ),{
+                    seq_id: -99,
+                    abbr_en: 'localMhz',
+                    name: '本地电台',
+                    channel_id: -99,
+                    name_en: 'localMhz'
+                }].concat(list)
             )
             self.menu.on('keypress', function(key, index){
                 if (!shorthands[key.name]) return false;
@@ -276,22 +285,11 @@ Fm.prototype.auth = function(params, callback) {
 };
 
 Fm.prototype.configs = function() {
-    var self = this;
+    var self = this,
+        configs = path.join(self.home, '.configs.json');
     params.parse(arguments, ['', '*'], function(params, callback) {
-        if (!params) {
-            fs.readFile(path.join(self.home, '.configs.json'), function(err, data) {
-                if (err) return callback(err, null);
-                try {
-                    callback(err, JSON.parse(data));
-                } catch (err) {
-                    callback(err);
-                }
-            });
-        } else {
-            fs.writeFile(path.join(self.home, '.configs.json'), JSON.stringify(params), function(err) {
-                callback(err, params);
-            });
-        }
+        if (params) return utils.json(configs, callback, params);
+        return utils.json(configs, callback);
     });
 };
 
