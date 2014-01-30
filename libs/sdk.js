@@ -2,6 +2,7 @@ var fs = require('fs'),
     path = require('path'),
     api = require('beer'),
     _ = require('underscore'),
+    utils = require('./utils'),
     errors = require('./errors');
 
 var privateMhz = {
@@ -47,21 +48,24 @@ exports.fetch = function(params, callback) {
     });
 };
 
-// 获取本地音乐地址
+// 获取本地音乐信息
 exports.local = function(dir, callback) {
     return fs.readdir(dir, function(err, songs) {
         if (err) return callback(err);
-        if (!songs || songs.length === 0) return callback(new Error('没有找到本地音乐'));
+        if (!songs) return callback(new Error('没有找到本地音乐'));
         var list = [];
-        // TODO: 这里要尽量能再拿到这首歌曲的真实信息
-        songs.forEach(function(song) {
-            if (song.lastIndexOf('.mp3') !== (song.length - 4)) return false;
-            list.push({
-                like: false,
-                url: path.resolve(dir, song)
+        utils.json(path.join(dir, '.history.json'), function(err, history) {
+            if (err) return callback(new Error('没有找到本地音乐'));
+            songs.forEach(function(song) {
+                if (song.lastIndexOf('.mp3') !== (song.length - 4)) return false;
+                if (!history[utils.sid(song)]) return false;
+                var s = history[utils.sid(song)];
+                s.url = path.resolve(dir, song);
+                list.push(s);
             });
+            if (list.length === 0) return callback(new Error('没有找到本地音乐'));
+            return callback(null, list);
         });
-        callback(null, list);
     });
 }
 

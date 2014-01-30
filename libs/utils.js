@@ -1,5 +1,6 @@
 var fs = require('fs'),
     exeq = require('exeq'),
+    paramrule = require('paramrule'),
     open = process.platform === 'win32' ? 'start' : 'open';
 
 // 获取用户的家地址
@@ -35,4 +36,12 @@ exports.json = function(file, callback, contents) {
             callback(err, contents);
         });
     }
+}
+
+// 读写 json 的快捷方法
+exports.log = function(file, argvs) {
+    return paramrule.parse(argvs, ['', '*'], function(params, callback) {
+        if (params) return exports.json(file, callback, params);
+        return exports.json(file, callback);
+    });
 }

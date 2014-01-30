@@ -5,7 +5,6 @@ var fs = require('fs'),
     Player = require('player'),
     color = require('colorful'),
     printf = require('sprintf').sprintf,
-    params = require('paramrule'),
     consoler = require('consoler'),
     sys = require('../package'),
     sdk = require('./sdk'),
@@ -84,6 +83,7 @@ Fm.prototype.play = function(channel, user) {
         // 更新歌单
         self.player.on('playing', function(song) {
             self.status = 'playing';
+            self.log(song);
             menu.update(0, color.yellow('>>'));
             if (self.isShowLrc) lrc.fetch(self, song);
             menu.update(
@@ -245,7 +245,7 @@ Fm.prototype.createMenu = function(callback) {
                     user && user.account && user.account.user_name ?
                     color.grey('/ ' + user.account.user_name) :
                     ''
-                ),{
+                ), {
                     seq_id: -99,
                     abbr_en: 'localMhz',
                     name: '本地电台',
@@ -253,7 +253,7 @@ Fm.prototype.createMenu = function(callback) {
                     name_en: 'localMhz'
                 }].concat(list)
             )
-            self.menu.on('keypress', function(key, index){
+            self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
                 if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
                 return self[shorthands[key.name]](self.menu.items[index], user);
@@ -285,13 +285,20 @@ Fm.prototype.auth = function(params, callback) {
 };
 
 Fm.prototype.configs = function() {
-    var self = this,
-        configs = path.join(self.home, '.configs.json');
-    params.parse(arguments, ['', '*'], function(params, callback) {
-        if (params) return utils.json(configs, callback, params);
-        return utils.json(configs, callback);
-    });
+    return utils.log(path.join(this.home, '.configs.json'), arguments);
 };
+
+Fm.prototype.history = function() {
+    return utils.log(path.join(this.home, '.history.json'), arguments);
+};
+
+Fm.prototype.log = function(song) {
+    return self.history(function(err, songs) {
+        if (err || !songs || songs.length === 0) return self.history([{song.sid: song}], function() {});
+        songs[song.sid] = song;
+        self.history(songs, function() {});
+    });
+}
 
 Fm.prototype.init = function(callback) {
     var self = this;
