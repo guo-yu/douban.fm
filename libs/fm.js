@@ -183,10 +183,11 @@ Fm.prototype.createMenu = function(callback) {
     var self = this,
         shorthands = self.shorthands;
     sdk.channels(function(err, list) {
-        if (err) return consoler.error('获取豆瓣电台频道出错，请稍后再试');
+        if (err) consoler.error('获取豆瓣电台频道出错，切换为本地电台...');
         self.configs(function(err, user) {
             self.menu = new termList();
-            self.menu.adds([template.logo(user), sdk.mhz.localMhz].concat(list));
+            var nav = [template.logo(user), sdk.mhz.localMhz];
+            self.menu.adds(!err ? nav.concat(list) : nav);
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
                 if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
