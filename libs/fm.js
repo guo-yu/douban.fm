@@ -4,13 +4,13 @@ var fs = require('fs'),
     mkdirp = require('mkdirp'),
     Player = require('player'),
     color = require('colorful'),
-    printf = require('sprintf').sprintf,
     consoler = require('consoler'),
     sys = require('../package'),
     sdk = require('./sdk'),
     lrc = require('./lrc'),
     utils = require('./utils'),
     errors = require('./errors'),
+    template = require('./template'),
     termList = require('./term-list');
 
 // 快捷键列表
@@ -83,22 +83,12 @@ Fm.prototype.play = function(channel, user) {
         // 更新歌单
         self.player.on('playing', function(song) {
             self.status = 'playing';
-            self.log(song);
+            if (song.title && song.sid) self.log(song);
             menu.update(0, color.yellow('>>'));
             if (self.isShowLrc) lrc.fetch(self, song);
             menu.update(
                 channel.index,
-                printf(
-                    '%s %s %s %s %s %s %s %s',
-                    song.like == 1 ? color.red('♥') : color.grey('♥'),
-                    color.green(song.title),
-                    color.grey(song.kbps + 'kbps'),
-                    color.grey('... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...'),
-                    color.yellow(song.albumtitle),
-                    color.grey('•'),
-                    song.artist,
-                    color.grey(song.public_time)
-                )
+                template.song(song)
             );
             if (song._id < self.player.list.length - 1) return false;
             self.status = 'switching';
@@ -125,7 +115,7 @@ Fm.prototype.loving = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
     if (!user || !user.account) return false;
-    if (channel.channel_id == -99) return false; // 暂时无法给本地电台加红心
+    if (!this.player.playing.sid) return this.menu.update(0, '未知曲目无法加心');
     var self = this,
         menu = self.menu,
         account = user && user.account ? user.account : {},
@@ -140,24 +130,12 @@ Fm.prototype.loving = function(channel, user) {
     if (song.like) query.type = 'u';
     menu.update(0, '正在加载...');
     sdk.love(query, function(err, result) {
-        var tips = !(song.like) ? color.red('♥') : color.grey('♥');
-        if (err) tips = color.red('x');
-        if (!err) self.player.playing.like = !song.like;
-        // TODO: 这里有冗余代码
         menu.clear(0);
+        if (err) menu.update(0, '出错了, 请稍后再试...');
+        if (!err) self.player.playing.like = !song.like;
         return menu.update(
             self.channel,
-            printf(
-                '%s %s %s %s %s %s %s %s',
-                tips,
-                color.green(song.title),
-                color.grey(song.kbps + 'kbps'),
-                color.grey('... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...'),
-                color.yellow(song.albumtitle),
-                color.grey('•'),
-                song.artist,
-                color.grey(song.public_time)
-            )
+            template.song(self.player.playing)
         );
     });
 }
@@ -198,36 +176,7 @@ Fm.prototype.showLrc = function(channel, user) {
 Fm.prototype.share = function(channel, user) {
     if (!this.player) return false;
     if (!this.player.playing) return false;
-    if (channel.channel_id == -99) return false;
-    var song = this.player.playing;
-    var shareText = 'http://service.weibo.com/share/share.php?' +
-        '&type=button' +
-        '&style=number' +
-        '&appkey=5rjNpN' +
-        '&ralateUid=1644105187' +
-        '&url=' +
-        sys.repository.url +
-        '&pic=' +
-        (song.picture ? song.picture.replace('mpic', 'lpic') : '') +
-        '%7C%7C' +
-        'http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg' +
-        '&title=' +
-        encodeURIComponent([
-            '我正在用豆瓣电台命令行版 v' + sys.version + ' 收听 ',
-            song.like ? '[心]' : '',
-            song.title,
-            song.kbps + 'kbps',
-            '... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...',
-            song.albumtitle,
-            '•',
-            song.artist,
-            song.public_time,
-            utils.album(song.album)
-        ].join(' '));
-    // windows 下终端 & 需要转义
-    if (process.platform === 'win32') shareText = shareText.replace(/&/g, '^&');
-
-    return utils.go(shareText);
+    return utils.go(template.share(this.player.playing));
 }
 
 Fm.prototype.createMenu = function(callback) {
@@ -237,22 +186,7 @@ Fm.prototype.createMenu = function(callback) {
         if (err) return consoler.error('获取豆瓣电台频道出错，请稍后再试');
         self.configs(function(err, user) {
             self.menu = new termList();
-            self.menu.adds(
-                [printf(
-                    '%s %s %s',
-                    color.yellow('Douban FM'),
-                    color.grey('v' + sys.version),
-                    user && user.account && user.account.user_name ?
-                    color.grey('/ ' + user.account.user_name) :
-                    ''
-                ), {
-                    seq_id: -99,
-                    abbr_en: 'localMhz',
-                    name: '本地电台',
-                    channel_id: -99,
-                    name_en: 'localMhz'
-                }].concat(list)
-            )
+            self.menu.adds([template.logo(user), sdk.mhz.localMhz].concat(list));
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
                 if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
@@ -293,10 +227,11 @@ Fm.prototype.history = function() {
 };
 
 Fm.prototype.log = function(song) {
+    var self = this;
     return self.history(function(err, songs) {
-        if (err || !songs || songs.length === 0) return self.history([{song.sid: song}], function() {});
-        songs[song.sid] = song;
-        self.history(songs, function() {});
+        var list = (err || !songs || songs.length === 0) ? {} : songs;
+        list[song.sid] = song;
+        self.history(list, function() {});
     });
 }
 

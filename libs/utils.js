@@ -20,6 +20,14 @@ exports.album = function(link) {
     return link.indexOf('http') === -1 ? 'http://music.douban.com' + link : link;
 }
 
+// 解析本地文件的sid
+exports.sid = function(filename) {
+    if (!filename) return false;
+    var idstr = filename.substr(filename.indexOf('p') + 1, filename.lastIndexOf('.') - 1);
+    if (idstr.indexOf('_') === -1) return idstr;
+    return idstr.substr(0, idstr.lastIndexOf('_'))
+}
+
 // 读写json
 exports.json = function(file, callback, contents) {
     if (!contents) {

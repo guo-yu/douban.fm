@@ -5,12 +5,22 @@ var fs = require('fs'),
     utils = require('./utils'),
     errors = require('./errors');
 
-var privateMhz = {
-    seq_id: -3,
-    abbr_en: "",
-    name: "红心兆赫",
-    channel_id: -3,
-    name_en: ""
+// 本地电台信息
+exports.mhz = {
+    localMhz: {
+        seq_id: -99,
+        abbr_en: 'localMhz',
+        name: '本地电台',
+        channel_id: -99,
+        name_en: 'localMhz'
+    },
+    privateMhz: {
+        seq_id: -3,
+        abbr_en: "",
+        name: "红心兆赫",
+        channel_id: -3,
+        name_en: ""
+    }
 }
 
 // 模拟登录
@@ -58,12 +68,15 @@ exports.local = function(dir, callback) {
             if (err) return callback(new Error('没有找到本地音乐'));
             songs.forEach(function(song) {
                 if (song.lastIndexOf('.mp3') !== (song.length - 4)) return false;
-                if (!history[utils.sid(song)]) return false;
-                var s = history[utils.sid(song)];
+                // if (!history[utils.sid(song)]) return false;
+                var s = history[utils.sid(song)] || {};
                 s.url = path.resolve(dir, song);
                 list.push(s);
             });
             if (list.length === 0) return callback(new Error('没有找到本地音乐'));
+            list.sort(function(a,b){
+                return Math.random() - 0.5;
+            });
             return callback(null, list);
         });
     });
@@ -82,7 +95,7 @@ exports.channels = function(callback) {
         if (err) return callback(err);
         var result = result.body;
         if (!result.channels) return callback(new Error(result.err));
-        return callback(null, [privateMhz].concat(result.channels));
+        return callback(null, [exports.mhz.privateMhz].concat(result.channels));
     });
 };
 
