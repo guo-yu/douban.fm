@@ -92,10 +92,11 @@ $ douban.fm help
 这些范例可能和最终的结果不一致，在使用前，最好参考 `./libs/sdk.js` 这个文件，以防出现意想不到的错误
 
 ````javascript
-var Fm = require('douban.fm');
+var Fm = require('douban.fm'),
+    fm = new Fm;
 
-// 授权
-Fm.sdk.auth({
+// 豆瓣账户模拟登录
+fm.sdk.auth({
     email: 'xxx',
     password: 'xxx'
 },function(err, result){
@@ -103,18 +104,22 @@ Fm.sdk.auth({
 });
 
 // 获取频道
-Fm.sdk.list(function(err, list){
-    console.log(list)
+fm.sdk.channels(function(err, channels){
+    console.log(channels)
 });
 
-// 或者歌曲列表
-// 这里有一份指导博客:
-// http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
-Fm.sdk.channel({
+// 获取歌曲列表
+// 详见: http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
+fm.sdk.fetch({
     id: channel.id,
     type: 'n'
 },user,function(err, songs){
     console.log(songs)
+});
+
+// 搜索歌词
+fm.sdk.lrc(title, artist, function(err, lrc){
+    console.log(lrc)
 });
 ````
 
