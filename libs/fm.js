@@ -25,8 +25,12 @@ var shorthands = {
     'r': 'showLrc'
 };
 
-var Fm = function(params) {
-    this.home = params && params.home ? params.home : path.join(utils.home(), 'douban.fm');
+var Fm = function() {
+    this.userhome = utils.home();
+    this.rc = {};
+    this.rc.profile = path.join(this.userhome, '.douban.fm.profile.json');
+    this.rc.history = path.join(this.userhome, '.douban.fm.history.json');
+    this.home = utils.read(this.rc.profile) || path.join(this.userhome, 'douban.fm');
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
     this.isShowLrc = false;
@@ -220,11 +224,11 @@ Fm.prototype.auth = function(params, callback) {
 };
 
 Fm.prototype.configs = function() {
-    return utils.log(path.join(this.home, '.configs.json'), arguments);
+    return utils.log(this.rc.profile, arguments);
 };
 
 Fm.prototype.history = function() {
-    return utils.log(path.join(this.home, '.history.json'), arguments);
+    return utils.log(this.rc.history, arguments);
 };
 
 Fm.prototype.log = function(song) {

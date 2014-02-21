@@ -28,6 +28,15 @@ exports.sid = function(filename) {
     return idstr.substr(0, idstr.lastIndexOf('_'))
 }
 
+// 同步读
+exports.read = function(file) {
+    try {
+        return fs.readFileSync(file);
+    } catch (err) {
+        return null;
+    }
+}
+
 // 读写json
 exports.json = function(file, callback, contents) {
     if (!contents) {
