@@ -29,11 +29,12 @@ exports.sid = function(filename) {
 }
 
 // 同步读
-exports.read = function(file) {
+exports.jsonSync = function(file) {
     try {
-        return fs.readFileSync(file);
+        var data = fs.readFileSync(file);
+        return JSON.parse(data.toString());
     } catch (err) {
-        return null;
+        return {};
     }
 }
 
