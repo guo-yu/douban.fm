@@ -30,7 +30,7 @@ var Fm = function() {
     this.rc = {};
     this.rc.profile = path.join(this.userhome, '.douban.fm.profile.json');
     this.rc.history = path.join(this.userhome, '.douban.fm.history.json');
-    this.home = utils.read(this.rc.profile) || path.join(this.userhome, 'douban.fm');
+    this.home = utils.jsonSync(this.rc.profile).home || path.join(this.userhome, 'douban.fm');
     this.love = path.join(this.home, 'love');
     this.shorthands = shorthands;
     this.isShowLrc = false;
@@ -191,7 +191,7 @@ Fm.prototype.createMenu = function(callback) {
         self.configs(function(err, user) {
             self.menu = new termList();
             var nav = [template.logo(user), sdk.mhz.localMhz];
-            self.menu.adds(!err ? nav.concat(list) : nav);
+            self.menu.adds(nav.concat(list));
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
                 if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
