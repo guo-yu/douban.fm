@@ -1,45 +1,47 @@
 {
-    "name": "douban.fm",
-    "version": "0.1.2",
-    "description": "a tiny and smart cli player of douban.fm based on Node.js",
-    "main": "index.js",
-    "author": "turing <o.u.turing@gmail.com>",
-    "license": "MIT",
-    "scripts": {
-        "test": "./node_modules/mocha/bin/mocha ./test/test.js"
-    },
-    "bin": {
-        "douban.fm": "./bin/cli"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/turingou/douban.fm.git"
-    },
-    "keywords": [
-        "douban",
-        "fm",
-        "radio",
-        "mp3"
-    ],
-    "bugs": {
-        "url": "https://github.com/turingou/douban.fm/issues"
-    },
-    "dependencies": {
-        "beer": "0.0.8",
-        "exeq": "~0.4.0",
-        "lrc": "~0.1.0",
-        "consoler": "*",
-        "sprintf": "0.1.3",
-        "player": "~0.1.1",
-        "prompt": "~0.2.12",
-        "mkdirp": "~0.3.5",
-        "colorful": "2.1.0",
-        "paramrule": "0.0.2",
-        "term-list": "~0.2.1",
-        "underscore": "~1.5.2"
-    },
-    "devDependencies": {
-        "mocha": "*",
-        "should": "*"
-    }
+  "name": "douban.fm",
+  "version": "0.1.2",
+  "description": "a tiny and smart cli player of douban.fm based on Node.js",
+  "main": "index.js",
+  "author": "turing <o.u.turing@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha ./test/test.js"
+  },
+  "bin": {
+    "douban.fm": "./bin/cli"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/turingou/douban.fm.git"
+  },
+  "keywords": [
+    "douban",
+    "fm",
+    "radio",
+    "mp3"
+  ],
+  "bugs": {
+    "url": "https://github.com/turingou/douban.fm/issues"
+  },
+  "dependencies": {
+    "beer": "0.0.8",
+    "exeq": "~0.4.0",
+    "lrc": "~0.1.0",
+    "consoler": "*",
+    "sprintf": "0.1.3",
+    "player": "~0.1.1",
+    "prompt": "~0.2.12",
+    "mkdirp": "~0.3.5",
+    "colorful": "2.1.0",
+    "paramrule": "0.0.2",
+    "term-list": "~0.2.1",
+    "underscore": "~1.5.2",
+    "ffmetadata": "*",
+    "async": "*"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  }
 }

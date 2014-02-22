@@ -1,6 +1,11 @@
-var consoler = require('consoler'),
+var path = require('path'),
+    async = require('async'),
     prompt = require('prompt'),
-    Fm = require('./fm');
+    consoler = require('consoler'),
+    ffmetadata = require("ffmetadata"),
+    Fm = require('./fm'),
+    sdk = require('./sdk'),
+    utils = require('./utils');
 
 var promptSchema = {
     properties: {
@@ -52,6 +57,42 @@ exports.home = function(fm, argv) {
         });
     });
 };
+
+exports.id3 = function(fm, argv) {
+    
+    var addid3 = function(song, callback) {
+        if (!song.url) return callback(null);
+        var id3 = {};
+        id3.artist = song.artist;
+        id3.title = song.title;
+        id3.album = song.albumtitle;
+        id3.date = song.public_time;
+        id3.year = song.public_time;
+        id3.publisher = song.company;
+        ffmetadata.write(song.url, id3, callback);
+    };
+
+    fm.configs(function(err, profile) {
+        if (err) return consoler.error(err);
+        var userhome = utils.home();
+        var home = profile.home || userhome;
+        var history = path.join(userhome, '.douban.fm.history.json');
+        var songs = [];
+        sdk.local(home, history, function(err, list) {
+            if (err) return consoler.error(err);
+            list.forEach(function(song) {
+                var keys = Object.keys(song);
+                if (keys.length === 1 && keys[0] === 'url') return false;
+                songs.push(song);
+            });
+            if (songs.length === 0) return consoler.error('没有歌曲符合条件');
+            async.each(songs, addid3, function(err) {
+                if (err) return consoler.error(err);
+                return consoler.success('添加歌曲id3成功');
+            });
+        });
+    });
+}
 
 exports.help = function() {
     console.log('');

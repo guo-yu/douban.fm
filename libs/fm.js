@@ -64,6 +64,7 @@ Fm.prototype.play = function(channel, user) {
     // 获取相应频道的曲目
     sdk.fetch({
         local: (channel.channel_id == -99) ? self.home : false,
+        history: self.rc.history,
         channel: channel.channel_id,
         user_id: account.user_id,
         expire: account.expire,
@@ -79,10 +80,9 @@ Fm.prototype.play = function(channel, user) {
             downloads: self.home
         });
         self.player.play();
-        // 同步下载不太好，但是在解决 stream 的无法获取抛错之前没有好办法
         self.player.on('downloading', function(url) {
             self.status = 'downloading';
-            menu.update(channel.index, color.grey('下载歌曲中，请稍等...'));
+            menu.update(channel.index, color.grey('歌曲缓冲中，请稍等...'));
         });
         // 更新歌单
         self.player.on('playing', function(song) {

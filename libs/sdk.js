@@ -42,12 +42,13 @@ exports.auth = function(account, callback) {
 
 // 获取频道曲目
 exports.fetch = function(params, callback) {
-    if (params && params.local) return exports.local(params.local, callback);
-    var configs = {
-        app_name: 'radio_desktop_win',
-        version: 100,
-        type: 'n'
-    };
+    var local = params && params.local && params.history;
+    if (local) return exports.local(params.local, params.history, callback);
+    if (params.history) delete params.history;
+    var configs = {};
+    configs.app_name = 'radio_desktop_win';
+    configs.version = 100;
+    configs.type = 'n';
     api.get('http://douban.fm/j/app/radio/people', {
         query: _.extend(configs, params)
     }, function(err, result) {
@@ -59,12 +60,12 @@ exports.fetch = function(params, callback) {
 };
 
 // 获取本地音乐信息
-exports.local = function(dir, callback) {
+exports.local = function(dir, history, callback) {
     return fs.readdir(dir, function(err, songs) {
         if (err) return callback(err);
         if (!songs) return callback(new Error('没有找到本地音乐'));
         var list = [];
-        utils.json(path.join(dir, '.history.json'), function(err, history) {
+        utils.json(history, function(err, history) {
             if (err) return callback(new Error('没有找到本地音乐'));
             songs.forEach(function(song) {
                 if (song.lastIndexOf('.mp3') !== (song.length - 4)) return false;
