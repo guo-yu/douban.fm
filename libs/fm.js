@@ -76,7 +76,8 @@ Fm.prototype.play = function(channel, user) {
         if (result && !result.warning) menu.update(0, color.inverse(' PRO '));
         self.status = 'ready';
         self.player = new Player(songs, {
-            srckey: 'url',
+            src: 'url',
+            cache: true,
             downloads: self.home
         });
         self.player.play();
