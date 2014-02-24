@@ -9,17 +9,20 @@
     "test": "./node_modules/mocha/bin/mocha ./test/test.js"
   },
   "bin": {
-    "douban.fm": "./bin/cli"
+    "core.douban.fm": "./bin/cli",
+    "douban.fm": "./bin/start.sh"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/turingou/douban.fm.git"
   },
   "keywords": [
-    "douban",
     "fm",
+    "mp3",
     "radio",
-    "mp3"
+    "douban",
+    "player",
+    "music"
   ],
   "bugs": {
     "url": "https://github.com/turingou/douban.fm/issues"
@@ -28,15 +31,15 @@
     "beer": "0.0.8",
     "exeq": "~0.4.0",
     "lrc": "~0.1.0",
-    "consoler": "*",
     "sprintf": "0.1.3",
-    "player": "~0.1.1",
+    "player": "~0.1.3",
     "prompt": "~0.2.12",
     "mkdirp": "~0.3.5",
     "colorful": "2.1.0",
     "paramrule": "0.0.2",
     "term-list": "~0.2.1",
     "underscore": "~1.5.2",
+    "consoler": "*",
     "ffmetadata": "*",
     "async": "*"
   },

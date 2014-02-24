@@ -14,7 +14,12 @@
 - 支持部分 ID3 信息补全
 
 ### 如何安装
-从 NPM 中安装稳定的版本，使用 [cnpm](http://cnpmjs.org/) 镜像源加速安装
+
+从 NPM 中安装稳定的版本：
+````
+$ [sudo] npm install douban.fm -g
+````
+更推荐使用 [cnpm](http://cnpmjs.org/) 镜像源加速安装
 ````
 $ [sudo] npm install douban.fm -g \
          --disturl=http://dist.u.qiniudn.com \
@@ -109,7 +114,7 @@ $ douban.fm help
 豆瓣电台命令行版 `>= 0.1.2` 版本支持本地电台功能，这意味着在离线情况下，或者网络不佳，通信失败的情况下，豆瓣电台命令行版会自动切换到本地电台进行播放，方便您在旅行时使用豆瓣电台。
 
 ### ID3 信息补全
-豆瓣电台命令行版 `>= 0.1.2` 版本支持本地 ID3 信息补全，方便用户同步到 iTunes 等播放软件，使用 `douban.fm id3` 同步离线曲库可用歌曲的 ID3 信息。目前暂不支持为歌曲添加封面。
+豆瓣电台命令行版 `>= 0.1.2` 版本支持本地 ID3 信息补全，方便用户同步到 iTunes 等播放软件，使用 `douban.fm id3` 同步离线曲库可用歌曲的 ID3 信息。目前暂不支持为歌曲添加封面。此功能需要外部依赖 `ffmpeg` 使用前确保已经安装 [ffmpeg command-line tool](http://www.ffmpeg.org/) 或 [libav fork](http://www.libav.org/avconv.html) 
 
 ### 范例代码
 
