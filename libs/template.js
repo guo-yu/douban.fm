@@ -3,7 +3,8 @@ var color = require('colorful'),
     sys = require('../package'),
     printf = require('sprintf').sprintf,
     system = require('sys'),
-    exec = require('child_process').exec;
+    exec = require('child_process').exec,
+    notifier = new require('node-notifier')();
 
 exports.logo = function(user) {
     return printf(
@@ -14,6 +15,13 @@ exports.logo = function(user) {
         color.grey('/ ' + user.account.user_name) :
         ''
     )
+}
+
+exports.notify = function(str) {
+    notifier.notify({
+        title: 'Douban FM',
+        message: str
+    });
 }
 
 exports.updateTab = function(str) {
@@ -39,10 +47,13 @@ exports.song = function(song) {
     var strMusic  = '♫ ',
         strFailed = strMusic + '未知曲目...';
     if (!song.title) {
+        this.notify(strFailed);
         this.updateTab(strFailed);
         return color.grey();
     }
-    this.updateTab(strMusic + song.title + ' - ' + song.artist);
+    var strSong = strMusic + song.title + ' - ' + song.artist;
+    this.notify(strSong);
+    this.updateTab(strSong);
     return printf(
         '%s %s %s %s %s %s %s %s',
         song.like == 1 ? color.red('♥') : color.grey('♥'),
