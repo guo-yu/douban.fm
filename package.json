@@ -41,7 +41,8 @@
     "underscore": "~1.5.2",
     "consoler": "*",
     "ffmetadata": "*",
-    "async": "*"
+    "async": "*",
+    "node-notifier": "*"
   },
   "devDependencies": {
     "mocha": "*",
