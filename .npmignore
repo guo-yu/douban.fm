@@ -8,3 +8,5 @@ psd
 thumb
 config.json
 json/*.json
+err.log
+dev.*
