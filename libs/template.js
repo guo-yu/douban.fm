@@ -1,10 +1,10 @@
-var color = require('colorful'),
-    utils = require('./utils'),
-    sys = require('../package'),
+var system = require('sys'),
+    color = require('colorful'),
     printf = require('sprintf').sprintf,
-    system = require('sys'),
     exec = require('child_process').exec,
-    notifier = new require('node-notifier')();
+    notifier = new require('node-notifier')(),
+    utils = require('./utils'),
+    sys = require('../package');
 
 exports.logo = function(user) {
     return printf(
@@ -14,46 +14,59 @@ exports.logo = function(user) {
         user && user.account && user.account.user_name ?
         color.grey('/ ' + user.account.user_name) :
         ''
-    )
-}
-
-exports.notify = function(str) {
-    notifier.notify({
-        title: 'Douban FM',
-        message: str
-    });
-}
-
-exports.updateTab = function(str) {
-    exec(
-        'printf "\\e]1;' + str + '\\a"',
-        function (error, stdout, stderr) { system.puts(stdout); }
     );
 }
 
-exports.listing = function() {
-    var str = '加载列表中，请稍等...';
+exports.notify = function(song) {
+    notifier.notify({
+        title: song.notifyTitle || 'Douban FM',
+        open: song.open || sys.repository.url,
+        message: song.text || sys.name + ' v' + sys.version
+    });
+}
+
+// TODO: 只有一个 tab 的时候这个 func 会导致 tab 页面闪动
+exports.updateTab = function(str) {
+    exec(
+        'printf "\\e]1;' + str + '\\a"',
+        function (error, stdout, stderr) { 
+            system.puts(stdout);
+        }
+    );
+}
+
+exports.title = function(str, c) {
+    if (!str) return false;
     this.updateTab(str);
-    return color.grey(str);
+    return color[c || 'grey'](str);
+}
+
+exports.listing = function() {
+    return this.title('加载列表中，请稍等...')
 }
 
 exports.loading = function() {
-    var str = '歌曲缓冲中，请稍等...';
-    this.updateTab(str);
-    return color.grey(str);
+    return this.title('歌曲缓冲中，请稍等..')
 }
 
-exports.song = function(song) {
-    var strMusic  = '♫ ',
-        strFailed = strMusic + '未知曲目...';
+exports.pause = function() {
+    this.title('Douban FM');
+    return color.yellow('||');
+}
+
+exports.song = function(s) {
+    var label  = '♫ ';
+    var song = s.title ? s : {};
     if (!song.title) {
-        this.notify(strFailed);
-        this.updateTab(strFailed);
-        return color.grey();
+        song.text = label + '未知曲目...';
+        this.notify(song);
+        this.updateTab(song.text);
+        return color.grey(song.text);
     }
-    var strSong = strMusic + song.title + ' - ' + song.artist;
-    this.notify(strSong);
-    this.updateTab(strSong);
+    song.text = label + song.title + ' - ' + song.artist;
+    song.open = utils.album(song.album);
+    this.notify(song);
+    this.updateTab(song.text);
     return printf(
         '%s %s %s %s %s %s %s %s',
         song.like == 1 ? color.red('♥') : color.grey('♥'),
@@ -65,12 +78,6 @@ exports.song = function(song) {
         song.artist,
         color.grey(song.public_time)
     )
-}
-
-exports.pause = function() {
-    var str = '||';
-    this.updateTab('Douban FM');
-    return color.yellow(str);
 }
 
 exports.share = function(song) {

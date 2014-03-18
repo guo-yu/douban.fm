@@ -39,6 +39,29 @@ var Fm = function() {
     template.updateTab('Douban FM');
 };
 
+Fm.prototype.fetch = function(channel, account, callback) {
+    if (!this.player) return false;
+    var self = this;
+    var defaultCb = function(){ return false; }
+    var cb = callback && typeof(callback) === 'function' ? callback : defaultCb;
+    self.status = 'switching';
+    return sdk.fetch({
+        channel: channel.channel_id,
+        user_id: account.user_id,
+        expire: account.expire,
+        token: account.token,
+        kbps: 192
+    }, function(err, songs) {
+        if (err) return cb(err);
+        if (!songs) return cb(null, null);
+        songs.forEach(function(s, index) {
+            s._id = self.player.list.length;
+            self.player.add(s);
+        });
+        return cb(null, true);
+    });
+}
+
 Fm.prototype.play = function(channel, user) {
 
     var self = this,
@@ -96,23 +119,9 @@ Fm.prototype.play = function(channel, user) {
                 channel.index,
                 template.song(song)
             );
+            // 没有对尝试获取列表失败进行处理，如果失败2次，则不会再播放任何歌曲
             if (song._id < self.player.list.length - 1) return false;
-            self.status = 'switching';
-            return sdk.fetch({
-                channel: channel.channel_id,
-                user_id: account.user_id,
-                expire: account.expire,
-                token: account.token,
-                kbps: 192
-            }, function(err, songs) {
-                if (err) return false;
-                // 没有对尝试获取列表失败进行处理，如果失败2次，则不会再播放任何歌曲
-                if (!songs) return false;
-                return songs.forEach(function(s, index) {
-                    s._id = self.player.list.length;
-                    self.player.add(s);
-                });
-            });
+            return self.fetch(channel, account);
         });
     });
 }
@@ -146,9 +155,14 @@ Fm.prototype.loving = function(channel, user) {
     });
 }
 
-Fm.prototype.next = function() {
+Fm.prototype.next = function(channel, user) {
     if (!this.player) return false;
-    return this.player.next();
+    var self = this;
+    var account = user && user.account ? user.account : {};
+    self.fetch(channel, account, function(err, stat) {
+        if (err || !stat) return self.menu.update(0, '出错了, 请稍后再试...');
+        return self.player.next();
+    });
 }
 
 Fm.prototype.stop = function() {

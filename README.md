@@ -1,6 +1,6 @@
 ![](http://ww3.sinaimg.cn/large/61ff0de3gw1e77q7mth9dj200z00z3ya.jpg) douban.fm ![](https://badge.fury.io/js/douban.fm.png)
 ---
-简洁优雅的豆瓣电台命令行版，基于 Node.js
+简洁优雅的豆瓣电台命令行版，基于 Node.js。
 
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg)
 
