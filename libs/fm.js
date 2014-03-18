@@ -36,6 +36,7 @@ var Fm = function() {
     this.isShowLrc = false;
     // ensure dir exists
     mkdirp.sync(this.love);
+    template.updateTab('Douban FM');
 };
 
 Fm.prototype.play = function(channel, user) {
@@ -59,7 +60,7 @@ Fm.prototype.play = function(channel, user) {
     menu.clear(0);
     self.channel = channel.index;
     self.status = 'fetching';
-    menu.update(channel.index, color.grey('加载列表中，请稍等...'));
+    menu.update(channel.index, template.listing());
 
     // 获取相应频道的曲目
     sdk.fetch({
@@ -83,7 +84,7 @@ Fm.prototype.play = function(channel, user) {
         self.player.play();
         self.player.on('downloading', function(url) {
             self.status = 'downloading';
-            menu.update(channel.index, color.grey('歌曲缓冲中，请稍等...'));
+            menu.update(channel.index, template.loading());
         });
         // 更新歌单
         self.player.on('playing', function(song) {
@@ -154,7 +155,7 @@ Fm.prototype.stop = function() {
     if (!this.player) return false;
     var menu = this.menu;
     menu.clear(0);
-    menu.update(0, color.yellow('||'));
+    menu.update(0, template.pause());
     return this.player.stop();
 }
 

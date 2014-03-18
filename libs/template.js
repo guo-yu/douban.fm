@@ -1,7 +1,10 @@
 var color = require('colorful'),
     utils = require('./utils'),
     sys = require('../package'),
-    printf = require('sprintf').sprintf;
+    printf = require('sprintf').sprintf,
+    system = require('sys'),
+    exec = require('child_process').exec,
+    notifier = new require('node-notifier')();
 
 exports.logo = function(user) {
     return printf(
@@ -14,8 +17,43 @@ exports.logo = function(user) {
     )
 }
 
+exports.notify = function(str) {
+    notifier.notify({
+        title: 'Douban FM',
+        message: str
+    });
+}
+
+exports.updateTab = function(str) {
+    exec(
+        'printf "\\e]1;' + str + '\\a"',
+        function (error, stdout, stderr) { system.puts(stdout); }
+    );
+}
+
+exports.listing = function() {
+    var str = '加载列表中，请稍等...';
+    this.updateTab(str);
+    return color.grey(str);
+}
+
+exports.loading = function() {
+    var str = '歌曲缓冲中，请稍等...';
+    this.updateTab(str);
+    return color.grey(str);
+}
+
 exports.song = function(song) {
-    if (!song.title) return color.grey('未知曲目...');
+    var strMusic  = '♫ ',
+        strFailed = strMusic + '未知曲目...';
+    if (!song.title) {
+        this.notify(strFailed);
+        this.updateTab(strFailed);
+        return color.grey();
+    }
+    var strSong = strMusic + song.title + ' - ' + song.artist;
+    this.notify(strSong);
+    this.updateTab(strSong);
     return printf(
         '%s %s %s %s %s %s %s %s',
         song.like == 1 ? color.red('♥') : color.grey('♥'),
@@ -27,6 +65,12 @@ exports.song = function(song) {
         song.artist,
         color.grey(song.public_time)
     )
+}
+
+exports.pause = function() {
+    var str = '||';
+    this.updateTab('Douban FM');
+    return color.yellow(str);
 }
 
 exports.share = function(song) {
