@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "beer": "0.0.8",
-    "exeq": "~0.4.0",
     "lrc": "~0.1.0",
     "sprintf": "0.1.3",
     "player": "~0.1.4",
@@ -37,12 +36,13 @@
     "mkdirp": "~0.3.5",
     "colorful": "2.1.0",
     "paramrule": "0.0.2",
-    "term-list": "~0.2.1",
     "underscore": "~1.5.2",
+    "open": "*",
     "async": "*",
     "consoler": "*",
     "ffmetadata": "*",
-    "node-notifier": "*"
+    "node-notifier": "*",
+    "term-list-enhanced": "*"
   },
   "devDependencies": {
     "mocha": "*",

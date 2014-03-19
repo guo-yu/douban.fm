@@ -1,17 +1,16 @@
 var fs = require('fs'),
     path = require('path'),
-    exeq = require('exeq'),
     mkdirp = require('mkdirp'),
     Player = require('player'),
     color = require('colorful'),
     consoler = require('consoler'),
+    termList = require('term-list-enhanced'),
     sys = require('../package'),
     sdk = require('./sdk'),
     lrc = require('./lrc'),
     utils = require('./utils'),
     errors = require('./errors'),
-    template = require('./template'),
-    termList = require('./term-list');
+    template = require('./template');
 
 // 快捷键列表
 var shorthands = {

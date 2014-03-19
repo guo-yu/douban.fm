@@ -1,7 +1,6 @@
 var fs = require('fs'),
-    exeq = require('exeq'),
-    paramrule = require('paramrule'),
-    open = process.platform === 'win32' ? 'start' : 'open';
+    open = require('open'),
+    paramrule = require('paramrule');
 
 // 获取用户的家地址
 exports.home = function() {
@@ -11,7 +10,7 @@ exports.home = function() {
 // 跳转到相应页面，使用 open 或者 start
 exports.go = function(link) {
     if (!link) return false;
-    return exeq([open + ' ' + link]).run();
+    return open(link);
 }
 
 // 解析歌曲专辑页面可能出现的小站链接
