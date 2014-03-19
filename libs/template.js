@@ -27,9 +27,8 @@ exports.notify = function(song) {
 
 // TODO: 只有一个 tab 的时候这个 func 会导致 tab 页面闪动
 exports.updateTab = function(str) {
-    exec(
-        'printf "\\e]1;' + str + '\\a"',
-        function (error, stdout, stderr) { 
+    exec('printf "\\e]1;' + str + '\\a"',
+        function(error, stdout, stderr) {
             system.puts(stdout);
         }
     );
@@ -55,7 +54,7 @@ exports.pause = function() {
 }
 
 exports.song = function(s) {
-    var label  = '♫ ';
+    var label = '♫ ';
     var song = s.title ? s : {};
     if (!song.title) {
         song.text = label + '未知曲目...';
@@ -96,7 +95,7 @@ exports.share = function(song) {
         encodeURIComponent([
             '我正在用豆瓣电台命令行版 v' + sys.version + ' 收听 ',
             song.like ? '[心]' : '',
-            song.title ? song.title: '本地电台频道',
+            song.title ? song.title : '本地电台频道',
             song.kbps ? song.kbps + 'kbps' : '',
             '... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...',
             song.albumtitle ? song.albumtitle + '•' : '',
