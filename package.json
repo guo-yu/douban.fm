@@ -28,6 +28,7 @@
     "url": "https://github.com/turingou/douban.fm/issues"
   },
   "dependencies": {
+    "pool_stream": "0.0.2",
     "beer": "0.0.8",
     "lrc": "~0.1.0",
     "sprintf": "0.1.3",
