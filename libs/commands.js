@@ -69,7 +69,11 @@ exports.id3 = function(fm, argv) {
         id3.date = song.public_time;
         id3.year = song.public_time;
         id3.publisher = song.company;
-        ffmetadata.write(song.url, id3, callback);
+        ffmetadata.write(song.url, id3, function(err) {
+            if (!err) consoler.success('√ ' + id3.title);
+            if (err) consoler.error('X ' + id3.title);
+            callback(null);
+        });
     };
 
     fm.configs(function(err, profile) {
@@ -77,18 +81,19 @@ exports.id3 = function(fm, argv) {
         var userhome = utils.home();
         var home = profile.home || userhome;
         var history = path.join(userhome, '.douban.fm.history.json');
-        var songs = [];
+        consoler.loading('正在从 ' + home + ' 读取音乐列表');
         sdk.local(home, history, function(err, list) {
             if (err) return consoler.error(err);
-            list.forEach(function(song) {
+            var songs = list.filter(function(song) {
                 var keys = Object.keys(song);
-                if (keys.length === 1 && keys[0] === 'url') return false;
-                songs.push(song);
+                if (keys.length === 1 && keys[0] === 'url') return false; 
+                return true;
             });
             if (songs.length === 0) return consoler.error('没有歌曲符合条件');
-            async.each(songs, addid3, function(err) {
+            consoler.success('找到 ' + songs.length + ' 首有效歌曲，正在添加 id3 信息');
+            async.eachLimit(songs, 20, addid3, function(err) {
                 if (err) return consoler.error(err);
-                return consoler.success('添加歌曲id3成功');
+                return consoler.success('添加歌曲 id3 信息完成');
             });
         });
     });
