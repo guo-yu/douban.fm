@@ -206,7 +206,7 @@ Fm.prototype.createMenu = function(callback) {
         self.configs(function(err, user) {
             self.menu = new termList();
             var nav = [template.logo(user), sdk.mhz.localMhz];
-            self.menu.adds(nav.concat(list));
+            self.menu.adds(nav.concat(!err ? list : []));
             self.menu.on('keypress', function(key, index) {
                 if (!shorthands[key.name]) return false;
                 if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
