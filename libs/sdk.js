@@ -31,7 +31,8 @@ exports.auth = function(account, callback) {
       version: 100,
       email: account.email.toString(),
       password: account.password.toString()
-    }
+    },
+    headers: {'User-Agent': 'douban.fm'}
   }, function(err, result) {
     if (err) return callback(err);
     var result = result.body;
