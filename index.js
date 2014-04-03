@@ -23,4 +23,4 @@
 // @brief: Douban.fm command line interface based on Node.js
 // @author: 新浪微博@郭宇 [turingou](http://guoyu.me)
 
-exports = module.exports = require('./libs/fm');
+module.exports = require('./libs/fm');
