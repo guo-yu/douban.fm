@@ -1,5 +1,5 @@
-var fs = require('fs');
 var path = require('path');
+var fs = require('fsplus');
 var mkdirp = require('mkdirp');
 var Player = require('player');
 var color = require('colorful');
@@ -12,7 +12,7 @@ var utils = require('./utils');
 var errors = require('./errors');
 var template = require('./template');
 
-// 快捷键列表
+// the keypress shortcut list
 var shorthands = {
   'return': 'play',
   'backspace': 'stop',
@@ -27,11 +27,11 @@ var shorthands = {
 module.exports = Fm;
 
 function Fm() {
-  this.userhome = utils.home();
   this.rc = {};
+  this.userhome = utils.home();
   this.rc.profile = path.join(this.userhome, '.douban.fm.profile.json');
   this.rc.history = path.join(this.userhome, '.douban.fm.history.json');
-  this.home = utils.jsonSync(this.rc.profile).home || path.join(this.userhome, 'douban.fm');
+  this.home = utils.readJSON(this.rc.profile).home || path.join(this.userhome, 'douban.fm');
   this.love = path.join(this.home, 'love');
   this.shorthands = shorthands;
   this.isShowLrc = false;
@@ -39,12 +39,19 @@ function Fm() {
   template.updateTab('Douban FM');
 };
 
+/**
+*
+* Fetch songs and add them to playlist
+* @channel[Object]
+* @user[Object]
+*
+**/
 Fm.prototype.fetch = function(channel, account, callback) {
   if (!this.player) return false;
   var self = this;
   var defaultCb = function() {
     return false;
-  }
+  };
   var cb = callback && typeof(callback) === 'function' ? callback : defaultCb;
   self.status = 'switching';
   return sdk.fetch({
@@ -64,14 +71,20 @@ Fm.prototype.fetch = function(channel, account, callback) {
   });
 }
 
+/**
+*
+* Playing songs when everything is ready
+* @channel[Object]
+* @user[Object]
+*
+**/
 Fm.prototype.play = function(channel, user) {
-
   var self = this;
   var menu = self.menu;
   var account = user && user.account ? user.account : {};
   var privateMhz = (channel.channel_id == 0 || channel.channel_id == -3) && !account.token;
 
-  // 检查是否是私人兆赫，如果没有设置账户直接返回
+  // Check if this kind of mHz is private
   if (privateMhz) return menu.update(channel.index, color.yellow(errors.account_missing));
   if (self.status === 'fetching' || self.status === 'downloading') return false;
   if (self.status === 'playing') {
@@ -81,13 +94,13 @@ Fm.prototype.play = function(channel, user) {
     self.player = null;
   }
 
-  // 清除标志状态，加载标志
+  // clear label status
   menu.clear(0);
   self.channel = channel.index;
   self.status = 'fetching';
   menu.update(channel.index, template.listing());
 
-  // 获取相应频道的曲目
+  // start fetching songs
   sdk.fetch({
     kbps: 192,
     token: account.token,
@@ -98,7 +111,7 @@ Fm.prototype.play = function(channel, user) {
     local: (channel.channel_id == -99) ? self.home : false
   }, function(err, songs, result) {
     if (err) return menu.update(channel.index, color.red(err.toString()));
-    // 标记 PRO 账户
+    // mark PRO account
     if (result && !result.warning) menu.update(0, color.inverse(' PRO '));
     self.status = 'ready';
     self.player = new Player(songs, {
@@ -111,10 +124,19 @@ Fm.prototype.play = function(channel, user) {
       self.status = 'downloading';
       menu.update(channel.index, template.loading());
     });
-    // 更新歌单
+    // update template
     self.player.on('playing', function(song) {
       self.status = 'playing';
-      if (song.title && song.sid) self.log(song);
+      // logging songs history
+      if (song.title && song.sid) {
+        var updates = {};
+        updates[song.sid] = song;
+        try {
+          return fs.updateJSON(this.rc.history, updates);
+        } catch (err) {
+          // error must be logged in a private place.
+        }
+      }
       menu.update(0, color.yellow('>>'));
       if (self.isShowLrc) lrc.fetch(self, song);
       menu.update(
@@ -128,6 +150,13 @@ Fm.prototype.play = function(channel, user) {
   });
 }
 
+/**
+*
+* Add current song to lovelist when pressing `L`
+* @channel[Object]
+* @user[Object]
+*
+**/
 Fm.prototype.loving = function(channel, user) {
   if (!this.player) return false;
   if (!this.player.playing) return false;
@@ -157,16 +186,30 @@ Fm.prototype.loving = function(channel, user) {
   });
 }
 
+/**
+*
+* Play the next song in the playlist
+* @channel[Object]
+* @user[Object]
+*
+**/
 Fm.prototype.next = function(channel, user) {
   if (!this.player) return false;
   var self = this;
   var account = user && user.account ? user.account : {};
+  // for what ?
   self.fetch(channel, account, function(err, stat) {
     if (err || !stat) return self.menu.update(0, '出错了, 请稍后再试...');
     return self.player.next();
   });
 }
 
+/**
+*
+* Stop playing
+* and show the stopped status on logo.
+*
+**/
 Fm.prototype.stop = function() {
   if (!this.player) return false;
   var menu = this.menu;
@@ -175,11 +218,24 @@ Fm.prototype.stop = function() {
   return this.player.stop();
 }
 
+/**
+*
+* Quit the Fm
+* and kill the process.
+*
+**/
 Fm.prototype.quit = function() {
   this.menu.stop();
   return process.exit();
 }
 
+/**
+*
+* Goto the music album page when pressing `G`
+* @channel[Object]
+* @user[Object]
+*
+**/
 Fm.prototype.go = function(channel, user) {
   if (!this.player) return false;
   if (!this.player.playing) return false;
@@ -187,6 +243,13 @@ Fm.prototype.go = function(channel, user) {
   return utils.go(utils.album(this.player.playing.album));
 }
 
+/**
+*
+* Show lrc when when pressing `R`.
+* @channel[Object]
+* @user[Object]
+*
+**/
 Fm.prototype.showLrc = function(channel, user) {
   if (channel.channel_id == -99) return false;
   this.isShowLrc = !!!this.isShowLrc;
@@ -195,21 +258,38 @@ Fm.prototype.showLrc = function(channel, user) {
   return false;
 }
 
+/**
+*
+* Share the current playing songs to Weibo when pressing `S`.
+* @channel[Object]
+* @user[Object]
+*
+**/
 Fm.prototype.share = function(channel, user) {
-  if (!this.player) return false;
-  if (!this.player.playing) return false;
+  if (!this.player || !this.player.playing) return false;
   return utils.go(template.share(this.player.playing));
 }
 
+/**
+*
+* Create command line interface menu
+* using term-list-enhanced module
+* @callback[Function]: the callback function when set down.
+*
+**/
 Fm.prototype.createMenu = function(callback) {
   var self = this;
   var shorthands = self.shorthands;
-  sdk.channels(function(err, list) {
+  // fetch channels
+  sdk.fm.channels({}, function(err, list) {
     if (err) consoler.error('获取豆瓣电台频道出错，切换为本地电台...');
-    self.configs(function(err, user) {
+    // fetch configs, show user's infomations
+    fs.readJSON(self.rc.profile, function(err, user) {
+      // init menu
       self.menu = new termList();
-      var nav = [template.logo(user), sdk.mhz.localMhz];
+      var nav = [template.logo(user), sdk.mhz.localMhz, sdk.mhz.privateMhz];
       self.menu.adds(nav.concat(!err ? list : []));
+      // bind keypress events
       self.menu.on('keypress', function(key, index) {
         if (!shorthands[key.name]) return false;
         if (index < 1 && key.name != 'q') return utils.go(sys.repository.url);
@@ -218,46 +298,20 @@ Fm.prototype.createMenu = function(callback) {
       self.menu.on('empty', function() {
         self.menu.stop();
       });
+      // start menu at line 2 (below the logo text)
       self.menu.start(1);
     });
   });
-  if (!callback || typeof(callback) !== 'function') return false;
-  return callback();
-};
-
-Fm.prototype.auth = function(params, callback) {
-  var self = this;
-  sdk.auth(params, function(err, user) {
-    if (err) return callback(err);
-    self.configs({
-      account: {
-        email: user.email,
-        token: user.token,
-        expire: user.expire,
-        user_name: user.user_name,
-        user_id: user.user_id
-      }
-    }, callback);
-  });
-};
-
-Fm.prototype.configs = function() {
-  return utils.log(this.rc.profile, arguments);
-};
-
-Fm.prototype.history = function() {
-  return utils.log(this.rc.history, arguments);
-};
-
-Fm.prototype.log = function(song) {
-  var self = this;
-  return self.history(function(err, songs) {
-    var list = (err || !songs || songs.length === 0) ? {} : songs;
-    list[song.sid] = song;
-    self.history(list, function() {});
-  });
+  // callback if necessary.
+  return callback && callback();
 }
 
+/**
+*
+* Init douban.fm command line interface.
+* @callback [Function]: the callback function when all set done
+*
+**/
 Fm.prototype.init = function(callback) {
   var self = this;
   fs.exists(self.home, function(exist) {
@@ -267,6 +321,4 @@ Fm.prototype.init = function(callback) {
       return self.createMenu(callback);
     });
   })
-};
-
-Fm.prototype.sdk = sdk;
+}

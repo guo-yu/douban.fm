@@ -9,8 +9,8 @@
     "test": "./node_modules/mocha/bin/mocha ./test/test.js"
   },
   "bin": {
-    "core.douban.fm": "./bin/cli",
-    "douban.fm": "./bin/start.sh"
+    "douban.fm": "./bin/start.sh",
+    "dev.douban.fm": "./bin/dev.sh"
   },
   "repository": {
     "type": "git",
@@ -28,24 +28,20 @@
     "url": "https://github.com/turingou/douban.fm/issues"
   },
   "dependencies": {
-    "beer": "0.0.8",
-    "lrc": "~0.1.0",
+    "geci": "0.0.x",
+    "douban-sdk": "0.0.x",
     "sprintf": "0.1.3",
-    "player": "~0.1.4",
+    "player": "~0.1.6",
     "prompt": "~0.2.12",
     "mkdirp": "~0.3.5",
     "colorful": "2.1.0",
-    "paramrule": "0.0.2",
     "underscore": "~1.5.2",
     "open": "*",
     "async": "*",
+    "fsplus": "*",
     "consoler": "*",
     "ffmetadata": "*",
     "node-notifier": "*",
     "term-list-enhanced": "*"
-  },
-  "devDependencies": {
-    "mocha": "*",
-    "should": "*"
   }
 }

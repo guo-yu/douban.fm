@@ -1,3 +1,4 @@
 #!/bin/sh
 
-node ./bin/cli 2>./err.log
+script=`dirname $0`
+node $script/cli 2>./err.log
