@@ -1,6 +1,5 @@
-var fs = require('fs');
 var open = require('open');
-var paramrule = require('paramrule');
+var fs = require('fsplus');
 
 // 获取用户的家地址
 exports.home = function() {
@@ -27,38 +26,36 @@ exports.sid = function(filename) {
   return idstr.substr(0, idstr.lastIndexOf('_'))
 }
 
-// 同步读
-exports.jsonSync = function(file) {
+exports.readJSON = function(file) {
   try {
-    var data = fs.readFileSync(file);
-    return JSON.parse(data.toString());
+    return fs.readJSON(file);
   } catch (err) {
     return {};
   }
 }
 
 // 读写json
-exports.json = function(file, callback, contents) {
-  if (!contents) {
-    return fs.readFile(file, function(err, data) {
-      if (err) return callback(err, null);
-      try {
-        callback(err, JSON.parse(data));
-      } catch (err) {
-        callback(err);
-      }
-    });
-  } else {
-    return fs.writeFile(file, JSON.stringify(contents), function(err) {
-      callback(err, contents);
-    });
-  }
-}
+// exports.json = function(file, callback, contents) {
+//   if (!contents) {
+//     return fs.readFile(file, function(err, data) {
+//       if (err) return callback(err, null);
+//       try {
+//         callback(err, JSON.parse(data));
+//       } catch (err) {
+//         callback(err);
+//       }
+//     });
+//   } else {
+//     return fs.writeFile(file, JSON.stringify(contents), function(err) {
+//       callback(err, contents);
+//     });
+//   }
+// }
 
-// 读写 json 的快捷方法
-exports.log = function(file, argvs) {
-  return paramrule.parse(argvs, ['', '*'], function(params, callback) {
-    if (params) return exports.json(file, callback, params);
-    return exports.json(file, callback);
-  });
-}
+// // 读写 json 的快捷方法
+// exports.log = function(file, argvs) {
+//   return paramrule.parse(argvs, ['', '*'], function(params, callback) {
+//     if (params) return exports.json(file, callback, params);
+//     return exports.json(file, callback);
+//   });
+// }

@@ -1,4 +1,5 @@
 var path = require('path');
+var fs = require('fsplus');
 var async = require('async');
 var prompt = require('prompt');
 var consoler = require('consoler');
@@ -28,18 +29,37 @@ exports.ready = function() {
   return consoler.loading('正在加载...');
 };
 
+/**
+*
+* Auth and save user's accounts infomation and token
+* @params [Object] the account object
+* @fm [Object] the fm object
+*
+**/
 exports.config = function(fm) {
   prompt.start();
   prompt.get(promptSchema, function(err, result) {
     if (err) return consoler.error(err);
-    fm.auth({
+    sdk.fm.auth({
       email: result.email,
       password: result.password
-    }, function(err, configs) {
+    }, function(err, user) {
       if (err) return consoler.error(err);
-      var user = configs.account;
-      consoler.success('欢迎你，' + user.user_name + '。您的豆瓣账户已经成功修改为：' + user.email);
-      fm.init(exports.ready);
+      console.log(fm.rc.profile);
+      fs.writeJSON(fm.rc.profile, {
+        account: {
+          email: user.email,
+          token: user.token,
+          expire: user.expire,
+          user_name: user.user_name,
+          user_id: user.user_id
+        }
+      }, function(err, configs){
+        if (err) return consoler.error(err);
+        var user = configs.account;
+        consoler.success('欢迎你，' + user.user_name + '。您的豆瓣账户已经成功修改为：' + user.email);
+        fm.init(exports.ready);  
+      });
     });
   });
 };
@@ -60,7 +80,7 @@ exports.home = function(fm, argv) {
 
 exports.id3 = function(fm, argv) {
 
-  var addid3 = function(song, callback) {
+  function addid3(song, callback) {
     if (!song.url) return callback(null);
     var id3 = {};
     id3.artist = song.artist;
