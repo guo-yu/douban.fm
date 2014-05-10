@@ -1,5 +1,5 @@
-var open = require('open');
 var fs = require('fsplus');
+var open = require('open');
 
 // 获取用户的家地址
 exports.home = function() {
@@ -26,6 +26,7 @@ exports.sid = function(filename) {
   return idstr.substr(0, idstr.lastIndexOf('_'))
 }
 
+// read json if err return blank object
 exports.readJSON = function(file) {
   try {
     return fs.readJSON(file);
@@ -34,28 +35,6 @@ exports.readJSON = function(file) {
   }
 }
 
-// 读写json
-// exports.json = function(file, callback, contents) {
-//   if (!contents) {
-//     return fs.readFile(file, function(err, data) {
-//       if (err) return callback(err, null);
-//       try {
-//         callback(err, JSON.parse(data));
-//       } catch (err) {
-//         callback(err);
-//       }
-//     });
-//   } else {
-//     return fs.writeFile(file, JSON.stringify(contents), function(err) {
-//       callback(err, contents);
-//     });
-//   }
-// }
-
-// // 读写 json 的快捷方法
-// exports.log = function(file, argvs) {
-//   return paramrule.parse(argvs, ['', '*'], function(params, callback) {
-//     if (params) return exports.json(file, callback, params);
-//     return exports.json(file, callback);
-//   });
-// }
+exports.isFunction = function(func) {
+  return func && typeof(func) === 'function';
+}

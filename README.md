@@ -122,34 +122,34 @@ $ douban.fm help
 这些范例可能和最终的结果不一致，在使用前，最好参考 `./libs/sdk.js` 这个文件，以防出现意想不到的错误
 
 ````javascript
-var Fm = require('douban.fm'),
-    fm = new Fm;
+var Fm = require('douban.fm');
+var fm = new Fm;
 
 // 豆瓣账户模拟登录
 fm.sdk.auth({
-    email: 'xxx',
-    password: 'xxx'
+  email: 'xxx',
+  password: 'xxx'
 },function(err, result){
-    // do sth with result token.
+  // do sth with result token.
 });
 
 // 获取频道
 fm.sdk.channels(function(err, channels){
-    console.log(channels)
+  console.log(channels)
 });
 
 // 获取歌曲列表
 // 详见: http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
 fm.sdk.fetch({
-    id: channel.id,
-    type: 'n'
+  id: channel.id,
+  type: 'n'
 },user,function(err, songs){
-    console.log(songs)
+  console.log(songs)
 });
 
 // 搜索歌词
 fm.sdk.lrc(title, artist, function(err, lrc){
-    console.log(lrc)
+  console.log(lrc);
 });
 ````
 
