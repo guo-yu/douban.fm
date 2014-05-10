@@ -23,11 +23,7 @@ var promptSchema = {
       required: true
     }
   }
-};
-
-exports.ready = function() {
-  return consoler.loading('正在加载...');
-};
+}
 
 /**
 *
@@ -41,11 +37,11 @@ exports.config = function(fm) {
   prompt.get(promptSchema, function(err, result) {
     if (err) return consoler.error(err);
     sdk.fm.auth({
-      email: result.email,
-      password: result.password
-    }, function(err, user) {
+      form: result
+    }, function(err, response, user) {
       if (err) return consoler.error(err);
-      console.log(fm.rc.profile);
+      // console.log(err);
+      // console.log(response);
       fs.writeJSON(fm.rc.profile, {
         account: {
           email: user.email,
@@ -62,7 +58,7 @@ exports.config = function(fm) {
       });
     });
   });
-};
+}
 
 exports.home = function(fm, argv) {
   fm.configs(function(err, profile) {
@@ -76,10 +72,9 @@ exports.home = function(fm, argv) {
       return f.init(exports.ready);
     });
   });
-};
+}
 
 exports.id3 = function(fm, argv) {
-
   fm.configs(function(err, profile) {
     if (err) return consoler.error(err);
     var userhome = utils.home();
@@ -144,4 +139,8 @@ exports.help = function() {
     "[q]           ->     退出豆瓣电台 (QUIT)",
     ""
   ].join('\n'));
-};
+}
+
+exports.ready = function() {
+  return consoler.loading('正在加载...');
+}

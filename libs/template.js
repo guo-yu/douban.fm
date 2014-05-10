@@ -23,7 +23,7 @@ exports.notify = function(song) {
   });
 }
 
-// TODO: 只有一个 tab 的时候这个 func 会导致 tab 页面闪动
+// BUG: 只有一个 tab 的时候这个 func 会导致 tab 页面闪动
 exports.updateTab = function(str) {
   exec('printf "\\e]1;' + str + '\\a"',
     function(error, stdout, stderr) {
@@ -34,7 +34,7 @@ exports.updateTab = function(str) {
 
 exports.title = function(str, c) {
   if (!str) return false;
-  this.updateTab(str);
+  // this.updateTab(str);
   return color[c || 'grey'](str);
 }
 
@@ -57,13 +57,11 @@ exports.song = function(s, selectText) {
   if (!song.title) {
     song.text = label + '未知曲目...';
     this.notify(song);
-    this.updateTab(song.text);
     return color.grey(song.text);
   }
   song.text = label + song.title + ' - ' + song.artist;
   song.open = utils.album(song.album);
   this.notify(song);
-  this.updateTab(song.text);
   return printf(
     '%s %s %s %s %s %s %s %s',
     song.like == 1 ? color.red('♥') : color.grey('♥'),
@@ -78,8 +76,10 @@ exports.song = function(s, selectText) {
 }
 
 exports.share = function(song) {
-  var shareText = 'http://service.weibo.com/share/share.php?' +
+  var shareText = 
+    'http://service.weibo.com/share/share.php?' +
     '&type=button' +
+    '&appkey=3374718187' +
     '&ralateUid=1644105187' +
     '&url=' +
     pkg.repository.url +
@@ -90,11 +90,9 @@ exports.share = function(song) {
     '&title=' +
     encodeURIComponent([
       '我正在用豆瓣电台命令行版 v' + pkg.version + ' 收听 ',
-      song.like ? '[心]' : '',
-      song.title || '本地电台频道',
+      song.title ? '「' + song.title + '」' : '本地电台频道',
       song.kbps ? song.kbps + 'kbps' : '',
-      '... ♪ ♫ ♫ ♪ ♫ ♫ ♪ ♪ ...',
-      song.albumtitle ? song.albumtitle + '•' : '',
+      song.albumtitle ? song.albumtitle + ' • ' : '',
       song.artist || '',
       song.public_time || '',
       song.album ? utils.album(song.album) : ''
