@@ -1,5 +1,5 @@
-var path = require('path');
 var fs = require('fsplus');
+var path = require('path');
 var async = require('async');
 var prompt = require('prompt');
 var consoler = require('consoler');
@@ -80,22 +80,6 @@ exports.home = function(fm, argv) {
 
 exports.id3 = function(fm, argv) {
 
-  function addid3(song, callback) {
-    if (!song.url) return callback(null);
-    var id3 = {};
-    id3.artist = song.artist;
-    id3.title = song.title;
-    id3.album = song.albumtitle;
-    id3.date = song.public_time;
-    id3.year = song.public_time;
-    id3.publisher = song.company;
-    ffmetadata.write(song.url, id3, function(err) {
-      if (!err) consoler.success('√ ' + id3.title);
-      if (err) consoler.error('X ' + id3.title);
-      callback(null);
-    });
-  };
-
   fm.configs(function(err, profile) {
     if (err) return consoler.error(err);
     var userhome = utils.home();
@@ -117,6 +101,23 @@ exports.id3 = function(fm, argv) {
       });
     });
   });
+
+  function addid3(song, callback) {
+    if (!song.url) return callback(null);
+    var id3 = {};
+    id3.artist = song.artist;
+    id3.title = song.title;
+    id3.album = song.albumtitle;
+    id3.date = song.public_time;
+    id3.year = song.public_time;
+    id3.publisher = song.company;
+    ffmetadata.write(song.url, id3, function(err) {
+      if (!err) consoler.success('√ ' + id3.title);
+      if (err) consoler.error('X ' + id3.title);
+      callback(null);
+    });
+  }
+  
 }
 
 exports.help = function() {

@@ -1,23 +1,21 @@
 var fs = require('fsplus');
 var path = require('path');
-var _ = require('underscore');
 var Douban = require('douban-sdk');
-var utils = require('./utils');
 var douban = new Douban();
+var utils = require('./utils');
 
-exports.fetch = function(params, callback) {
+exports.songs = function(params, callback) {
   var local = params && params.local && params.history;
   if (local) return exports.local(params.local, params.history, callback);
   if (params.history) delete params.history;
-  douban.fm.songs({
-    qs: params
-  }, callback);
+  var query = {};
+  query.qs = params;
+  return douban.fm.songs(query, callback);
 }
 
 exports.love = function(params, callback) {
-  exports.fetch(_.extend({
-    type: 'r'
-  }, params), callback);
+  params.type = 'r';
+  return exports.songs(params, callback);
 }
 
 exports.local = function(dir, history, callback) {

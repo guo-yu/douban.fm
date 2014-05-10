@@ -28,20 +28,19 @@
     "url": "https://github.com/turingou/douban.fm/issues"
   },
   "dependencies": {
-    "geci": "0.0.x",
+    "player": "0.1.7",
     "douban-sdk": "0.0.x",
-    "sprintf": "0.1.3",
-    "player": "~0.1.6",
-    "prompt": "~0.2.12",
+    "term-list-enhanced": "*",
+    "consoler": "*",
     "mkdirp": "~0.3.5",
+    "fsplus": "*",
+    "sprintf": "0.1.3",
+    "prompt": "~0.2.12",
     "colorful": "2.1.0",
-    "underscore": "~1.5.2",
     "open": "*",
     "async": "*",
-    "fsplus": "*",
-    "consoler": "*",
+    "geci": "0.0.x",
     "ffmetadata": "*",
-    "node-notifier": "*",
-    "term-list-enhanced": "*"
+    "node-notifier": "*"
   }
 }
