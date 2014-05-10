@@ -84,11 +84,15 @@ Fm.prototype.play = function(channel, account) {
 
   // Check if this kind of mHz is private
   if (privateMhz) return menu.update(channel.index, color.yellow(errors.account_missing));
-  if (self.status === 'fetching' || self.status === 'downloading') return false;
-  if (self.status === 'playing') {
+
+  // clear last label
+  if (self.status === 'fetching' || self.status === 'downloading') return;
+  if (self.status === 'playing' || self.status === 'error') {
     if (typeof(self.channel) != undefined) menu.clear(self.channel);
-    self.player.stop();
-    delete self.player;
+    if (self.player) {
+      self.player.stop();
+      delete self.player;
+    }
   }
 
   // clear label status
@@ -99,7 +103,10 @@ Fm.prototype.play = function(channel, account) {
 
   // start fetching songs
   self.fetch(channel, account, function(err, songs, result) {
-    if (err) return menu.update(channel.index, color.red(err.toString()));
+    if (err) {
+      self.status = 'error';
+      return menu.update(channel.index, color.red(err.toString()));
+    }
     // mark PRO account on logo
     if (result && !result.warning) menu.update(0, color.inverse(' PRO '));
     self.status = 'ready';
@@ -138,7 +145,7 @@ Fm.prototype.play = function(channel, account) {
           if (err) return menu.update(0, color.grey('抱歉, 没找到歌词'));
           if (!lrc) return menu.update(0, color.grey('抱歉, 没找到歌词'));
           self.lrc = geci.print(lrc, function(line, extra) {
-            menu.update( channel.index, template.song(song, line));
+            menu.update(channel.index, template.song(song, line));
           });
         });
       }
@@ -275,7 +282,7 @@ Fm.prototype.share = function(channel, account) {
 Fm.prototype.createMenu = function(callback) {
   var self = this;
   // fetch channels
-  sdk.fm.channels({}, function(err, list) {
+  sdk.fm.channels(function(err, list) {
     if (err) consoler.error('获取豆瓣电台频道出错，切换为本地电台...');
     // fetch configs, show user's infomations
     fs.readJSON(self.rc.profile, function(e, user) {
@@ -283,8 +290,8 @@ Fm.prototype.createMenu = function(callback) {
       var account = vaildAccount ? user.account : null;
       // init menu
       self.menu = new termList();
-      var nav = [template.logo(account), sdk.mhz.localMhz, sdk.mhz.privateMhz];
-      self.menu.adds(nav.concat(!err ? list : []));
+      var nav = [template.logo(account), sdk.mhz.localMhz];
+      self.menu.adds(nav.concat(!err ? [sdk.mhz.privateMhz].concat(list) : []));
       // bind keypress events
       self.menu.on('keypress', function(key, index) {
         if (!shorthands[key.name]) return false;
