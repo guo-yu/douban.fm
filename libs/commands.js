@@ -26,74 +26,61 @@ var promptSchema = {
 }
 
 /**
-*
-* Auth and save user's accounts infomation and token
-* @params [Object] the account object
-* @fm [Object] the fm object
-*
-**/
+ *
+ * Auth and save user's accounts infomation and token
+ * @params [Object] the account object
+ * @fm [Object] the fm object
+ *
+ **/
 exports.config = function(fm) {
   prompt.start();
   prompt.get(promptSchema, function(err, result) {
     if (err) return consoler.error(err);
     sdk.fm.auth({
       form: result
-    }, function(err, response, user) {
+    }, function(err, account) {
       if (err) return consoler.error(err);
-      // console.log(err);
-      // console.log(response);
-      fs.writeJSON(fm.rc.profile, {
-        account: {
-          email: user.email,
-          token: user.token,
-          expire: user.expire,
-          user_name: user.user_name,
-          user_id: user.user_id
-        }
-      }, function(err, configs){
-        if (err) return consoler.error(err);
-        var user = configs.account;
-        consoler.success('欢迎你，' + user.user_name + '。您的豆瓣账户已经成功修改为：' + user.email);
-        fm.init(exports.ready);  
-      });
+      var configs = {};
+      configs.account = account;
+      try {
+        fs.updateJSON(fm.rc.profile, configs);
+        consoler.success('欢迎，' + account.user_name + '。您的豆瓣账户已经成功修改为：' + account.email);
+        fm.init(exports.ready);
+      } catch (err) {
+        return consoler.error(err);
+      }
     });
   });
 }
 
 exports.home = function(fm, argv) {
-  fm.configs(function(err, profile) {
-    if (err) return consoler.error(err);
-    var selected = argv[3];
-    profile.home = selected || process.cwd();
-    fm.configs(profile, function(err, pro) {
-      if (err) return consoler.error(err);
-      consoler.success('下载目录已成功修改为' + pro.home);
-      var f = new Fm;
-      return f.init(exports.ready);
+  try {
+    var home = argv[3] || process.cwd();
+    fs.updateJSON(fm.rc.profile, {
+      home: home
     });
-  });
+    consoler.success('下载目录已成功修改为 ' + home);
+    var f = new Fm;
+    return f.init(exports.ready);
+  } catch (err) {
+    return consoler.error(err);
+  }
 }
 
 exports.id3 = function(fm, argv) {
-  fm.configs(function(err, profile) {
+  consoler.loading('正在从 ' + fm.home + ' 读取音乐列表');
+  sdk.local(fm.home, fm.rc.history, function(err, list) {
     if (err) return consoler.error(err);
-    var userhome = utils.home();
-    var home = profile.home || userhome;
-    var history = path.join(userhome, '.douban.fm.history.json');
-    consoler.loading('正在从 ' + home + ' 读取音乐列表');
-    sdk.local(home, history, function(err, list) {
+    var songs = list.filter(function(song) {
+      var keys = Object.keys(song);
+      if (keys.length === 1 && keys[0] === 'url') return false;
+      return true;
+    });
+    if (songs.length === 0) return consoler.error('没有歌曲符合条件');
+    consoler.success('找到 ' + songs.length + ' 首有效歌曲，正在添加 id3 信息');
+    async.eachLimit(songs, 20, addid3, function(err) {
       if (err) return consoler.error(err);
-      var songs = list.filter(function(song) {
-        var keys = Object.keys(song);
-        if (keys.length === 1 && keys[0] === 'url') return false;
-        return true;
-      });
-      if (songs.length === 0) return consoler.error('没有歌曲符合条件');
-      consoler.success('找到 ' + songs.length + ' 首有效歌曲，正在添加 id3 信息');
-      async.eachLimit(songs, 20, addid3, function(err) {
-        if (err) return consoler.error(err);
-        return consoler.success('添加歌曲 id3 信息完成');
-      });
+      return consoler.success('添加歌曲 id3 信息完成');
     });
   });
 
@@ -112,12 +99,11 @@ exports.id3 = function(fm, argv) {
       callback(null);
     });
   }
-  
+
 }
 
 exports.help = function() {
   console.log('');
-  consoler.align(4);
   consoler.info('豆瓣电台命令行版帮助文档');
   return console.log([
     "",

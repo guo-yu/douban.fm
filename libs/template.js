@@ -51,17 +51,17 @@ exports.pause = function() {
   return color.yellow('||');
 }
 
-exports.song = function(s, selectText) {
+exports.song = function(s, selectText, silence) {
   var label = '♫ ';
   var song = s.title ? s : {};
   if (!song.title) {
     song.text = label + '未知曲目...';
-    this.notify(song);
+    if (!silence) this.notify(song);
     return color.grey(song.text);
   }
   song.text = label + song.title + ' - ' + song.artist;
   song.open = utils.album(song.album);
-  this.notify(song);
+  if (!silence) this.notify(song);
   return printf(
     '%s %s %s %s %s %s %s %s',
     song.like == 1 ? color.red('♥') : color.grey('♥'),
@@ -89,7 +89,7 @@ exports.share = function(song) {
     'http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg' +
     '&title=' +
     encodeURIComponent([
-      '我正在用豆瓣电台命令行版 v' + pkg.version + ' 收听 ',
+      '我正用豆瓣电台命令行版 v' + pkg.version + ' 收听 ',
       song.title ? '「' + song.title + '」' : '本地电台频道',
       song.kbps ? song.kbps + 'kbps' : '',
       song.albumtitle ? song.albumtitle + ' • ' : '',

@@ -19,7 +19,7 @@ exports.love = function(params, callback) {
 }
 
 exports.local = function(dir, history, callback) {
-  return fs.readdir(dir, function(err, songs) {
+  fs.readdir(dir, function(err, songs) {
     if (err) return callback(err);
     if (!songs) return callback(new Error('没有找到本地音乐'));
     var list = [];
