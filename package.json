@@ -31,15 +31,15 @@
     "player": "0.1.7",
     "douban-sdk": "0.0.3",
     "term-list-enhanced": "*",
+    "fsplus": "*",
     "consoler": "*",
     "mkdirp": "~0.3.5",
-    "fsplus": "*",
     "sprintf": "0.1.3",
     "prompt": "~0.2.12",
     "colorful": "2.1.0",
     "open": "*",
     "async": "*",
-    "geci": "0.0.x",
+    "geci": "~0.0.2",
     "ffmetadata": "*",
     "node-notifier": "*"
   }

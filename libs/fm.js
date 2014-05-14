@@ -143,7 +143,7 @@ Fm.prototype.play = function(channel, account) {
       if (self.isShowLrc) {
         if (self.lrc) self.lrc.stop();
         geci.fetch(song, function(err, lrc) {
-          if (err) return menu.update(0, color.grey('抱歉, 没找到歌词'));
+          if (err) return menu.update(0, color.grey('抱歉, 没找到歌词 ' + err.toString()));
           if (!lrc) return menu.update(0, color.grey('抱歉, 没找到歌词'));
           self.lrc = geci.print(lrc, function(line, extra) {
             menu.update(channel.index, template.song(song, line));
