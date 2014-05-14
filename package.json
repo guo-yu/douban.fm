@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "player": "0.1.7",
-    "douban-sdk": "0.0.2",
+    "douban-sdk": "0.0.3",
     "term-list-enhanced": "*",
     "consoler": "*",
     "mkdirp": "~0.3.5",

@@ -100,6 +100,7 @@ Fm.prototype.play = function(channel, account) {
   self.channel = channel.index;
   self.status = 'fetching';
   menu.update(channel.index, template.listing());
+  fs.updateJSON(self.rc.profile, { lastChannel: channel });
 
   // start fetching songs
   self.fetch(channel, account, function(err, songs, result) {
@@ -125,7 +126,7 @@ Fm.prototype.play = function(channel, account) {
       var isValidSong = song.title && song.sid;
       self.status = 'playing';
       // update playing label
-      menu.update(0, color.yellow('>>'));
+      menu.update(0, color.green('>'));
       // update song infomation
       menu.update(channel.index, template.song(song));
       // logging songs history
@@ -186,7 +187,7 @@ Fm.prototype.loving = function(channel, account) {
     if (!err) self.player.playing.like = !song.like;
     return menu.update(
       self.channel,
-      template.song(self.player.playing)
+      template.song(self.player.playing, true) // keep silence, do not notify
     );
   });
 }
@@ -200,8 +201,8 @@ Fm.prototype.loving = function(channel, account) {
 **/
 Fm.prototype.next = function(channel, account) {
   if (!this.player) return false;
-  return this.player.next(function(err, song) {
-    if (err) menu.update(0, color.yellow('这是最后一首了哦，回车以加载最新列表'));
+  this.player.next(function(err, song) {
+    if (err) menu.update(self.channel, color.yellow('这是最后一首了哦，回车以加载最新列表'));
     return false;
   });
 }
@@ -301,6 +302,12 @@ Fm.prototype.createMenu = function(callback) {
       self.menu.on('empty', function() {
         self.menu.stop();
       });
+      // check last played channel
+      if (user.lastChannel) {
+        self.play(user.lastChannel, account);
+        self.menu.start(user.lastChannel.index);
+        return false;
+      }
       // start menu at line 2 (below the logo text)
       self.menu.start(1);
     });
