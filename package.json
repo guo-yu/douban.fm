@@ -10,7 +10,8 @@
   },
   "bin": {
     "douban.fm": "./bin/start.sh",
-    "dev.douban.fm": "./bin/dev.sh"
+    "dev.douban.fm": "./bin/dev.sh",
+    "core.douban.fm": "./bin/cli"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,7 @@
   },
   "dependencies": {
     "player": "0.1.7",
-    "douban-sdk": "0.0.3",
+    "douban-sdk": "~0.0.4",
     "term-list-enhanced": "*",
     "fsplus": "*",
     "consoler": "*",
@@ -37,10 +38,10 @@
     "sprintf": "0.1.3",
     "prompt": "~0.2.12",
     "colorful": "2.1.0",
-    "open": "*",
-    "async": "*",
+    "open": "~0.0.5",
+    "async": "~0.8.0",
     "geci": "~0.0.2",
-    "ffmetadata": "*",
-    "node-notifier": "*"
+    "ffmetadata": "~1.0.2",
+    "node-notifier": "~2.0.4"
   }
 }
