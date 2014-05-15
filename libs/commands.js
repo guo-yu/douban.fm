@@ -1,29 +1,36 @@
 var fs = require('fsplus');
 var path = require('path');
 var async = require('async');
-var prompt = require('prompt');
+var inquirer = require("inquirer");
 var consoler = require('consoler');
 var ffmetadata = require("ffmetadata");
 var Fm = require('./fm');
 var sdk = require('./sdk');
 var utils = require('./utils');
 
-var promptSchema = {
-  properties: {
-    email: {
-      description: 'Douban Email',
-      type: 'string',
-      pattern: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      message: '电子邮箱格式有错误',
-      required: true
-    },
-    password: {
-      description: 'Douban Password',
-      hidden: true,
-      required: true
+var questions = [{
+    type: "input",
+    name: "email",
+    message: "豆瓣账户 (Email 地址)",
+    validate: function(value) {
+      var EmailRegex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      var pass = value.match(EmailRegex);
+      if (pass) {
+        return true;
+      } else {
+        return "请输入有效的 Email 地址";
+      }
+    }
+  },{
+    type: "password",
+    name: "password",
+    message: "豆瓣密码 (不会保留密码) ",
+    validate: function(value) {
+      if (value && value.length > 0) return true;
+      return "请输入有效密码";
     }
   }
-}
+];
 
 /**
  *
@@ -33,9 +40,7 @@ var promptSchema = {
  *
  **/
 exports.config = function(fm) {
-  prompt.start();
-  prompt.get(promptSchema, function(err, result) {
-    if (err) return consoler.error(err);
+  inquirer.prompt(questions, function(result) {
     sdk.fm.auth({
       form: result
     }, function(err, account) {
