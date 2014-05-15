@@ -187,7 +187,7 @@ Fm.prototype.loving = function(channel, account) {
     if (!err) self.player.playing.like = !song.like;
     return menu.update(
       self.channel,
-      template.song(self.player.playing, true) // keep silence, do not notify
+      template.song(self.player.playing, null, true) // keep silence, do not notify
     );
   });
 }
