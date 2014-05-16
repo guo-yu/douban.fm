@@ -52,11 +52,11 @@ Fm.prototype.fetch = function(channel, account, callback) {
   var self = this;
   return sdk.songs({
     kbps: 192,
-    token: account.token,
+    token: account ? account.token: null,
     history: self.rc.history,
     channel: channel.channel_id,
-    user_id: account.user_id,
-    expire: account.expire,
+    user_id: account ? account.user_id : null,
+    expire: account ? account.expire : null,
     local: (channel.channel_id == -99) ? self.home : false
   }, utils.isFunction(callback) ? callback : cb);
 
@@ -100,7 +100,9 @@ Fm.prototype.play = function(channel, account) {
   self.channel = channel.index;
   self.status = 'fetching';
   menu.update(channel.index, template.listing());
-  fs.updateJSON(self.rc.profile, { lastChannel: channel });
+  try {
+    fs.updateJSON(self.rc.profile, { lastChannel: channel });
+  } catch (err) {};
 
   // start fetching songs
   self.fetch(channel, account, function(err, songs, result) {
