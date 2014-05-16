@@ -41,6 +41,12 @@ function Fm() {
   template.updateTab('Douban FM');
 };
 
+function isChannel(alias, id) {
+  if (alias === 'local' && id == -99) return true;
+  if (alias === 'private' && (id == 0 || id == -3)) return true;
+  return false;
+}
+
 /**
 *
 * Fetch songs and add them to playlist
@@ -50,15 +56,18 @@ function Fm() {
 **/
 Fm.prototype.fetch = function(channel, account, callback) {
   var self = this;
-  return sdk.songs({
-    kbps: 192,
-    token: account ? account.token: null,
-    history: self.rc.history,
-    channel: channel.channel_id,
-    user_id: account ? account.user_id : null,
-    expire: account ? account.expire : null,
-    local: (channel.channel_id == -99) ? self.home : false
-  }, utils.isFunction(callback) ? callback : cb);
+  var query = {};
+  query.kbps = 192;
+  query.history = self.rc.history;
+  query.channel = channel.channel_id;
+  query.local = isChannel('local', channel.channel_id) ? self.home : false;
+  if (account) {
+    query.token = account.token;
+    query.user_id = account.user_id;
+    query.expire = account.expire;
+  }
+
+  return sdk.songs(query, utils.isFunction(callback) ? callback : cb);
 
   function cb(err, songs, result) {
     if (err) return;
@@ -80,10 +89,11 @@ Fm.prototype.fetch = function(channel, account, callback) {
 Fm.prototype.play = function(channel, account) {
   var self = this;
   var menu = self.menu;
-  var privateMhz = (channel.channel_id == 0 || channel.channel_id == -3) && (!account || !account.token);
+  var isVaildAccount = account && account.token;
+  var privateMhz = isChannel('private', channel.channel_id) && !isVaildAccount;
 
   // Check if this kind of mHz is private
-  if (privateMhz) return menu.update(channel.index, color.yellow(errors.account_missing));
+  if (privateMhz) return menu.update(0, errors.account_missing);
 
   // clear last label
   if (self.status === 'fetching' || self.status === 'downloading') return;
@@ -170,7 +180,7 @@ Fm.prototype.loving = function(channel, account) {
   if (!this.player) return false;
   if (!this.player.playing) return false;
   if (!this.player.playing.sid) return this.menu.update(0, '未知曲目无法加心');
-  if (!account) return false;
+  if (!account) return this.menu.update(0, '请先设置账户密码再操作 $ douban.fm config');
   var self = this;
   var menu = self.menu;
   var song = self.player.playing;
@@ -204,7 +214,7 @@ Fm.prototype.loving = function(channel, account) {
 Fm.prototype.next = function(channel, account) {
   if (!this.player) return false;
   this.player.next(function(err, song) {
-    if (err) menu.update(self.channel, color.yellow('这是最后一首了哦，回车以加载最新列表'));
+    if (err) menu.update(0, '这是最后一首了哦，回车以加载最新列表');
     return false;
   });
 }
