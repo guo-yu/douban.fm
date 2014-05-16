@@ -80,7 +80,7 @@ Fm.prototype.fetch = function(channel, account, callback) {
 Fm.prototype.play = function(channel, account) {
   var self = this;
   var menu = self.menu;
-  var privateMhz = (channel.channel_id == 0 || channel.channel_id == -3) && !account.token;
+  var privateMhz = (channel.channel_id == 0 || channel.channel_id == -3) && (!account || !account.token);
 
   // Check if this kind of mHz is private
   if (privateMhz) return menu.update(channel.index, color.yellow(errors.account_missing));
