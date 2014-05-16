@@ -303,7 +303,7 @@ Fm.prototype.createMenu = function(callback) {
         self.menu.stop();
       });
       // check last played channel
-      if (user.lastChannel) {
+      if (user && user.lastChannel) {
         self.play(user.lastChannel, account);
         self.menu.start(user.lastChannel.index);
         return false;
