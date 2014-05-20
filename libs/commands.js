@@ -48,28 +48,39 @@ exports.config = function(fm) {
       var configs = {};
       configs.account = account;
       try {
-        fs.updateJSON(fm.rc.profile, configs);
-        consoler.success('欢迎，' + account.user_name + '。您的豆瓣账户已经成功修改为：' + account.email);
-        fm.init(exports.ready);
+        fs.updateJSON(fm.rc.profile, configs);        
       } catch (err) {
-        return consoler.error(err);
+        if (!utils.noSuchFile(err.message)) return consoler.error(err);
+        fs.writeJSON(fm.rc.profile, configs);
       }
+      return ready(account);
     });
   });
+
+  function ready(account) {
+    consoler.success(
+      '欢迎，' + 
+      account.user_name + 
+      '。您的豆瓣账户已经成功修改为：' + 
+      account.email
+    );
+    fm.init(exports.ready);
+  }
 }
 
 exports.home = function(fm, argv) {
+  var home = argv[3] || process.cwd();
+  var profile = {};
+  profile.home = home;
   try {
-    var home = argv[3] || process.cwd();
-    fs.updateJSON(fm.rc.profile, {
-      home: home
-    });
-    consoler.success('下载目录已成功修改为 ' + home);
-    var f = new Fm;
-    return f.init(exports.ready);
+    fs.updateJSON(fm.rc.profile, profile);
   } catch (err) {
-    return consoler.error(err);
+    if (!utils.noSuchFile(err.message)) return consoler.error(err);
+    fs.writeJSON(fm.rc.profile, profile);
   }
+  consoler.success('下载目录已成功修改为 ' + home);
+  var f = new Fm;
+  return f.init(exports.ready);
 }
 
 exports.id3 = function(fm, argv) {
@@ -112,11 +123,12 @@ exports.help = function() {
   consoler.info('豆瓣电台命令行版帮助文档');
   return console.log([
     "",
-    "更新豆瓣电台命令行版：",
+    "更新或安装豆瓣电台命令行版：",
     "$ [sudo] npm install douban.fm -g",
     "",
-    "配置豆瓣账户密码：",
+    "豆瓣电台设置：",
     "$ douban.fm config",
+    "支持配置下载路径"
     "",
     "菜单快捷键：",
     "[return]      ->     播放另一个频道，或者重新播放当前频道 (PLAY)",

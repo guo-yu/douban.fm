@@ -1,24 +1,24 @@
 var fs = require('fsplus');
 var open = require('open');
 
-// 获取用户的家地址
+// Return User' home path.
 exports.home = function() {
   return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 
-// 跳转到相应页面，使用 open 或者 start
+// Go to some uri.
 exports.go = function(link) {
   if (!link) return false;
   return open(link);
 }
 
-// 解析歌曲专辑页面可能出现的小站链接
+// Escape a douban site uri from normal uri.
 exports.album = function(link) {
   if (!link) return false;
   return link.indexOf('http') === -1 ? 'http://music.douban.com' + link : link;
 }
 
-// 解析本地文件的sid
+// Split Sid from a song's title
 exports.sid = function(filename) {
   if (!filename) return false;
   var idstr = filename.substr(filename.indexOf('p') + 1, filename.lastIndexOf('.') - 1);
@@ -26,7 +26,8 @@ exports.sid = function(filename) {
   return idstr.substr(0, idstr.lastIndexOf('_'))
 }
 
-// read json if err return blank object
+// Read JSON file 
+// if Error return blank object
 exports.readJSON = function(file) {
   try {
     return fs.readJSON(file);
@@ -35,6 +36,12 @@ exports.readJSON = function(file) {
   }
 }
 
+// Check if a object is Function Type.
 exports.isFunction = function(func) {
   return func && typeof(func) === 'function';
+}
+
+// Check if a Error is a NoSuchFile Error
+exports.noSuchFile = function(msg) {
+  return msg && msg.indexOf('no such file or directory') > -1;
 }
