@@ -8,7 +8,34 @@ var Fm = require('./fm');
 var sdk = require('./sdk');
 var utils = require('./utils');
 
-var questions = [{
+/**
+ *
+ * Menu lists
+ *
+ **/
+var menu = {
+  main: [{
+    type: "list",
+    name: "type",
+    message: "请选择需要更改的配置项: ",
+    choices: [{
+      value: "account",
+      name: '配置豆瓣电台账户密码 / Update douban.fm account'
+    }, {
+      value: 'download',
+      name: '更新下载文件夹路径 / Update download directory path'
+    }, {
+      value: 'id3',
+      name: '更新本地曲库歌曲ID3 / Update ID3 for local songs'
+    }, {
+      value: 'help',
+      name: '查看帮助文档 / Help'
+    }, {
+      value: 'quit',
+      name: '退出配置向导 / Quit'
+    }]
+  }],
+  account: [{
     type: "input",
     name: "email",
     message: "豆瓣账户 (Email 地址)",
@@ -21,7 +48,7 @@ var questions = [{
         return "请输入有效的 Email 地址";
       }
     }
-  },{
+  }, {
     type: "password",
     name: "password",
     message: "豆瓣密码 (不会保留密码) ",
@@ -29,8 +56,35 @@ var questions = [{
       if (value && value.length > 0) return true;
       return "请输入有效密码";
     }
+  }],
+  download: {
+    main: function(dir) {
+      return [{
+        type: "confirm",
+        name: "useWorkingPath",
+        message: "将下载目录设置为当前目录 " + dir + "?",
+        default: true
+      }]
+    },
+    setting: [{
+      type: "input",
+      name: "download",
+      message: "请输入一个有效的绝对路径作为新的曲库目录"
+    }]
   }
-];
+}
+
+/**
+ *
+ * Config UI
+ *
+ **/
+exports.config = function(fm, argv) {
+  inquirer.prompt(menu.main, function(result) {
+    if (!exports[result.type]) return exports.help();
+    exports[result.type](fm, argv);
+  });
+}
 
 /**
  *
@@ -39,8 +93,8 @@ var questions = [{
  * @fm [Object] the fm object
  *
  **/
-exports.config = function(fm) {
-  inquirer.prompt(questions, function(result) {
+exports.account = function(fm) {
+  inquirer.prompt(menu.account, function(result) {
     sdk.fm.auth({
       form: result
     }, function(err, account) {
@@ -48,7 +102,7 @@ exports.config = function(fm) {
       var configs = {};
       configs.account = account;
       try {
-        fs.updateJSON(fm.rc.profile, configs);        
+        fs.updateJSON(fm.rc.profile, configs);
       } catch (err) {
         if (!utils.noSuchFile(err.message)) return consoler.error(err);
         fs.writeJSON(fm.rc.profile, configs);
@@ -59,30 +113,59 @@ exports.config = function(fm) {
 
   function ready(account) {
     consoler.success(
-      '欢迎，' + 
-      account.user_name + 
-      '。您的豆瓣账户已经成功修改为：' + 
+      '欢迎，' +
+      account.user_name +
+      '。您的豆瓣账户已经成功修改为：' +
       account.email
     );
     fm.init(exports.ready);
   }
 }
 
-exports.home = function(fm, argv) {
-  var home = argv[3] || process.cwd();
+/**
+ *
+ * Update download directory path
+ *
+ **/
+exports.download = function(fm, argv) {
+  var workingPath = process.cwd();
   var profile = {};
-  profile.home = home;
-  try {
-    fs.updateJSON(fm.rc.profile, profile);
-  } catch (err) {
-    if (!utils.noSuchFile(err.message)) return consoler.error(err);
-    fs.writeJSON(fm.rc.profile, profile);
+  inquirer.prompt(menu.download.main(workingPath), function(result) {
+    if (!result.useWorkingPath) return inputNewPath();
+    profile.home = workingPath;
+    return updatePath(profile);
+  });
+
+  function inputNewPath() {
+    inquirer.prompt(menu.download.setting, function(dir) {
+      if (!fs.existsSync(dir.download)) {
+        console.log(dir.download + ' 这个目录好像并不存在，请输入一个有效的路径');
+        return inputNewPath();
+      }
+      profile.home = dir.download;
+      return updatePath(profile);
+    });
   }
-  consoler.success('下载目录已成功修改为 ' + home);
-  var f = new Fm;
-  return f.init(exports.ready);
+
+  function updatePath(profile) {
+    try {
+      fs.updateJSON(fm.rc.profile, profile);
+    } catch (err) {
+      if (!utils.noSuchFile(err.message)) return consoler.error(err);
+      fs.writeJSON(fm.rc.profile, profile);
+    }
+    consoler.success('下载目录已成功修改为 ' + profile.home);
+    var f = new Fm;
+    return f.init(exports.ready);
+  }
+
 }
 
+/**
+ *
+ * Update ID3 for local songs
+ *
+ **/
 exports.id3 = function(fm, argv) {
   consoler.loading('正在从 ' + fm.home + ' 读取音乐列表');
   sdk.local(fm.home, fm.rc.history, function(err, list) {
@@ -128,7 +211,6 @@ exports.help = function() {
     "",
     "豆瓣电台设置：",
     "$ douban.fm config",
-    "支持配置下载路径"
     "",
     "菜单快捷键：",
     "[return]      ->     播放另一个频道，或者重新播放当前频道 (PLAY)",
@@ -141,6 +223,10 @@ exports.help = function() {
     "[q]           ->     退出豆瓣电台 (QUIT)",
     ""
   ].join('\n'));
+}
+
+exports.quit = function() {
+  return process.exit();
 }
 
 exports.ready = function() {

@@ -37,8 +37,15 @@ function Fm() {
   this.home = utils.readJSON(this.rc.profile).home || path.join(this.syshome, 'douban.fm');
   this.love = path.join(this.home, 'love');
   this.isShowLrc = false;
-  mkdirp.sync(this.love); // ensure dir exists
   template.updateTab('Douban FM');
+  try {
+    // ensure dir exists
+    mkdirp.sync(this.love); 
+  } catch (err) {
+    consoler.error('啊哦，启动出错了，请检查配置文件 ~/.douban.fm.profile.json');
+    console.log('具体错误如下：');
+    throw err;
+  }
 };
 
 function isChannel(alias, id) {

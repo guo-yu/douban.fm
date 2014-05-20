@@ -67,22 +67,10 @@ $ douban.fm
 收听私人频道需要设置账户信息。账户信息、配置文件将会保存在 `~/.douban.fm.profile.json`（ >= 0.1.2 版本后）
 歌曲将会默认保存在 `~/douban.fm` 目录下，当然你也可以通过配置自定义歌曲保存的目录。
 
-配置账户信息的方法：
-````
+使用配置向导，配置豆瓣电台账户信息、下载目录路径以及使用更多特性功能：
+```
 $ douban.fm config
-$ prompt: Douban Email: 输入豆瓣账户邮箱
-$ prompt: Douban Password: 输入豆瓣账户密码
-````
-配置歌曲下载目录的方法，假设我们想要保存在 Music 目录下的 douban.fm 目录
-````
-$ cd ~/Music
-$ mkdir douban.fm && cd douban.fm
-$ douban.fm home
-````
-当然，你也可以不用 cd 到那个目录以保存，直接填写 home 参数即可：
-````
-$ douban.fm home /Users/YourName/Music/douban.fm
-````
+```
 
 ### 菜单快捷键列表
 
@@ -98,7 +86,7 @@ $ douban.fm home /Users/YourName/Music/douban.fm
 [g]           - >     跳转到当前播放歌曲的专辑页面 (GOTO)
 [q]           - >     退出豆瓣电台 (QUIT)
 ````
-如果你忘了快捷键设置，可以打开帮助菜单：
+如果你忘了快捷键设置，可以打开配置向导，查看帮助菜单，或者：
 ````
 $ douban.fm help
 ````
@@ -114,44 +102,11 @@ $ douban.fm help
 豆瓣电台命令行版 `>= 0.1.2` 版本支持本地电台功能，这意味着在离线情况下，或者网络不佳，通信失败的情况下，豆瓣电台命令行版会自动切换到本地电台进行播放，方便您在旅行时使用豆瓣电台。
 
 ### ID3 信息补全
-豆瓣电台命令行版 `>= 0.1.2` 版本支持本地 ID3 信息补全，方便用户同步到 iTunes 等播放软件，使用 `douban.fm id3` 同步离线曲库可用歌曲的 ID3 信息。目前暂不支持为歌曲添加封面。此功能需要外部依赖 `ffmpeg` 使用前确保已经安装 [ffmpeg command-line tool](http://www.ffmpeg.org/) 或 [libav fork](http://www.libav.org/avconv.html) 
+豆瓣电台命令行版 `>= 0.1.2` 版本支持本地 ID3 信息补全，方便用户同步到 iTunes 等播放软件。目前暂不支持为歌曲添加封面。此功能需要外部依赖 `ffmpeg` 使用前确保已经安装 [ffmpeg command-line tool](http://www.ffmpeg.org/) 或 [libav fork](http://www.libav.org/avconv.html) 
 
 ### 范例代码
 
-这样在你的项目中引用 douban.fm 的 SDK。
-这些范例可能和最终的结果不一致，在使用前，最好参考 `./libs/sdk.js` 这个文件，以防出现意想不到的错误
-
-````javascript
-var Fm = require('douban.fm');
-var fm = new Fm;
-
-// 豆瓣账户模拟登录
-fm.sdk.auth({
-  email: 'xxx',
-  password: 'xxx'
-},function(err, result){
-  // do sth with result token.
-});
-
-// 获取频道
-fm.sdk.channels(function(err, channels){
-  console.log(channels)
-});
-
-// 获取歌曲列表
-// 详见: http://zonyitoo.github.io/blog/2013/01/22/doubanfmbo-fang-qi-kai-fa-shou-ji/
-fm.sdk.fetch({
-  id: channel.id,
-  type: 'n'
-},user,function(err, songs){
-  console.log(songs)
-});
-
-// 搜索歌词
-fm.sdk.lrc(title, artist, function(err, lrc){
-  console.log(lrc);
-});
-````
+豆瓣电台 SDK 已迁移到 `douban-sdk` 模块，请参考此[模块接口文档](https://github.com/turingou/douban-sdk)使用，如需更多使用范例，可以参考本项目下的 `./libs/sdk.js` 文件。
 
 ### 致谢
 
