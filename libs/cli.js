@@ -15,6 +15,6 @@ module.exports = function() {
   var fm = new Fm();
   var command = process.argv[2];
   if (!command) return fm.init(commands.ready);
-  if (!commands[command] || command === 'ready') return commands.help();
-  return commands[command](fm, process.argv);
+  if (command === 'help') return commands.help();
+  return commands.config(fm, process.argv);
 }
