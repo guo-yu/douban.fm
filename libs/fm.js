@@ -232,11 +232,13 @@ Fm.prototype.next = function(channel, account) {
 * and show the stopped status on logo.
 *
 **/
-Fm.prototype.stop = function() {
+Fm.prototype.stop = function(channel, account) {
   if (!this.player) return false;
+  if (this.status === 'stopped') return this.play(channel, account);
   var menu = this.menu;
   menu.clear(0);
   menu.update(0, template.pause());
+  this.status = 'stopped';
   return this.player.stop();
 }
 
