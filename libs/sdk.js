@@ -3,6 +3,7 @@ var path = require('path');
 var Douban = require('douban-sdk');
 var douban = new Douban();
 var utils = require('./utils');
+var errors = require('./errors');
 
 exports.songs = function(params, callback) {
   var local = params && params.local && params.history;
@@ -21,10 +22,10 @@ exports.love = function(params, callback) {
 exports.local = function(dir, history, callback) {
   fs.readdir(dir, function(err, songs) {
     if (err) return callback(err);
-    if (!songs) return callback(new Error('没有找到本地音乐'));
+    if (!songs) return callback(new Error(errors.localsongs_notfound));
     var list = [];
     fs.readJSON(history, function(err, history) {
-      if (err) return callback(new Error('没有找到本地音乐'));
+      if (err) return callback(new Error(errors.localsongs_notfound));
       songs.forEach(function(song) {
         if (song.lastIndexOf('.mp3') !== (song.length - 4)) return false;
         // if (!history[utils.sid(song)]) return false;
@@ -32,7 +33,7 @@ exports.local = function(dir, history, callback) {
         s.url = path.resolve(dir, song);
         list.push(s);
       });
-      if (list.length === 0) return callback(new Error('没有找到本地音乐'));
+      if (list.length === 0) return callback(new Error(errors.localsongs_notfound));
       list.sort(function(a, b) {
         return Math.random() - 0.5;
       });
