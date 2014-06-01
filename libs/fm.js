@@ -9,6 +9,7 @@ var termList = require('term-list-enhanced');
 var sdk = require('./sdk');
 var utils = require('./utils');
 var pkg = require('../package');
+var errors = require('./errors');
 var template = require('./template');
 
 // the keypress shortcut list
@@ -23,10 +24,6 @@ var shorthands = {
   'r': 'showLrc'
 };
 
-var errors = {
-  'account_missing': '请先设置豆瓣账户再收听私人/红心兆赫: $ douban.fm config'
-};
-
 module.exports = Fm;
 
 function Fm() {
@@ -38,12 +35,11 @@ function Fm() {
   this.love = path.join(this.home, 'love');
   this.isShowLrc = false;
   template.updateTab('Douban FM');
+  // ensure dir exists
   try {
-    // ensure dir exists
     mkdirp.sync(this.love); 
   } catch (err) {
-    consoler.error('啊哦，启动出错了，请检查配置文件 ~/.douban.fm.profile.json');
-    console.log('具体错误如下：');
+    consoler.error(errors.setup_fail);
     throw err;
   }
 };
@@ -162,8 +158,8 @@ Fm.prototype.play = function(channel, account) {
       if (self.isShowLrc) {
         if (self.lrc) self.lrc.stop();
         geci.fetch(song, function(err, lrc) {
-          if (err) return menu.update(0, color.grey('抱歉, 没找到歌词 ' + err.toString()));
-          if (!lrc) return menu.update(0, color.grey('抱歉, 没找到歌词'));
+          if (err) return menu.update(0, color.grey(errors.lrc_notfound + err.toString()));
+          if (!lrc) return menu.update(0, color.grey(errors.lrc_notfound));
           self.lrc = geci.print(lrc, function(line, extra) {
             menu.update(channel.index, template.song(song, line));
           });
@@ -186,8 +182,8 @@ Fm.prototype.play = function(channel, account) {
 Fm.prototype.loving = function(channel, account) {
   if (!this.player) return false;
   if (!this.player.playing) return false;
-  if (!this.player.playing.sid) return this.menu.update(0, '未知曲目无法加心');
-  if (!account) return this.menu.update(0, '请先设置账户密码再操作 $ douban.fm config');
+  if (!this.player.playing.sid) return this.menu.update(0, errors.love_fail);
+  if (!account) return this.menu.update(0, errors.account_missing);
   var self = this;
   var menu = self.menu;
   var song = self.player.playing;
@@ -202,7 +198,7 @@ Fm.prototype.loving = function(channel, account) {
   menu.update(0, '正在加载...');
   sdk.love(query, function(err, result) {
     menu.clear(0);
-    if (err) menu.update(0, '出错了, 请稍后再试...');
+    if (err) menu.update(0, errors.normal);
     if (!err) self.player.playing.like = !song.like;
     return menu.update(
       self.channel,
@@ -221,7 +217,7 @@ Fm.prototype.loving = function(channel, account) {
 Fm.prototype.next = function(channel, account) {
   if (!this.player) return false;
   this.player.next(function(err, song) {
-    if (err) menu.update(0, '这是最后一首了哦，回车以加载最新列表');
+    if (err) menu.update(0, errors.last_song);
     return false;
   });
 }
@@ -305,7 +301,7 @@ Fm.prototype.createMenu = function(callback) {
   var self = this;
   // fetch channels
   sdk.fm.channels(function(err, list) {
-    if (err) consoler.error('获取豆瓣电台频道出错，切换为本地电台...');
+    if (err) consoler.error(errors.turn_to_local_mode);
     // fetch configs, show user's infomations
     fs.readJSON(self.rc.profile, function(e, user) {
       var vaildAccount = user && user.account && user.account.user_name;
@@ -348,7 +344,7 @@ Fm.prototype.init = function(callback) {
   fs.exists(self.home, function(exist) {
     if (exist) return self.createMenu(callback);
     mkdirp(self.love, function(err) {
-      if (err) return consoler.error('创建歌曲文件夹出错，请检查权限');
+      if (err) return consoler.error(errors.mkdir_fail);
       return self.createMenu(callback);
     });
   });
