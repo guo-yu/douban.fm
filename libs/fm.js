@@ -37,7 +37,7 @@ function Fm() {
   template.updateTab('Douban FM');
   // ensure dir exists
   try {
-    mkdirp.sync(this.love); 
+    mkdirp.sync(this.love);
   } catch (err) {
     consoler.error(errors.setup_fail);
     throw err;
@@ -96,7 +96,7 @@ Fm.prototype.play = function(channel, account) {
   var privateMhz = isChannel('private', channel.channel_id) && !isVaildAccount;
 
   // Check if this kind of mHz is private
-  if (privateMhz) return menu.update(0, errors.account_missing);
+  if (privateMhz) return menu.update('header', errors.account_missing);
 
   // clear last label
   if (self.status === 'fetching' || self.status === 'downloading') return;
@@ -109,7 +109,7 @@ Fm.prototype.play = function(channel, account) {
   }
 
   // clear label status
-  menu.clear(0);
+  menu.clear('header');
   self.channel = channel.index;
   self.status = 'fetching';
   menu.update(channel.index, template.listing());
@@ -124,7 +124,7 @@ Fm.prototype.play = function(channel, account) {
       return menu.update(channel.index, color.red(err.toString()));
     }
     // mark PRO account on logo
-    if (result && !result.warning) menu.update(0, color.inverse(' PRO '));
+    if (result && !result.warning) menu.update('header', color.inverse(' PRO '));
     self.status = 'ready';
     self.player = new Player(songs, {
       src: 'url',
@@ -141,7 +141,7 @@ Fm.prototype.play = function(channel, account) {
       var isValidSong = song.title && song.sid;
       self.status = 'playing';
       // update playing label
-      menu.update(0, color.green('>'));
+      menu.update('header', color.green('>'));
       // update song infomation
       menu.update(channel.index, template.song(song));
       // logging songs history
@@ -158,8 +158,8 @@ Fm.prototype.play = function(channel, account) {
       if (self.isShowLrc) {
         if (self.lrc) self.lrc.stop();
         geci.fetch(song, function(err, lrc) {
-          if (err) return menu.update(0, color.grey(errors.lrc_notfound + err.toString()));
-          if (!lrc) return menu.update(0, color.grey(errors.lrc_notfound));
+          if (err) return menu.update('header', color.grey(errors.lrc_notfound + err.toString()));
+          if (!lrc) return menu.update('header', color.grey(errors.lrc_notfound));
           self.lrc = geci.print(lrc, function(line, extra) {
             menu.update(channel.index, template.song(song, line));
           });
@@ -182,8 +182,8 @@ Fm.prototype.play = function(channel, account) {
 Fm.prototype.loving = function(channel, account) {
   if (!this.player) return false;
   if (!this.player.playing) return false;
-  if (!this.player.playing.sid) return this.menu.update(0, errors.love_fail);
-  if (!account) return this.menu.update(0, errors.account_missing);
+  if (!this.player.playing.sid) return this.menu.update('header', errors.love_fail);
+  if (!account) return this.menu.update('header', errors.account_missing);
   var self = this;
   var menu = self.menu;
   var song = self.player.playing;
@@ -195,10 +195,10 @@ Fm.prototype.loving = function(channel, account) {
     token: account.token
   };
   if (song.like) query.type = 'u';
-  menu.update(0, '正在加载...');
+  menu.update('header', '正在加载...');
   sdk.love(query, function(err, result) {
-    menu.clear(0);
-    if (err) menu.update(0, errors.normal);
+    menu.clear('header');
+    if (err) menu.update('header', errors.normal);
     if (!err) self.player.playing.like = !song.like;
     return menu.update(
       self.channel,
@@ -217,7 +217,7 @@ Fm.prototype.loving = function(channel, account) {
 Fm.prototype.next = function(channel, account) {
   if (!this.player) return false;
   this.player.next(function(err, song) {
-    if (err) menu.update(0, errors.last_song);
+    if (err) menu.update('header', errors.last_song);
     return false;
   });
 }
@@ -232,8 +232,8 @@ Fm.prototype.stop = function(channel, account) {
   if (!this.player) return false;
   if (this.status === 'stopped') return this.play(channel, account);
   var menu = this.menu;
-  menu.clear(0);
-  menu.update(0, template.pause());
+  menu.clear('header');
+  menu.update('header', template.pause());
   this.status = 'stopped';
   return this.player.stop();
 }
@@ -273,8 +273,8 @@ Fm.prototype.go = function(channel, account) {
 Fm.prototype.showLrc = function(channel, account) {
   if (channel.channel_id == -99) return false;
   this.isShowLrc = !!!this.isShowLrc;
-  this.menu.clear(0);
-  this.menu.update(0, this.isShowLrc ? '歌词开启' : '歌词关闭');
+  this.menu.clear('header');
+  this.menu.update('header', this.isShowLrc ? '歌词开启' : '歌词关闭');
   return false;
 }
 
@@ -308,7 +308,8 @@ Fm.prototype.createMenu = function(callback) {
       var account = vaildAccount ? user.account : null;
       // init menu
       self.menu = new termList();
-      var nav = [template.logo(account), sdk.mhz.localMhz];
+      self.menu.header(template.logo(account));
+      var nav = [sdk.mhz.localMhz];
       self.menu.adds(nav.concat(!err ? [sdk.mhz.privateMhz].concat(list) : []));
       // bind keypress events
       self.menu.on('keypress', function(key, index) {
