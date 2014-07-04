@@ -1,5 +1,4 @@
 # DOCKER-VERSION 1.0.0
-MAINTAINER turing <o.u.turing@gmail.com>
 
 FROM ubuntu:14.04
 
