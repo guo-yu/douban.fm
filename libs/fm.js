@@ -216,6 +216,7 @@ Fm.prototype.loving = function(channel, account) {
 **/
 Fm.prototype.next = function(channel, account) {
   if (!this.player) return false;
+  var menu = this.menu;
   this.player.next(function(err, song) {
     if (err) menu.update('header', errors.last_song);
     return false;
