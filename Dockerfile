@@ -1,4 +1,5 @@
 # DOCKER-VERSION 1.0.0
+MAINTAINER turing <o.u.turing@gmail.com>
 
 FROM ubuntu:14.04
 
@@ -13,7 +14,7 @@ RUN apt-get install -y alsa
 RUN apt-get install -y libasound2-dev
 
 # install douban.fm -g
-RUN mkdir /var/douban.fm
-RUN cd /var/douban.fm; npm install douban.fm -g
+RUN npm install douban.fm -g
 
+ENTRYPOINT ["douban.fm"]
 CMD ["douban.fm"]
