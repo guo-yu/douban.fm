@@ -15,5 +15,4 @@ RUN apt-get install -y libasound2-dev
 # install douban.fm -g
 RUN npm install douban.fm -g
 
-ENTRYPOINT ["douban.fm"]
 CMD ["douban.fm"]
