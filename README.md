@@ -118,6 +118,7 @@ $ douban.fm help
 - 感谢 [youxiachai](https://github.com/youxiachai) 增加了对 windows 的分享支持 [#54](https://github.com/turingou/douban.fm/pull/54)
 - 感谢 [buhe](https://github.com/buhe) 增加显示歌词的功能 [#58](https://github.com/turingou/douban.fm/pull/58)
 - 感谢 [JacksonTian](https://github.com/JacksonTian) 改善了 `player` 模块 [#2](https://github.com/turingou/player/pull/2)
+- 感谢 [stormluke](https://github.com/stormluke) 为 `term-list-enhanced` 模块[添加了滚动功能](https://github.com/turingou/term-list-enhanced/commit/b45779ece29232164d1e72d00cf9715e727589dd)
 
 ### 单元测试 (Mocha)
 ````
