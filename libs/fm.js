@@ -315,7 +315,6 @@ Fm.prototype.createMenu = function(callback) {
       // bind keypress events
       self.menu.on('keypress', function(key, index) {
         if (!shorthands[key.name]) return false;
-        if (index < 1 && key.name != 'q') return utils.go(pkg.repository.url);
         return self[shorthands[key.name]](self.menu.items[index], account);
       });
       self.menu.on('empty', function() {
