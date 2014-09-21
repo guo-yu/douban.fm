@@ -12,6 +12,7 @@
 - 支持 PRO 用户高码率歌曲
 - 支持滚动歌词显示
 - 支持部分 ID3 信息补全
+- 支持HTTP代理
 
 ### 如何安装
 
@@ -103,6 +104,9 @@ $ douban.fm help
 
 ### ID3 信息补全
 豆瓣电台命令行版 `>= 0.1.2` 版本支持本地 ID3 信息补全，方便用户同步到 iTunes 等播放软件。目前暂不支持为歌曲添加封面。此功能需要外部依赖 `ffmpeg` 使用前确保已经安装 [ffmpeg command-line tool](http://www.ffmpeg.org/) 或 [libav fork](http://www.libav.org/avconv.html) 
+
+### HTTP代理
+支持HTTP代理设置，代理格式为`http://IP_ADDRESS:PORT`。
 
 ### 范例代码
 
