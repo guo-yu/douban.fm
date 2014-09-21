@@ -32,6 +32,7 @@ function Fm() {
   this.rc.profile = path.join(this.syshome, '.douban.fm.profile.json');
   this.rc.history = path.join(this.syshome, '.douban.fm.history.json');
   this.home = utils.readJSON(this.rc.profile).home || path.join(this.syshome, 'douban.fm');
+  this.http_proxy = utils.readJSON(this.rc.profile).http_proxy || null;
   this.love = path.join(this.home, 'love');
   this.isShowLrc = false;
   template.updateTab('Douban FM');
@@ -129,7 +130,8 @@ Fm.prototype.play = function(channel, account) {
     self.player = new Player(songs, {
       src: 'url',
       cache: true,
-      downloads: self.home
+      downloads: self.home,
+      http_proxy: self.http_proxy
     });
     self.player.play();
     self.player.on('downloading', function(url) {
