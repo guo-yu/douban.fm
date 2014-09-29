@@ -25,6 +25,9 @@ var menu = {
       value: 'download',
       name: '更新下载文件夹路径 / Update download directory path'
     }, {
+      value: 'http_proxy',
+      name: '设置HTTP代理 / Set http proxy'
+    }, {
       value: 'id3',
       name: '更新本地曲库歌曲ID3 / Update ID3 for local songs'
     }, {
@@ -71,7 +74,22 @@ var menu = {
       name: "download",
       message: "请输入一个有效的绝对路径作为新的曲库目录"
     }]
-  }
+  },
+  http_proxy: {
+    main: function(http_proxy) {
+        return [{
+            type: "confirm",
+            name: "useDefaultProxy",
+            message: (http_proxy ? "设置HTTP代理为 " + http_proxy : "直接连接") + "?",
+            default: true
+        }];
+    },
+    setting: [{
+        type: "input",
+        name: "http_proxy",
+        message: "HTTP代理格式为 (http://IP_ADDRESS:PORT)"
+    }]
+  },
 }
 
 /**
@@ -157,7 +175,7 @@ exports.download = function(fm, argv) {
     consoler.success('下载目录已成功修改为 ' + profile.home);
     var f = new Fm;
     return f.init(exports.ready);
-  }
+ }
 
 }
 
@@ -199,6 +217,52 @@ exports.id3 = function(fm, argv) {
     });
   }
 
+}
+
+exports.http_proxy = function(fm, argv) {
+  var profile = {};
+  var defaultProxy = process.env.HTTP_PROXY||process.env.http_proxy||null;
+  inquirer.prompt(menu.http_proxy.main(defaultProxy), function(result) {
+    if (!result.useDefaultProxy){
+      return inputNewProxy();
+    } else {
+        if (defaultProxy === null || validate(defaultProxy)){
+            profile.http_proxy = defaultProxy;
+            return updateProxy(profile);
+        } else {
+            console.log(defaultProxy + '格式不符合规范，请输入有效的HTTP_PROXY');
+            return inputNewProxy();
+        }
+    }
+  });
+
+  function validate(value){
+    var proxyReg = /http:\/\/((?:\d{1,3}\.){3}\d{1,3}):(\d+)/;
+    return proxyReg.test(value);
+  }
+
+  function inputNewProxy() {
+     inquirer.prompt(menu.http_proxy.setting, function(result) {
+      if (!validate(result.http_proxy)) {
+        console.log(result.http_proxy + '格式不符合规范，请输入有效的HTTP PROXY');
+        return inputNewProxy();
+      }
+      profile.http_proxy = result.http_proxy;
+      return updateProxy(profile);
+    });
+ }
+
+  function updateProxy(profile) {
+    try {
+      fs.updateJSON(fm.rc.profile, profile);
+    } catch (err) {
+      if (!utils.noSuchFile(err.message)) return consoler.error(err);
+      fs.writeJSON(fm.rc.profile, profile);
+    }
+    consoler.success('HTTP PROXY已经成功修改为 ' + profile.http_proxy);
+    var f = new Fm;
+    return f.init(exports.ready);
+  }
 }
 
 exports.help = function() {
