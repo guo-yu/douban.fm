@@ -151,7 +151,7 @@ Fm.prototype.play = function(channel, account) {
         var updates = {};
         updates[song.sid] = song;
         try {
-          fs.updateJSON(this.rc.history, updates);
+          fs.updateJSON(self.rc.history, updates);
         } catch (err) {
           // error must be logged in a private place.
         }
