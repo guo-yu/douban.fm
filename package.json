@@ -11,7 +11,8 @@
   "bin": {
     "douban.fm": "./bin/start.sh",
     "dev.douban.fm": "./bin/dev.sh",
-    "core.douban.fm": "./bin/cli"
+    "core.douban.fm": "./bin/cli",
+    "doubanfm": "./bin/cli"
   },
   "repository": {
     "type": "git",
