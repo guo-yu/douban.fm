@@ -1,11 +1,14 @@
 var fs = require('fsplus');
 var path = require('path');
 var geci = require('geci');
+var open = require('open');
+var home = require('home');
 var mkdirp = require('mkdirp');
 var Player = require('player');
 var color = require('colorful');
 var consoler = require('consoler');
 var termList = require('term-list-enhanced');
+
 var sdk = require('./sdk');
 var utils = require('./utils');
 var pkg = require('../package');
@@ -26,17 +29,43 @@ var shorthands = {
 
 module.exports = Fm;
 
+// Class Douban.fm
 function Fm() {
-  this.rc = {};
-  this.syshome = utils.home();
-  this.rc.profile = path.join(this.syshome, '.douban.fm.profile.json');
-  this.rc.history = path.join(this.syshome, '.douban.fm.history.json');
-  this.home = utils.readJSON(this.rc.profile).home || path.join(this.syshome, 'douban.fm');
-  this.http_proxy = utils.readJSON(this.rc.profile).http_proxy || null;
+  // Fetch user's home
+  this.USERHOME = home();
+
+  // Resolve config files' path
+  this.path = {};
+  this.path.profile = home.resolve('.douban.fm.profile.json');
+  this.path.history = home.resolve('.douban.fm.history.json');
+
+  // Read configs from JSON files
+  try {
+    this.profile = fs.readJSON(this.path.profile);
+  } catch (err) {
+    debug(err);
+  }
+
+  // Get music download folder as `this.home`
+  this.home = this.profile ? 
+    this.profile.home : 
+    home.resolve('douban.fm');
+
+  // Get favourite music download folder
   this.love = path.join(this.home, 'love');
+
+  // Get http_proxy options
+  this.http_proxy = this.profile ? 
+    this.profile.http_proxy : 
+    null;
+
   this.isShowLrc = false;
+
+  // Update UI
   template.updateTab('Douban FM');
-  // ensure dir exists
+
+  // Ensure music download folder exists,
+  // If not, mkdir.
   try {
     mkdirp.sync(this.love);
   } catch (err) {
@@ -45,26 +74,23 @@ function Fm() {
   }
 };
 
-function isChannel(alias, id) {
-  if (alias === 'local' && id == -99) return true;
-  if (alias === 'private' && (id == 0 || id == -3)) return true;
-  return false;
-}
-
-/**
-*
-* Fetch songs and add them to playlist
-* @channel[Object]
-* @account[Object]
-*
 **/
+/**
+ * [Fetch songs and add them to playlist]
+ * @param  {[type]}   channel  [description]
+ * @param  {[type]}   account  [description]
+ * @param  {Function} callback [description]
+ * @return {[type]}            [description]
+ */
 Fm.prototype.fetch = function(channel, account, callback) {
   var self = this;
+
   var query = {};
   query.kbps = 192;
   query.history = self.rc.history;
   query.channel = channel.channel_id;
   query.local = isChannel('local', channel.channel_id) ? self.home : false;
+
   if (account) {
     query.token = account.token;
     query.user_id = account.user_id;
@@ -77,6 +103,7 @@ Fm.prototype.fetch = function(channel, account, callback) {
     if (err) return;
     if (!songs || songs.length === 0) return;
     if (!self.player) return;
+
     songs.forEach(function(song) {
       self.player.add(song);
     });
@@ -84,12 +111,11 @@ Fm.prototype.fetch = function(channel, account, callback) {
 }
 
 /**
-*
-* Playing songs when everything is ready
-* @channel[Object]
-* @account[Object]
-*
-**/
+ * [Playing songs when everything is ready]
+ * @param  {[type]} channel [description]
+ * @param  {[type]} account [description]
+ * @return {[type]}         [description]
+ */
 Fm.prototype.play = function(channel, account) {
   var self = this;
   var menu = self.menu;
@@ -263,7 +289,7 @@ Fm.prototype.go = function(channel, account) {
   if (!this.player) return false;
   if (!this.player.playing) return false;
   if (channel.channel_id == -99) return false;
-  return utils.go(utils.album(this.player.playing.album));
+  return open(utils.album(this.player.playing.album));
 }
 
 /**
@@ -290,7 +316,7 @@ Fm.prototype.showLrc = function(channel, account) {
 **/
 Fm.prototype.share = function(channel, account) {
   if (!this.player || !this.player.playing) return false;
-  return utils.go(template.share(this.player.playing));
+  return open(template.share(this.player.playing));
 }
 
 /**
@@ -351,4 +377,20 @@ Fm.prototype.init = function(callback) {
       return self.createMenu(callback);
     });
   });
+}
+
+/**
+ * [Check if a object is channel object]
+ * @param  {[type]}  alias [description]
+ * @param  {[type]}  id    [description]
+ * @return {Boolean}       [description]
+ */
+function isChannel(alias, id) {
+  if (alias === 'local' && id == -99) 
+    return true;
+
+  if (alias === 'private' && (id == 0 || id == -3)) 
+    return true;
+
+  return false;
 }

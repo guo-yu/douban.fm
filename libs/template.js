@@ -6,7 +6,22 @@ var notifier = new require('node-notifier')();
 var utils = require('./utils');
 var pkg = require('../package');
 
-exports.logo = function(account) {
+exports.logo = logo;
+exports.song = song;
+exports.share = share;
+exports.title = title;
+exports.notify = notify;
+exports.pause = pause;
+exports.listing = listing;
+exports.loading = loading;
+exports.updateTab = updateTab;
+
+/**
+ * [make logo string]
+ * @param  {[type]} account [description]
+ * @return {[type]}         [description]
+ */
+function logo(account) {
   return printf(
     '%s %s %s',
     color.yellow('Douban FM'),
@@ -15,7 +30,12 @@ exports.logo = function(account) {
   );
 }
 
-exports.notify = function(song) {
+/**
+ * [notify]
+ * @param  {[type]} song [description]
+ * @return {[type]}      [description]
+ */
+function notify(song) {
   notifier.notify({
     title: song.notifyTitle || 'Douban FM',
     open: song.open || pkg.repository.url,
@@ -23,8 +43,13 @@ exports.notify = function(song) {
   });
 }
 
-// BUG: 只有一个 tab 的时候这个 func 会导致 tab 页面闪动
-exports.updateTab = function(str) {
+/**
+ * [updateTab]
+ * @param  {[type]} str [description]
+ * @return {[type]}     [description]
+ * @bug: 只有一个 tab 的时候这个 func 会导致 tab 页面闪动
+ */
+function updateTab(str) {
   exec('printf "\\e]1;' + str + '\\a"',
     function(error, stdout, stderr) {
       sys.puts(stdout);
@@ -32,36 +57,67 @@ exports.updateTab = function(str) {
   );
 }
 
-exports.title = function(str, c) {
+/**
+ * [title]
+ * @param  {[type]} str [description]
+ * @param  {[type]} c   [description]
+ * @return {[type]}     [description]
+ */
+function title(str, c) {
   if (!str) return false;
   // this.updateTab(str);
   return color[c || 'grey'](str);
 }
 
-exports.listing = function() {
+/**
+ * [listening]
+ * @return {[type]} [description]
+ */
+function listening() {
   return this.title('加载列表中，请稍等...')
 }
 
-exports.loading = function() {
+/**
+ * [loading ]
+ * @return {[type]} [description]
+ */
+function loading() {
   return this.title('歌曲缓冲中，请稍等..')
 }
 
-exports.pause = function() {
+/**
+ * [pause]
+ * @return {[type]} [description]
+ */
+function pause() {
   this.title('Douban FM');
   return color.yellow('||');
 }
 
-exports.song = function(s, selectText, silence) {
+/**
+ * [song]
+ * @param  {[type]} s          [description]
+ * @param  {[type]} selectText [description]
+ * @param  {[type]} silence    [description]
+ * @return {[type]}            [description]
+ */
+function song(s, selectText, silence) {
   var label = '♫ ';
   var song = s.title ? s : {};
   if (!song.title) {
     song.text = label + '未知曲目...';
-    if (!silence) this.notify(song);
+    if (!silence) 
+      this.notify(song);
+
     return color.grey(song.text);
   }
+
   song.text = label + song.title + ' - ' + song.artist;
   song.open = utils.album(song.album);
-  if (!silence) this.notify(song);
+
+  if (!silence) 
+    this.notify(song);
+
   return printf(
     '%s %s %s %s %s %s %s %s',
     song.like == 1 ? color.red('♥') : color.grey('♥'),
@@ -75,7 +131,12 @@ exports.song = function(s, selectText, silence) {
   )
 }
 
-exports.share = function(song) {
+/**
+ * [share]
+ * @param  {[type]} song [description]
+ * @return {[type]}      [description]
+ */
+function share(song) {
   var shareText = 
     'http://service.weibo.com/share/share.php?' +
     '&type=button' +
@@ -97,7 +158,10 @@ exports.share = function(song) {
       song.public_time || '',
       song.album ? utils.album(song.album) : ''
     ].join(' '));
+
   // windows 下终端 & 需要转义
-  if (process.platform === 'win32') shareText = shareText.replace(/&/g, '^&');
+  if (process.platform === 'win32') 
+    shareText = shareText.replace(/&/g, '^&');
+
   return shareText;
 }
