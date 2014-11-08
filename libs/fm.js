@@ -74,7 +74,18 @@ function Fm() {
   }
 };
 
-**/
+Fm.prototype.go = go;
+Fm.prototype.init = init;
+Fm.prototype.play = play;
+Fm.prototype.next = next;
+Fm.prototype.stop = stop;
+Fm.prototype.quit = quit;
+Fm.prototype.fetch = fetch;
+Fm.prototype.loving = loving;
+Fm.prototype.share = share;
+Fm.prototype.showLrc = showLrc;
+Fm.prototype.createMenu = createMenu;
+
 /**
  * [Fetch songs and add them to playlist]
  * @param  {[type]}   channel  [description]
@@ -82,7 +93,7 @@ function Fm() {
  * @param  {Function} callback [description]
  * @return {[type]}            [description]
  */
-Fm.prototype.fetch = function(channel, account, callback) {
+function fetch(channel, account, callback) {
   var self = this;
 
   var query = {};
@@ -116,17 +127,20 @@ Fm.prototype.fetch = function(channel, account, callback) {
  * @param  {[type]} account [description]
  * @return {[type]}         [description]
  */
-Fm.prototype.play = function(channel, account) {
+function play(channel, account) {
   var self = this;
   var menu = self.menu;
   var isVaildAccount = account && account.token;
   var privateMhz = isChannel('private', channel.channel_id) && !isVaildAccount;
 
   // Check if this kind of mHz is private
-  if (privateMhz) return menu.update('header', errors.account_missing);
+  if (privateMhz) 
+    return menu.update('header', errors.account_missing);
 
   // clear last label
-  if (self.status === 'fetching' || self.status === 'downloading') return;
+  if (self.status === 'fetching' || self.status === 'downloading') 
+    return;
+
   if (self.status === 'playing' || self.status === 'error') {
     if (typeof(self.channel) != undefined) menu.clear(self.channel);
     if (self.player) {
@@ -140,6 +154,7 @@ Fm.prototype.play = function(channel, account) {
   self.channel = channel.index;
   self.status = 'fetching';
   menu.update(channel.index, template.listing());
+  
   try {
     fs.updateJSON(self.rc.profile, { lastChannel: channel });
   } catch (err) {};
@@ -182,19 +197,26 @@ Fm.prototype.play = function(channel, account) {
           // error must be logged in a private place.
         }
       }
+
       // print LRC if needed.
       if (self.isShowLrc) {
         if (self.lrc) self.lrc.stop();
         geci.fetch(song, function(err, lrc) {
-          if (err) return menu.update('header', color.grey(errors.lrc_notfound + err.toString()));
-          if (!lrc) return menu.update('header', color.grey(errors.lrc_notfound));
+          if (err) 
+            return menu.update('header', color.grey(errors.lrc_notfound + err.toString()));
+          if (!lrc) 
+            return menu.update('header', color.grey(errors.lrc_notfound));
+
           self.lrc = geci.print(lrc, function(line, extra) {
             menu.update(channel.index, template.song(song, line));
           });
         });
       }
+
       // 没有对尝试获取列表失败进行处理，如果失败2次，则不会再播放任何歌曲
-      if (song._id < self.player.list.length - 1) return false;
+      if (song._id < self.player.list.length - 1) 
+        return false;
+
       return self.fetch(channel, account);
     });
   });
@@ -207,11 +229,16 @@ Fm.prototype.play = function(channel, account) {
 * @account[Object]
 *
 **/
-Fm.prototype.loving = function(channel, account) {
-  if (!this.player) return false;
-  if (!this.player.playing) return false;
-  if (!this.player.playing.sid) return this.menu.update('header', errors.love_fail);
-  if (!account) return this.menu.update('header', errors.account_missing);
+function loving(channel, account) {
+  if (!this.player) 
+    return false;
+  if (!this.player.playing) 
+    return false;
+  if (!this.player.playing.sid) 
+    return this.menu.update('header', errors.love_fail);
+  if (!account) 
+    return this.menu.update('header', errors.account_missing);
+
   var self = this;
   var menu = self.menu;
   var song = self.player.playing;
@@ -222,12 +249,19 @@ Fm.prototype.loving = function(channel, account) {
     expire: account.expire,
     token: account.token
   };
-  if (song.like) query.type = 'u';
+
+  if (song.like) 
+    query.type = 'u';
+
   menu.update('header', '正在加载...');
+
   sdk.love(query, function(err, result) {
     menu.clear('header');
-    if (err) menu.update('header', errors.normal);
-    if (!err) self.player.playing.like = !song.like;
+    if (err) 
+      menu.update('header', errors.normal);
+    if (!err) 
+      self.player.playing.like = !song.like;
+
     return menu.update(
       self.channel,
       template.song(self.player.playing, null, true) // keep silence, do not notify
@@ -242,9 +276,12 @@ Fm.prototype.loving = function(channel, account) {
 * @account[Object]
 *
 **/
-Fm.prototype.next = function(channel, account) {
-  if (!this.player) return false;
+function next(channel, account) {
+  if (!this.player) 
+    return false;
+
   var menu = this.menu;
+
   this.player.next(function(err, song) {
     if (err) menu.update('header', errors.last_song);
     return false;
@@ -257,13 +294,18 @@ Fm.prototype.next = function(channel, account) {
 * and show the stopped status on logo.
 *
 **/
-Fm.prototype.stop = function(channel, account) {
-  if (!this.player) return false;
-  if (this.status === 'stopped') return this.play(channel, account);
+function stop(channel, account) {
+  if (!this.player) 
+    return false;
+
+  if (this.status === 'stopped') 
+    return this.play(channel, account);
+
   var menu = this.menu;
   menu.clear('header');
   menu.update('header', template.pause());
   this.status = 'stopped';
+
   return this.player.stop();
 }
 
@@ -273,7 +315,7 @@ Fm.prototype.stop = function(channel, account) {
 * and kill the process when pressing `Q`
 *
 **/
-Fm.prototype.quit = function() {
+function quit() {
   this.menu.stop();
   return process.exit();
 }
@@ -285,11 +327,17 @@ Fm.prototype.quit = function() {
 * @account[Object]
 *
 **/
-Fm.prototype.go = function(channel, account) {
-  if (!this.player) return false;
-  if (!this.player.playing) return false;
-  if (channel.channel_id == -99) return false;
-  return open(utils.album(this.player.playing.album));
+function go(channel, account) {
+  if (!this.player) 
+    return false;
+  if (!this.player.playing) 
+    return false;
+  if (channel.channel_id == -99) 
+    return false;
+
+  return open(
+    utils.album(this.player.playing.album)
+  );
 }
 
 /**
@@ -299,11 +347,14 @@ Fm.prototype.go = function(channel, account) {
 * @account[Object]
 *
 **/
-Fm.prototype.showLrc = function(channel, account) {
-  if (channel.channel_id == -99) return false;
+function showLrc(channel, account) {
+  if (channel.channel_id == -99) 
+    return false;
+
   this.isShowLrc = !!!this.isShowLrc;
   this.menu.clear('header');
   this.menu.update('header', this.isShowLrc ? '歌词开启' : '歌词关闭');
+
   return false;
 }
 
@@ -314,9 +365,13 @@ Fm.prototype.showLrc = function(channel, account) {
 * @account[Object]
 *
 **/
-Fm.prototype.share = function(channel, account) {
-  if (!this.player || !this.player.playing) return false;
-  return open(template.share(this.player.playing));
+function share(channel, account) {
+  if (!this.player || !this.player.playing) 
+    return false;
+
+  return open(
+    template.share(this.player.playing)
+  );
 }
 
 /**
@@ -326,34 +381,41 @@ Fm.prototype.share = function(channel, account) {
 * @callback[Function]: the callback function when set down.
 *
 **/
-Fm.prototype.createMenu = function(callback) {
+function createMenu(callback) {
   var self = this;
   // fetch channels
   sdk.fm.channels(function(err, list) {
-    if (err) consoler.error(errors.turn_to_local_mode);
+    if (err) 
+      consoler.error(errors.turn_to_local_mode);
+
     // fetch configs, show user's infomations
     fs.readJSON(self.rc.profile, function(e, user) {
       var vaildAccount = user && user.account && user.account.user_name;
       var account = vaildAccount ? user.account : null;
+
       // init menu
       self.menu = new termList();
       self.menu.header(template.logo(account));
       var nav = [sdk.mhz.localMhz];
       self.menu.adds(nav.concat(!err ? [sdk.mhz.privateMhz].concat(list) : []));
+
       // bind keypress events
       self.menu.on('keypress', function(key, index) {
         if (!shorthands[key.name]) return false;
         return self[shorthands[key.name]](self.menu.items[index], account);
       });
+
       self.menu.on('empty', function() {
         self.menu.stop();
       });
+
       // check last played channel
       if (user && user.lastChannel) {
         self.play(user.lastChannel, account);
         self.menu.start(user.lastChannel.index);
         return false;
       }
+
       // start menu at line 2 (below the logo text)
       self.menu.start(1);
     });
@@ -368,12 +430,17 @@ Fm.prototype.createMenu = function(callback) {
 * @callback [Function]: the callback function when all set done
 *
 **/
-Fm.prototype.init = function(callback) {
+function init(callback) {
   var self = this;
+
   fs.exists(self.home, function(exist) {
-    if (exist) return self.createMenu(callback);
+    if (exist) 
+      return self.createMenu(callback);
+
     mkdirp(self.love, function(err) {
-      if (err) return consoler.error(errors.mkdir_fail);
+      if (err) 
+        return consoler.error(errors.mkdir_fail);
+
       return self.createMenu(callback);
     });
   });
