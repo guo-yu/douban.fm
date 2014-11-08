@@ -1,3 +1,4 @@
 #!/bin/sh
 
-core.douban.fm $1 $2 2>./err.log
+script=`dirname $0`
+node $script/cli $1 $2 2>./err.log
