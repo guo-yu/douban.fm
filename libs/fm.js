@@ -15,7 +15,7 @@ var pkg = require('../package');
 var errors = require('./errors');
 var template = require('./template');
 
-// the keypress shortcut list
+// Keypress shortcut list
 var shorthands = {
   'return': 'play',
   'backspace': 'stop',
@@ -47,16 +47,16 @@ function Fm() {
   }
 
   // Get music download folder as `this.home`
-  this.home = this.profile ? 
-    this.profile.home : 
+  this.home = this.profile ?
+    this.profile.home :
     home.resolve('douban.fm');
 
   // Get favourite music download folder
   this.love = path.join(this.home, 'love');
 
   // Get http_proxy options
-  this.http_proxy = this.profile ? 
-    this.profile.http_proxy : 
+  this.http_proxy = this.profile ?
+    this.profile.http_proxy :
     null;
 
   this.isShowLrc = false;
@@ -134,11 +134,11 @@ function play(channel, account) {
   var privateMhz = isChannel('private', channel.channel_id) && !isVaildAccount;
 
   // Check if this kind of mHz is private
-  if (privateMhz) 
+  if (privateMhz)
     return menu.update('header', errors.account_missing);
 
   // clear last label
-  if (self.status === 'fetching' || self.status === 'downloading') 
+  if (self.status === 'fetching' || self.status === 'downloading')
     return;
 
   if (self.status === 'playing' || self.status === 'error') {
@@ -154,7 +154,7 @@ function play(channel, account) {
   self.channel = channel.index;
   self.status = 'fetching';
   menu.update(channel.index, template.listing());
-  
+
   try {
     fs.updateJSON(self.rc.profile, { lastChannel: channel });
   } catch (err) {};
@@ -202,9 +202,9 @@ function play(channel, account) {
       if (self.isShowLrc) {
         if (self.lrc) self.lrc.stop();
         geci.fetch(song, function(err, lrc) {
-          if (err) 
+          if (err)
             return menu.update('header', color.grey(errors.lrc_notfound + err.toString()));
-          if (!lrc) 
+          if (!lrc)
             return menu.update('header', color.grey(errors.lrc_notfound));
 
           self.lrc = geci.print(lrc, function(line, extra) {
@@ -214,7 +214,7 @@ function play(channel, account) {
       }
 
       // 没有对尝试获取列表失败进行处理，如果失败2次，则不会再播放任何歌曲
-      if (song._id < self.player.list.length - 1) 
+      if (song._id < self.player.list.length - 1)
         return false;
 
       return self.fetch(channel, account);
@@ -230,13 +230,13 @@ function play(channel, account) {
 *
 **/
 function loving(channel, account) {
-  if (!this.player) 
+  if (!this.player)
     return false;
-  if (!this.player.playing) 
+  if (!this.player.playing)
     return false;
-  if (!this.player.playing.sid) 
+  if (!this.player.playing.sid)
     return this.menu.update('header', errors.love_fail);
-  if (!account) 
+  if (!account)
     return this.menu.update('header', errors.account_missing);
 
   var self = this;
@@ -250,16 +250,16 @@ function loving(channel, account) {
     token: account.token
   };
 
-  if (song.like) 
+  if (song.like)
     query.type = 'u';
 
   menu.update('header', '正在加载...');
 
   sdk.love(query, function(err, result) {
     menu.clear('header');
-    if (err) 
+    if (err)
       menu.update('header', errors.normal);
-    if (!err) 
+    if (!err)
       self.player.playing.like = !song.like;
 
     return menu.update(
@@ -277,7 +277,7 @@ function loving(channel, account) {
 *
 **/
 function next(channel, account) {
-  if (!this.player) 
+  if (!this.player)
     return false;
 
   var menu = this.menu;
@@ -295,10 +295,9 @@ function next(channel, account) {
 *
 **/
 function stop(channel, account) {
-  if (!this.player) 
+  if (!this.player)
     return false;
-
-  if (this.status === 'stopped') 
+  if (this.status === 'stopped')
     return this.play(channel, account);
 
   var menu = this.menu;
@@ -328,11 +327,11 @@ function quit() {
 *
 **/
 function go(channel, account) {
-  if (!this.player) 
+  if (!this.player)
     return false;
-  if (!this.player.playing) 
+  if (!this.player.playing)
     return false;
-  if (channel.channel_id == -99) 
+  if (channel.channel_id == -99)
     return false;
 
   return open(
@@ -348,7 +347,7 @@ function go(channel, account) {
 *
 **/
 function showLrc(channel, account) {
-  if (channel.channel_id == -99) 
+  if (channel.channel_id == -99)
     return false;
 
   this.isShowLrc = !!!this.isShowLrc;
@@ -366,7 +365,7 @@ function showLrc(channel, account) {
 *
 **/
 function share(channel, account) {
-  if (!this.player || !this.player.playing) 
+  if (!this.player || !this.player.playing)
     return false;
 
   return open(
@@ -385,7 +384,7 @@ function createMenu(callback) {
   var self = this;
   // fetch channels
   sdk.fm.channels(function(err, list) {
-    if (err) 
+    if (err)
       consoler.error(errors.turn_to_local_mode);
 
     // fetch configs, show user's infomations
@@ -434,11 +433,11 @@ function init(callback) {
   var self = this;
 
   fs.exists(self.home, function(exist) {
-    if (exist) 
+    if (exist)
       return self.createMenu(callback);
 
     mkdirp(self.love, function(err) {
-      if (err) 
+      if (err)
         return consoler.error(errors.mkdir_fail);
 
       return self.createMenu(callback);
@@ -453,10 +452,9 @@ function init(callback) {
  * @return {Boolean}       [description]
  */
 function isChannel(alias, id) {
-  if (alias === 'local' && id == -99) 
+  if (alias === 'local' && id == -99)
     return true;
-
-  if (alias === 'private' && (id == 0 || id == -3)) 
+  if (alias === 'private' && (id == 0 || id == -3))
     return true;
 
   return false;
