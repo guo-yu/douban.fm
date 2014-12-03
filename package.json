@@ -31,10 +31,9 @@
     "url": "https://github.com/turingou/douban.fm/issues"
   },
   "dependencies": {
-    "async": "~0.8.0",
+    "async": "^0.9.0",
     "colorful": "2.1.0",
     "consoler": "*",
-    "debug": "^2.1.0",
     "douban-sdk": "~0.0.4",
     "ffmetadata": "~1.0.2",
     "fsplus": "*",
@@ -44,8 +43,11 @@
     "mkdirp": "~0.3.5",
     "node-notifier": "~2.0.4",
     "open": "~0.0.5",
-    "player": "0.1.7",
+    "player": "0.3.0",
     "sprintf": "0.1.3",
     "term-list-enhanced": "0.1.0"
+  },
+  "devDependencies": {
+    "debug": "^2.1.0"
   }
 }
