@@ -17,22 +17,22 @@
 ### 如何安装
 
 从 NPM 中安装稳定的版本：
-````
+```bash
 $ [sudo] npm install douban.fm -g
-````
+```
 更推荐使用 [cnpm](http://cnpmjs.org/) 镜像源加速安装
-````
+```bash
 $ [sudo] npm install douban.fm -g \
          --disturl=http://dist.u.qiniudn.com \
          --registry=http://r.cnpmjs.org
-````
+```
 
 从 Git 仓库中安装最新的开发版本：
-````
+```bash
 $ [sudo] npm install git://github.com/turingou/douban.fm.git -g \
          --disturl=http://dist.u.qiniudn.com \
          --registry=http://r.cnpmjs.org
-````
+```
 
 ### 模块依赖
 
@@ -62,14 +62,14 @@ $ [sudo] npm install git://github.com/turingou/douban.fm.git -g \
 ### 使用方法
 
 开启你的命令行豆瓣电台：
-````
+```bash
 $ douban.fm
-````
+```bash
 收听私人频道需要设置账户信息。账户信息、配置文件将会保存在 `~/.douban.fm.profile.json`（ >= 0.1.2 版本后）
 歌曲将会默认保存在 `~/douban.fm` 目录下，当然你也可以通过配置自定义歌曲保存的目录。
 
 使用配置向导，配置豆瓣电台账户信息、下载目录路径以及使用更多特性功能：
-```
+```bash
 $ douban.fm config
 ```
 
@@ -77,7 +77,7 @@ $ douban.fm config
 
 在相应的命令行菜单中，按下以下快捷键，可以在收听豆瓣电台的过程中，标注自己喜欢的红心歌曲，
 跳转到专辑的介绍页面，或者分享这首歌曲到你的新浪微博。
-````
+```
 [return]      - >     播放另一个频道，或者重新播放当前频道 (PLAY)
 [backspace]   - >     停止播放当前歌曲或频道 (DELETE)
 [n]           - >     本频道列表的下一首歌曲 (NEXT)
@@ -86,11 +86,12 @@ $ douban.fm config
 [r]           - >     开启或关闭歌词，默认关闭歌词显示 (LRC)
 [g]           - >     跳转到当前播放歌曲的专辑页面 (GOTO)
 [q]           - >     退出豆瓣电台 (QUIT)
-````
+```
 如果你忘了快捷键设置，可以打开配置向导，查看帮助菜单，或者：
-````
+
+```bash
 $ douban.fm help
-````
+```
 
 ### 支持 Pro 用户高码率音乐
 支持 pro 用户收听高码率 mp3，pro 用户默认会先寻找 192kbps 的歌曲播放，非 pro 用户不受影响。
@@ -125,16 +126,12 @@ $ douban.fm help
 - 感谢 [stormluke](https://github.com/stormluke) 为 `term-list-enhanced` 模块[添加了滚动功能](https://github.com/turingou/term-list-enhanced/commit/b45779ece29232164d1e72d00cf9715e727589dd)
 
 ### 单元测试 (Mocha)
-````
+```bash
 $ git clone https://github.com/turingou/douban.fm.git
 $ cd douban.fm
 $ npm install --disturl=http://dist.u.qiniudn.com --registry=http://r.cnpmjs.org
 $ npm test
-````
-
-### Changelog
-
-详见 [History.md](./History.md)
+```
 
 ### MIT license
 Copyright (c) 2013 turing &lt;i@guoyu.me&gt;
