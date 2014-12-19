@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "test": "node_modules/mocha/bin/mocha ./test/test.js",
-    "dev": "bin/dev.sh"
+    "dev": "node bin/cli 2>/dev/null"
   },
   "bin": {
     "douban.fm": "bin/start.sh",
@@ -31,7 +31,6 @@
     "url": "https://github.com/turingou/douban.fm/issues"
   },
   "dependencies": {
-    "debug": "^2.1.0",
     "async": "^0.9.0",
     "colorful": "2.1.0",
     "consoler": "*",
