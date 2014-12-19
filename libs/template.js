@@ -70,10 +70,10 @@ function title(str, c) {
 }
 
 /**
- * [listening]
+ * [listing]
  * @return {[type]} [description]
  */
-function listening() {
+function listing() {
   return this.title('加载列表中，请稍等...')
 }
 

@@ -2,7 +2,8 @@
 
 var doubanFM = require('../libs/fm');
 var commands = require('../libs/commands');
-var fm = new Fm();
+
+var fm = new doubanFM();
 var command = process.argv[2];
 
 if (!command) 

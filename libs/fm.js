@@ -7,6 +7,7 @@ var mkdirp = require('mkdirp');
 var Player = require('player');
 var color = require('colorful');
 var consoler = require('consoler');
+var debug = require('debug')('douban.fm');
 var termList = require('term-list-enhanced');
 
 var sdk = require('./sdk');
@@ -98,7 +99,7 @@ function fetch(channel, account, callback) {
 
   var query = {};
   query.kbps = 192;
-  query.history = self.rc.history;
+  query.history = self.path.history;
   query.channel = channel.channel_id;
   query.local = isChannel('local', channel.channel_id) ? self.home : false;
 
@@ -156,7 +157,7 @@ function play(channel, account) {
   menu.update(channel.index, template.listing());
 
   try {
-    fs.updateJSON(self.rc.profile, { lastChannel: channel });
+    fs.updateJSON(self.path.profile, { lastChannel: channel });
   } catch (err) {};
 
   // start fetching songs
@@ -192,7 +193,7 @@ function play(channel, account) {
         var updates = {};
         updates[song.sid] = song;
         try {
-          fs.updateJSON(self.rc.history, updates);
+          fs.updateJSON(self.path.history, updates);
         } catch (err) {
           // error must be logged in a private place.
         }
@@ -388,7 +389,7 @@ function createMenu(callback) {
       consoler.error(errors.turn_to_local_mode);
 
     // fetch configs, show user's infomations
-    fs.readJSON(self.rc.profile, function(e, user) {
+    fs.readJSON(self.path.profile, function(e, user) {
       var vaildAccount = user && user.account && user.account.user_name;
       var account = vaildAccount ? user.account : null;
 
