@@ -64,11 +64,13 @@ $ [sudo] npm install git://github.com/turingou/douban.fm.git -g \
 开启你的命令行豆瓣电台：
 ```bash
 $ douban.fm
-```bash
+```
+
 收听私人频道需要设置账户信息。账户信息、配置文件将会保存在 `~/.douban.fm.profile.json`（ >= 0.1.2 版本后）
 歌曲将会默认保存在 `~/douban.fm` 目录下，当然你也可以通过配置自定义歌曲保存的目录。
 
 使用配置向导，配置豆瓣电台账户信息、下载目录路径以及使用更多特性功能：
+
 ```bash
 $ douban.fm config
 ```
