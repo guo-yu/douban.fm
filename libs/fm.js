@@ -7,7 +7,6 @@ var mkdirp = require('mkdirp');
 var Player = require('player');
 var color = require('colorful');
 var consoler = require('consoler');
-var debug = require('debug')('douban.fm');
 var termList = require('term-list-enhanced');
 
 var sdk = require('./sdk');
@@ -37,36 +36,37 @@ function Fm() {
 
   // Resolve config files' path
   this.path = {};
-  this.path.profile = home.resolve('.douban.fm.profile.json');
-  this.path.history = home.resolve('.douban.fm.history.json');
+  this.path.profile = home.resolve('~/.douban.fm.profile.json');
+  this.path.history = home.resolve('~/.douban.fm.history.json');
 
   // Read configs from JSON files
   try {
     this.profile = fs.readJSON(this.path.profile);
   } catch (err) {
-    debug(err);
+    // Ingore missing profile
   }
 
   // Get music download folder as `this.home`
   this.home = this.profile ?
     this.profile.home :
-    home.resolve('douban.fm');
+    home.resolve('~/douban.fm');
 
   // Get favourite music download folder
   this.love = path.join(this.home, 'love');
 
-  // Get http_proxy options
+  // Get `http_proxy` options
   this.http_proxy = this.profile ?
     this.profile.http_proxy :
     null;
 
+  // Disable Lrc by default
   this.isShowLrc = false;
 
   // Update UI
   template.updateTab('Douban FM');
 
   // Ensure music download folder exists,
-  // If not, mkdir.
+  // If not, Mkdir of it.
   try {
     mkdirp.sync(this.love);
   } catch (err) {
