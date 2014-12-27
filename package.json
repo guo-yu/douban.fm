@@ -33,10 +33,10 @@
   "dependencies": {
     "async": "^0.9.0",
     "colorful": "2.1.0",
-    "consoler": "*",
+    "consoler": "^0.2.0",
     "douban-sdk": "~0.0.4",
     "ffmetadata": "~1.0.2",
-    "fsplus": "*",
+    "fsplus": "^0.1.0",
     "geci": "~0.0.2",
     "home": "^0.1.3",
     "inquirer": "~0.5.0",
