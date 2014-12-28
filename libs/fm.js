@@ -89,10 +89,10 @@ Fm.prototype.createMenu = createMenu;
 
 /**
  * [Fetch songs and add them to playlist]
- * @param  {[type]}   channel 
- * @param  {[type]}   account 
- * @param  {Function} callback
- * @return {[type]}           
+ * @param  {Object}   channel 
+ * @param  {Object}   account 
+ * @param  {Function}   callback
+ * @return {Object}           
  */
 function fetch(channel, account, callback) {
   var self = this;
@@ -124,9 +124,9 @@ function fetch(channel, account, callback) {
 
 /**
  * [Playing songs when everything is ready]
- * @param  {[type]} channel 
- * @param  {[type]} account 
- * @return {[type]}         
+ * @param  {Object} channel 
+ * @param  {Object} account 
+ * @return {}         
  */
 function play(channel, account) {
   var self = this;
@@ -236,9 +236,9 @@ function play(channel, account) {
 
 /**
 *
-* Add current song to lovelist when pressing `L`
-* @channel[Object]
-* @account[Object]
+* [Add current song to lovelist when pressing `L`]
+* @param channel {Object}
+* @param account {Object}
 *
 **/
 function loving(channel, account) {
@@ -285,8 +285,8 @@ function loving(channel, account) {
 /**
 *
 * Play the next song in the playlist
-* @channel[Object]
-* @account[Object]
+* @param channel {Object}
+* @param account {Object}
 *
 **/
 function next(channel, account) {
@@ -303,8 +303,10 @@ function next(channel, account) {
 
 /**
 *
-* Stop playing,
-* And show the stopped status on logo.
+* [Stop playing,]
+* [And show the stopped status on logo.]
+* @param channel {Object}
+* @param account {Object}
 *
 **/
 function stop(channel, account) {
@@ -323,8 +325,8 @@ function stop(channel, account) {
 
 /**
 *
-* Quit the Fm
-* and kill the process when pressing `Q`
+* [Quit the Fm,]
+* [And kill the process when pressing `Q`]
 *
 **/
 function quit() {
@@ -334,9 +336,9 @@ function quit() {
 
 /**
 *
-* Goto the music album page when pressing `G`
-* @channel[Object]
-* @account[Object]
+* [Goto the music album page when pressing `G`]
+* @param {Object} channel
+* @param {Object} account
 *
 **/
 function go(channel, account) {
@@ -354,9 +356,9 @@ function go(channel, account) {
 
 /**
 *
-* Show lrc when when pressing `R`.
-* @channel[Object]
-* @account[Object]
+* [Show lrc when when pressing `R`.]
+* @param channel {Object}
+* @param account {Object}
 *
 **/
 function showLrc(channel, account) {
@@ -372,9 +374,9 @@ function showLrc(channel, account) {
 
 /**
 *
-* Share the current playing songs to Weibo when pressing `S`.
-* @channel[Object]
-* @account[Object]
+* [Share the current playing songs to Weibo when pressing `S`.]
+* @param channel {Object}
+* @param account {Object}
 *
 **/
 function share(channel, account) {
@@ -388,9 +390,9 @@ function share(channel, account) {
 
 /**
 *
-* Create command line interface menu
-* Using term-list-enhanced module
-* @callback[Function]: [the callback function when set down]
+* [Create command line interface menu,]
+* [Using term-list-enhanced module]
+* @param {Function} callback [The callback function when all set done]
 *
 **/
 function createMenu(callback) {
@@ -446,7 +448,7 @@ function createMenu(callback) {
 /**
 *
 * Init douban.fm command line interface.
-* @callback [Function]: [the callback function when all set done]
+* @param {Function} callback [The callback function when all set done]
 *
 **/
 function init(callback) {
@@ -467,8 +469,8 @@ function init(callback) {
 
 /**
  * [Check if a object is channel object]
- * @param  {[String]}  alias [the channel type]
- * @param  {[Int]}     id    [the channel ID]
+ * @param  {String}  alias [The channel type]
+ * @param  {Int}     id    [The channel ID]
  * @return {Boolean}
  */
 function isChannel(alias, id) {

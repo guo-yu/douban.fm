@@ -44,9 +44,8 @@ function notify(song) {
 }
 
 /**
- * [updateTab]
- * @param  {[type]} str [description]
- * @return {[type]}     [description]
+ * [Update terminal tab's title]
+ * @param  {String} str
  * @bug: 只有一个 tab 的时候这个 func 会导致 tab 页面闪动
  */
 function updateTab(str) {
@@ -58,36 +57,38 @@ function updateTab(str) {
 }
 
 /**
- * [title]
- * @param  {[type]} str [description]
- * @param  {[type]} c   [description]
- * @return {[type]}     [description]
+ * [Update title's text]
+ * @param  {[type]} str
+ * @param  {[type]} c  
+ * @return {[type]}    
  */
 function title(str, c) {
-  if (!str) return false;
+  if (!str) 
+    return false;
+
   // this.updateTab(str);
   return color[c || 'grey'](str);
 }
 
 /**
- * [listing]
- * @return {[type]} [description]
+ * [Listing]
+ * @return {[type]}
  */
 function listing() {
   return this.title('加载列表中，请稍等...')
 }
 
 /**
- * [loading ]
- * @return {[type]} [description]
+ * [Loading]
+ * @return {[type]}
  */
 function loading() {
   return this.title('歌曲缓冲中，请稍等..')
 }
 
 /**
- * [pause]
- * @return {[type]} [description]
+ * [Pause]
+ * @return {[type]}
  */
 function pause() {
   this.title('Douban FM');
