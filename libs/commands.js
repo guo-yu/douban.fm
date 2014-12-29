@@ -5,6 +5,8 @@ var inquirer = require("inquirer");
 var consoler = require('consoler');
 var ffmetadata = require("ffmetadata");
 
+require('colorful').toxic();
+
 var Fm = require('./fm');
 var sdk = require('./sdk');
 var utils = require('./utils');
@@ -20,10 +22,9 @@ exports.download = download;
 exports.http_proxy = http_proxy;
 
 /**
- * [config]
- * @param  {[type]} fm   [description]
- * @param  {[type]} argv [description]
- * @return {[type]}      [description]
+ * [Show configs UI]
+ * @param  {Object} fm   [a douban.fm instance]
+ * @param  {Array}  argv [command line arguments]
  */
 function config(fm, argv) {
   inquirer.prompt(menu.main, function(result) {
@@ -35,9 +36,8 @@ function config(fm, argv) {
 }
 
 /**
- * [Auth and save user's accounts infomation and token]
- * @param  {[type]} fm [description]
- * @return {[type]}    [description]
+ * [Auth and save user's account infomation and token]
+ * @param  {Object} fm [a douban.fm instance]
  */
 function account(fm) {
   inquirer.prompt(menu.account, function(result) {
@@ -77,9 +77,8 @@ function account(fm) {
 
 /**
  * [Update download directory path]
- * @param  {[type]} fm   [description]
- * @param  {[type]} argv [description]
- * @return {[type]}      [description]
+ * @param  {Object} fm   [a douban.fm instance]
+ * @param  {Array}  argv [command line arguments]
  */
 function download(fm, argv) {
   var workingPath = process.cwd();
@@ -125,10 +124,9 @@ function download(fm, argv) {
 }
 
 /**
- * [Update ID3 for local songs]
- * @param  {[type]} fm   [description]
- * @param  {[type]} argv [description]
- * @return {[type]}      [description]
+ * [Update ID3 tags for local songs]
+ * @param  {Object} fm   [a douban.fm instance]
+ * @param  {Array}  argv [command line arguments]
  */
 function id3(fm, argv) {
   consoler.loading('正在从 ' + fm.home + ' 读取音乐列表');
@@ -157,10 +155,9 @@ function id3(fm, argv) {
   });
 
   /**
-   * [addid3]
-   * @param  {[type]}   song     [description]
-   * @param  {Function} callback [description]
-   * @return {[type]}            [description]
+   * [Add ID3 to single song]
+   * @param  {Object}   song     
+   * @param  {Function} callback
    */
   function addid3(song, callback) {
     if (!song.url) 
@@ -244,31 +241,29 @@ function http_proxy(fm, argv) {
 }
 
 /**
- * [help]
- * @return {[String]} [help string]
+ * [Show help messages]
+ * @return {String} [a help manual]
  */
 function help() {
-  console.log('');
-  consoler.info('豆瓣电台命令行版帮助文档');
-  return console.log([
-    "",
-    "更新或安装豆瓣电台命令行版：",
-    "$ [sudo] npm install douban.fm -g",
-    "",
-    "豆瓣电台设置：",
-    "$ douban.fm config",
-    "",
-    "菜单快捷键：",
-    "[return]      ->     播放另一个频道，或者重新播放当前频道 (PLAY)",
-    "[backspace]   ->     停止播放当前歌曲或频道 (DELETE)",
-    "[n]           ->     本频道列表的下一首歌曲 (NEXT)",
-    "[l]           ->     添加到红心列表或者删除红心 (LOVE)",
-    "[s]           ->     分享当前歌曲到新浪微博 (SHARE)",
-    "[r]           ->     开启或关闭歌词，默认关闭歌词显示 (LRC)",
-    "[g]           ->     跳转到当前播放歌曲的专辑页面 (GOTO)",
-    "[q]           ->     退出豆瓣电台 (QUIT)",
+  console.log([
+    '',
+    '安装/更新豆瓣电台命令行版：'.yellow,
+    '$ [sudo] npm install douban.fm -g',
+    '',
+    '豆瓣电台设置：'.green,
+    '$ douban.fm config',
+    '',
+    '菜单快捷键：'.yellow,
+    '[   Return  ]  播放另一个频道，或者重新播放当前频道 (PLAY)',
+    '[ Backspace ]  停止播放当前歌曲或频道 (DELETE)',
+    '[     N     ]  本频道列表的下一首歌曲 (NEXT)',
+    '[     L     ]  添加到红心列表或者删除红心 (LOVE)',
+    '[     S     ]  分享当前歌曲到新浪微博 (SHARE)',
+    '[     R     ]  开启或关闭歌词，默认关闭歌词显示 (LRC)',
+    '[     G     ]  跳转到当前播放歌曲的专辑页面 (GOTO)',
+    '[     Q     ]  退出豆瓣电台 (QUIT)',
     ""
-  ].join('\n'));
+  ].join('\n   '));
 }
 
 function quit() {
