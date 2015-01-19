@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "test": "node_modules/mocha/bin/mocha ./test/test.js",
-    "dev": "node bin/cli 2>err.log"
+    "dev": "node bin/cli 2>./err.log"
   },
   "bin": {
     "douban.fm": "bin/start.sh",
