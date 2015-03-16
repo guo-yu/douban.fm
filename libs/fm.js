@@ -47,7 +47,7 @@ function Fm() {
   }
 
   // Get music download folder as `this.home`
-  this.home = this.profile ?
+  this.home = this.profile && this.profile.home ?
     this.profile.home :
     home.resolve('~/douban.fm');
 
