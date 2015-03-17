@@ -51,12 +51,12 @@ function account(fm) {
       configs.account = account;
 
       try {
-        fs.updateJSON(fm.rc.profile, configs);
+        fs.updateJSON(fm.path.profile, configs);
       } catch (err) {
         if (!utils.noSuchFile(err.message)) 
           return consoler.error(err);
 
-        fs.writeJSON(fm.rc.profile, configs);
+        fs.writeJSON(fm.path.profile, configs);
       }
 
       return ready(account);
@@ -108,12 +108,12 @@ function download(fm, argv) {
 
   function updatePath(profile) {
     try {
-      fs.updateJSON(fm.rc.profile, profile);
+      fs.updateJSON(fm.path.profile, profile);
     } catch (err) {
       if (!utils.noSuchFile(err.message)) 
         return consoler.error(err);
 
-      fs.writeJSON(fm.rc.profile, profile);
+      fs.writeJSON(fm.path.profile, profile);
     }
 
     consoler.success('下载目录已成功修改为 ' + profile.home);
@@ -131,7 +131,7 @@ function download(fm, argv) {
 function id3(fm, argv) {
   consoler.loading('正在从 ' + fm.home + ' 读取音乐列表');
 
-  sdk.local(fm.home, fm.rc.history, function(err, list) {
+  sdk.local(fm.home, fm.path.history, function(err, list) {
     if (err) 
       return consoler.error(err);
 
@@ -227,10 +227,10 @@ function http_proxy(fm, argv) {
 
   function updateProxy(profile) {
     try {
-      fs.updateJSON(fm.rc.profile, profile);
+      fs.updateJSON(fm.path.profile, profile);
     } catch (err) {
       if (!utils.noSuchFile(err.message)) return consoler.error(err);
-      fs.writeJSON(fm.rc.profile, profile);
+      fs.writeJSON(fm.path.profile, profile);
     }
 
     consoler.success('HTTP PROXY已经成功修改为 ' + profile.http_proxy);
