@@ -1,77 +1,66 @@
-var fs = require('fsplus');
-var path = require('path');
-var async = require('async');
-var inquirer = require("inquirer");
-var consoler = require('consoler');
-var ffmetadata = require("ffmetadata");
-
-require('colorful').toxic();
-
-var Fm = require('./fm');
-var sdk = require('./sdk');
-var utils = require('./utils');
-var menu = require('./menu');
-
-exports.id3 = id3;
-exports.help = help;
-exports.quit = quit;
-exports.ready = ready;
-exports.config = config;
-exports.account = account;
-exports.download = download;
-exports.http_proxy = http_proxy;
+import fs from 'fsplus'
+import path from 'path'
+import async from 'async'
+import inquirer from "inquirer"
+import consoler from 'consoler'
+import Fm from './fm'
+import sdk from './sdk'
+import utils from './utils'
+import menu from './menu'
 
 /**
  * [Show configs UI]
  * @param  {Object} fm   [a douban.fm instance]
  * @param  {Array}  argv [command line arguments]
  */
-function config(fm, argv) {
-  inquirer.prompt(menu.main, function(result) {
-    if (!exports[result.type]) 
-      return exports.help();
+export function config(fm, argv) {
+  inquirer.prompt(menu.main, (result) => {
+    var exports = module.exports
 
-    exports[result.type](fm, argv);
-  });
+    if (!exports[result.type]) 
+      return exports.help()
+
+    exports[result.type](fm, argv)
+  })
 }
 
 /**
  * [Auth and save user's account infomation and token]
  * @param  {Object} fm [a douban.fm instance]
  */
-function account(fm) {
-  inquirer.prompt(menu.account, function(result) {
-    sdk.fm.auth({
+export function account(fm) {
+  inquirer.prompt(menu.account, (result) => {
+    var form = {
       form: result
-    }, function(err, account) {
+    }
+
+    sdk.fm.auth(form, (err, account) => {
       if (err) 
         return consoler.error(err);
 
-      var configs = {};
-      configs.account = account;
-
-      try {
-        fs.updateJSON(fm.path.profile, configs);
-      } catch (err) {
-        if (!utils.noSuchFile(err.message)) 
-          return consoler.error(err);
-
-        fs.writeJSON(fm.path.profile, configs);
+      var configs = {
+        account
       }
 
-      return ready(account);
-    });
-  });
+      try {
+        fs.updateJSON(fm.path.profile, configs)
+      } catch (err) {
+        if (!utils.noSuchFile(err.message)) 
+          return consoler.error(err)
 
-  function ready(account) {
+        fs.writeJSON(fm.path.profile, configs)
+      }
+
+      return getReady(account)
+    })
+  })
+
+  function getReady(account) {
     consoler.success(
-      '欢迎，' +
-      account.user_name +
-      '。您的豆瓣账户已经成功修改为：' +
-      account.email
-    );
+      `欢迎，${ account.user_name }。您的豆瓣账户已经成功修改为：${ account.email }`
+    )
 
-    fm.init(exports.ready);
+    fm.init(ready)
   }
 }
 
@@ -80,46 +69,45 @@ function account(fm) {
  * @param  {Object} fm   [a douban.fm instance]
  * @param  {Array}  argv [command line arguments]
  */
-function download(fm, argv) {
-  var workingPath = process.cwd();
-  var profile = {};
+export function download(fm, argv) {
+  var workingPath = process.cwd()
+  var profile = {}
 
-  inquirer.prompt(menu.download.main(workingPath), function(result) {
+  inquirer.prompt(menu.download.main(workingPath), (result) => {
     if (!result.useWorkingPath) 
-      return inputNewPath();
+      return inputNewPath()
 
-    profile.home = workingPath;
+    profile.home = workingPath
 
-    return updatePath(profile);
+    return updatePath(profile)
   });
 
   function inputNewPath() {
-    inquirer.prompt(menu.download.setting, function(dir) {
+    inquirer.prompt(menu.download.setting, (dir) => {
       if (!fs.existsSync(dir.download)) {
-        console.log(dir.download + ' 这个目录好像并不存在，请输入一个有效的路径');
-        return inputNewPath();
+        console.log(dir.download + ' 这个目录好像并不存在，请输入一个有效的路径')
+        return inputNewPath()
       }
 
-      profile.home = dir.download;
+      profile.home = dir.download
 
-      return updatePath(profile);
+      return updatePath(profile)
     });
   }
 
   function updatePath(profile) {
     try {
-      fs.updateJSON(fm.path.profile, profile);
+      fs.updateJSON(fm.path.profile, profile)
     } catch (err) {
       if (!utils.noSuchFile(err.message)) 
-        return consoler.error(err);
+        return consoler.error(err)
 
-      fs.writeJSON(fm.path.profile, profile);
+      fs.writeJSON(fm.path.profile, profile)
     }
 
-    consoler.success('下载目录已成功修改为 ' + profile.home);
+    consoler.success('下载目录已成功修改为 ' + profile.home)
 
-    var f = new Fm;
-    return f.init(exports.ready);
+    return (new Fm).init(exports.ready)
   }
 }
 
@@ -128,7 +116,7 @@ function download(fm, argv) {
  * @param  {Object} fm   [a douban.fm instance]
  * @param  {Array}  argv [command line arguments]
  */
-function id3(fm, argv) {
+export function id3(fm, argv) {
   consoler.loading('正在从 ' + fm.home + ' 读取音乐列表');
 
   sdk.local(fm.home, fm.path.history, function(err, list) {
@@ -189,7 +177,7 @@ function id3(fm, argv) {
  * @param  {[type]} argv [description]
  * @return {[type]}      [description]
  */
-function http_proxy(fm, argv) {
+export function http_proxy(fm, argv) {
   var profile = {};
   var defaultProxy = process.env.HTTP_PROXY || process.env.http_proxy || null;
 
@@ -244,32 +232,30 @@ function http_proxy(fm, argv) {
  * [Show help messages]
  * @return {String} [a help manual]
  */
-function help() {
-  console.log([
-    '',
-    '安装/更新豆瓣电台命令行版：'.yellow,
-    '$ [sudo] npm install douban.fm -g',
-    '',
-    '豆瓣电台设置：'.green,
-    '$ douban.fm config',
-    '',
-    '菜单快捷键：'.yellow,
-    '[   Return  ]  播放另一个频道，或者重新播放当前频道 (PLAY)',
-    '[ Backspace ]  停止播放当前歌曲或频道 (DELETE)',
-    '[     N     ]  本频道列表的下一首歌曲 (NEXT)',
-    '[     L     ]  添加到红心列表或者删除红心 (LOVE)',
-    '[     S     ]  分享当前歌曲到新浪微博 (SHARE)',
-    '[     R     ]  开启或关闭歌词，默认关闭歌词显示 (LRC)',
-    '[     G     ]  跳转到当前播放歌曲的专辑页面 (GOTO)',
-    '[     Q     ]  退出豆瓣电台 (QUIT)',
-    ""
-  ].join('\n   '));
+export function help() {
+  consoler.log(`
+    ${ '安装/更新豆瓣电台命令行版：'.yellow }
+    $ [sudo] npm install douban.fm -g
+
+    ${ '豆瓣电台设置：'.green }
+    $ douban.fm config
+
+    ${ '菜单快捷键：'.yellow }
+    [   Return  ]  播放另一个频道，或者重新播放当前频道 (PLAY)
+    [ Backspace ]  停止播放当前歌曲或频道 (DELETE)
+    [     N     ]  本频道列表的下一首歌曲 (NEXT)
+    [     L     ]  添加到红心列表或者删除红心 (LOVE)
+    [     S     ]  分享当前歌曲到新浪微博 (SHARE)
+    [     R     ]  开启或关闭歌词，默认关闭歌词显示 (LRC)
+    [     G     ]  跳转到当前播放歌曲的专辑页面 (GOTO)
+    [     Q     ]  退出豆瓣电台 (QUIT)
+  `)
 }
 
-function quit() {
-  return process.exit();
+export function quit() {
+  return process.exit()
 }
 
-function ready() {
-  return consoler.loading('正在加载...');
+export function ready() {
+  return consoler.loading('正在加载...')
 }

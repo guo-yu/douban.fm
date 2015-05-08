@@ -1,6 +1,5 @@
 import fs from 'fsplus'
 import path from 'path'
-import geci from 'geci'
 import open from 'open'
 import home from 'home'
 import mkdirp from 'mkdirp'
@@ -16,7 +15,7 @@ import errors from './errors'
 import template from './template'
 
 // Keypress shortcut list
-var shorthands = {
+const shorthands = {
   'return': 'play',
   'backspace': 'stop',
   'g': 'go',
