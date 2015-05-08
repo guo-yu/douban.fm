@@ -9,6 +9,27 @@ var _createClass = (function () { function defineProperties(target, props) { for
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
+/**
+* +--------------------------------------+
+* | douban.fm                192kbps PRO |
+* |--------------------------------------|
+* |                                      |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* |                                      |
+* |                          +---+ +-+-+ |
+* | A tiny and smart cli     |+++| | + | |
+* | player based on Node.js  +---+ +-+-+ |
+* |                                      |
+* +--------------------------------------+
+*
+* Douban.fm command line interface based on Node.js
+* @author: 新浪微博@郭宇 [turingou](http://guoyu.me)
+*
+**/
 
 var _fs = require('fsplus');
 

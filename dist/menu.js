@@ -1,6 +1,9 @@
 "use strict";
 
-module.exports = {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = {
   main: [{
     type: "list",
     name: "type",
@@ -78,4 +81,5 @@ module.exports = {
       message: "HTTP代理格式为 (http://IP_ADDRESS:PORT)"
     }]
   } };
+module.exports = exports["default"];
 //# sourceMappingURL=menu.js.map
