@@ -1,10 +1,10 @@
-module.exports = {
+export default {
   main: [{
-    type: "list",
-    name: "type",
-    message: "请选择需要更改的配置项: ",
+    type: 'list',
+    name: 'type',
+    message: '请选择需要更改的配置项: ',
     choices: [{
-      value: "account",
+      value: 'account',
       name: '配置豆瓣电台账户密码 / Update douban.fm account'
     }, {
       value: 'download',
@@ -23,56 +23,54 @@ module.exports = {
       name: '退出配置向导 / Quit'
     }]
   }],
-  account: [{
-    type: "input",
-    name: "email",
-    message: "豆瓣账户 (Email 地址)",
+  'account': [{
+    type: 'input',
+    name: 'email',
+    message: '豆瓣账户 (Email 地址)',
     validate: function(value) {
       var EmailRegex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      var pass = value.match(EmailRegex);
-      if (pass) {
-        return true;
-      } else {
-        return "请输入有效的 Email 地址";
-      }
+
+      return value.match(EmailRegex) ? true : '请输入有效的 Email 地址'
     }
   }, {
-    type: "password",
-    name: "password",
-    message: "豆瓣密码 (不会保留密码) ",
+    type: 'password',
+    name: 'password',
+    message: '豆瓣密码 (不会保留密码)',
     validate: function(value) {
-      if (value && value.length > 0) return true;
-      return "请输入有效密码";
+      if (value && value.length > 0) 
+        return true
+
+      return '请输入有效密码'
     }
   }],
   download: {
     main: function(dir) {
       return [{
-        type: "confirm",
-        name: "useWorkingPath",
-        message: "将下载目录设置为当前目录 " + dir + "?",
-        default: true
+        type: 'confirm',
+        name: 'useWorkingPath',
+        message: `将下载目录设置为当前目录 ${ dir }?`,
+        default: true,
       }]
     },
     setting: [{
-      type: "input",
-      name: "download",
-      message: "请输入一个有效的绝对路径作为新的曲库目录"
+      type: 'input',
+      name: 'download',
+      message: '请输入一个有效的绝对路径作为新的曲库目录'
     }]
   },
   http_proxy: {
     main: function(http_proxy) {
       return [{
-        type: "confirm",
-        name: "useDefaultProxy",
-        message: (http_proxy ? "设置HTTP代理为 " + http_proxy : "直接连接") + "?",
+        type: 'confirm',
+        name: 'useDefaultProxy',
+        message: (http_proxy ? `设置HTTP代理为 ${ http_proxy }` : '直接连接') + '?',
         default: true
       }];
     },
     setting: [{
-      type: "input",
-      name: "http_proxy",
-      message: "HTTP代理格式为 (http://IP_ADDRESS:PORT)"
+      type: 'input',
+      name: 'http_proxy',
+      message: 'HTTP代理格式为 (http://IP_ADDRESS:PORT)'
     }]
   },
-};
+}
