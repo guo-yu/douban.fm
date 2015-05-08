@@ -2,6 +2,8 @@
 ---
 简洁优雅的豆瓣电台命令行版，基于 Node.js。
 
+[WIP] 目前 `master` 分支正在使用 ES6 重写，处于不稳定状态，新用户请使用 npm 中的最后一个稳定版本.
+
 ![screenshot](http://ww1.sinaimg.cn/large/61ff0de3tw1ecij3dq80bj20m40ez75u.jpg)
 
 ### 功能特性
