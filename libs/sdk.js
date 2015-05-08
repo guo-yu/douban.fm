@@ -1,83 +1,84 @@
-var fs = require('fsplus');
-var path = require('path');
-var Douban = require('douban-sdk');
-var douban = new Douban();
-var utils = require('./utils');
-var errors = require('./errors');
+import path from 'path'
+import fs from 'fsplus'
+import douban from 'douban-sdk'
+import utils from './utils'
+import errors from './errors'
 
-exports.fm = douban.fm;
-exports.love = love;
-exports.songs = songs;
-exports.local = local;
-exports.mhz = {
-  localMhz: {
-    seq_id: -99,
-    abbr_en: 'localMhz',
-    name: '本地电台',
-    channel_id: -99,
-    name_en: 'localMhz'
+export const mhz = {
+  'localMhz': {
+    'seq_id': -99,
+    'abbr_en': 'localMhz',
+    'name': '本地电台',
+    'channel_id': -99,
+    'name_en': 'localMhz'
   },
-  privateMhz: {
-    seq_id: -3,
-    abbr_en: "",
-    name: "红心兆赫",
-    channel_id: -3,
-    name_en: ""
-  }
-};
+  'privateMhz': {
+    'seq_id': -3,
+    'abbr_en': '',
+    'name': '红心兆赫',
+    'channel_id': -3,
+    'name_en': '',
+  },
+}
 
-function songs(params, callback) {
-  var local = params && params.local && params.history;
+export function fm() {
+  return (new douban).fm
+}
+
+export function fetchSongs(params, callback) {
+  var local = params && params.local && params.history
 
   if (local) 
-    return exports.local(params.local, params.history, callback);
+    return listLocalSongs(params.local, params.history, callback)
 
   if (params.history) 
-    delete params.history;
+    delete params.history
 
-  var query = {};
-  query.qs = params;
+  var query = {
+    'qs': params
+  }
 
-  return douban.fm.songs(query, callback);
+  return douban.fm.songs(query, callback)
 }
 
-function love(params, callback) {
-  params.type = 'r';
-  return exports.songs(params, callback);
+export function addToLove(params, callback) {
+  params.type = 'r'
+  return fetchSongs(params, callback)
 }
 
-function local(dir, history, callback) {
-  fs.readdir(dir, function(err, songs) {
+export function listLocalSongs(dir, history, callback) {
+  fs.readdir(dir, readLocalDir);
+
+  function readLocalDir(err, songs) {
     if (err) 
-      return callback(err);
-
+      return callback(err)
     if (!songs) 
-      return callback(new Error(errors.localsongs_notfound));
+      return callback(new Error(errors.localsongs_notfound))
 
-    var list = [];
+    var list = []
 
-    fs.readJSON(history, function(err, history) {
+    fs.readJSON(history, (err, history) => {
       if (err) 
-        return callback(new Error(errors.localsongs_notfound));
+        return callback(new Error(errors.localsongs_notfound))
 
-      songs.forEach(function(song) {
+      songs.forEach((song) => {
         if (song.lastIndexOf('.mp3') !== (song.length - 4)) 
-          return false;
+          return
 
-        // if (!history[utils.sid(song)]) return false;
-        var s = history[utils.sid(song)] || {};
-        s.url = path.resolve(dir, song);
-        list.push(s);
-      });
+        var s = history[utils.sid(song)] || {}
+        s.url = path.resolve(dir, song)
+
+        list.push(s)
+      })
 
       if (list.length === 0) 
-        return callback(new Error(errors.localsongs_notfound));
+        return callback(new Error(errors.localsongs_notfound))
 
-      list.sort(function(a, b) {
-        return Math.random() - 0.5;
-      });
+      list.sort((a, b) => {
+        return Math.random() - 0.5
+      })
 
-      return callback(null, list);
-    });
-  });
+      return callback(null, list)
+    })
+  }
 }
