@@ -1,3 +1,25 @@
+/**
+* +--------------------------------------+
+* | douban.fm                192kbps PRO |
+* |--------------------------------------|
+* |                                      |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* | ++++++++++++++++++++++++++++++++++++ |
+* |                                      |
+* |                          +---+ +-+-+ |
+* | A tiny and smart cli     |+++| | + | |
+* | player based on Node.js  +---+ +-+-+ |
+* |                                      |
+* +--------------------------------------+
+*
+* Douban.fm command line interface based on Node.js
+* @author: 新浪微博@郭宇 [turingou](http://guoyu.me)
+*
+**/
+
 import fs from 'fsplus'
 import path from 'path'
 import open from 'open'
@@ -27,7 +49,7 @@ const shorthands = {
 }
 
 // Class Douban.fm
-exports default class FM {
+export default class FM {
   constructor() {
     // Fetch user's home
     this.USERHOME = home();

@@ -1,4 +1,4 @@
-exports default {
+export default {
   'lrc_notfound': '抱歉, 没找到歌词',
   'account_missing': '请先设置豆瓣账户再操作: $ douban.fm config',
   'setup_fail': '啊哦，启动出错了，请检查配置文件 ~/.douban.fm.profile.json',
