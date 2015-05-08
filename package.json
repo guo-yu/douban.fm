@@ -1,11 +1,13 @@
 {
   "name": "douban.fm",
   "version": "0.3.0",
-  "description": "a tiny and smart cli player of douban.fm in Node.js",
+  "description": "Tiny and smart command line interface player of douban.fm in Node.js",
   "main": "index.js",
   "author": "turing <o.u.turing@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "build": "node_modules/.bin/babel libs --out-dir dist --source-maps",
+    "build-watch": "node_modules/.bin/babel src --out-dir dist --source-maps --watch",
     "test": "node_modules/mocha/bin/mocha ./test/test.js",
     "dev": "node bin/cli 2>./err.log"
   },
@@ -31,9 +33,8 @@
     "url": "https://github.com/turingou/douban.fm/issues"
   },
   "dependencies": {
-    "geci": "~0.0.2",
     "open": "~0.0.5",
-    "player": "0.3.2",    
+    "player": "0.3.2",
     "home": "^0.1.3",
     "async": "^0.9.0",
     "sprintf": "0.1.3",
@@ -43,8 +44,12 @@
     "colorful": "2.1.0",
     "consoler": "^0.2.0",
     "douban-sdk": "~0.0.4",
-    "ffmetadata": "~1.0.2",
     "node-notifier": "~2.0.4",
     "term-list-enhanced": "0.1.0"
+  },
+  "devDependencies": {
+    "babel": "^5.1.11",
+    "ffmetadata": "~1.0.2",
+    "geci": "~0.0.2"
   }
 }
