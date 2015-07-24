@@ -80,7 +80,7 @@ export function share(song) {
 
   // Windows 下终端 `&` 需要转义
   if (process.platform === 'win32') 
-    uri = uri.replace(/&/g, '^&');
+    uri = uri.replace(/&/g, '^&')
 
-  return uri;
+  return uri
 }

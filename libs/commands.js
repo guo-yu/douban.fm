@@ -2,7 +2,7 @@ import fs from 'fsplus'
 import path from 'path'
 import async from 'async'
 import inquirer from "inquirer"
-import consoler from 'consoler'
+
 import Fm from './fm'
 import sdk from './sdk'
 import utils from './utils'
@@ -14,8 +14,8 @@ import menu from './menu'
  * @param  {Array}  argv [command line arguments]
  */
 export function config(fm, argv) {
-  inquirer.prompt(menu.main, (result) => {
-    var exports = module.exports
+  inquirer.prompt(menu.main, result => {
+    const exports = module.exports
 
     if (!exports[result.type]) 
       return exports.help()
@@ -29,15 +29,12 @@ export function config(fm, argv) {
  * @param  {Object} fm [a douban.fm instance]
  */
 export function account(fm) {
-  inquirer.prompt(menu.account, (result) => {
+  inquirer.prompt(menu.account, result => {
     var form = {
       form: result
     }
 
-    sdk.fm.auth(form, (err, account) => {
-      if (err) 
-        return consoler.error(err);
-
+    douban.fm.auth(form, account => {
       var configs = {
         account
       }
@@ -52,6 +49,9 @@ export function account(fm) {
       }
 
       return getReady(account)
+    })
+    .then(err => {
+      consoler.error(err)
     })
   })
 

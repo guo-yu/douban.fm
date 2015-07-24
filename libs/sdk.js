@@ -1,6 +1,5 @@
 import path from 'path'
 import fs from 'fsplus'
-import douban from 'douban-sdk'
 import utils from './utils'
 import errors from './errors'
 
@@ -19,31 +18,6 @@ export const mhz = {
     'channel_id': -3,
     'name_en': '',
   },
-}
-
-export function fm() {
-  return (new douban).fm
-}
-
-export function fetchSongs(params, callback) {
-  var local = params && params.local && params.history
-
-  if (local) 
-    return listLocalSongs(params.local, params.history, callback)
-
-  if (params.history) 
-    delete params.history
-
-  var query = {
-    'qs': params
-  }
-
-  return douban.fm.songs(query, callback)
-}
-
-export function addToLove(params, callback) {
-  params.type = 'r'
-  return fetchSongs(params, callback)
 }
 
 export function listLocalSongs(dir, history, callback) {

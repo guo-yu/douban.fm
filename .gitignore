@@ -1,11 +1,6 @@
 node_modules
 .DS_*
-*.sublime*
-config-*.*
-*.py
 *.mp3
-psd
 thumb
-config.json
-json/*.json
+logs
 *.log

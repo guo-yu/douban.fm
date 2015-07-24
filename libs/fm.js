@@ -20,17 +20,17 @@
 *
 **/
 
-import fs from 'fsplus'
 import path from 'path'
 import open from 'open'
 import home from 'home'
+import fsplus from 'fsplus'
 import mkdirp from 'mkdirp'
 import Player from 'player'
 import color from 'colorful'
-import consoler from 'consoler'
+import douban from 'douban-sdk'
+import Promise from 'bluebird'
 import termList from 'term-list-enhanced'
 
-import sdk from './sdk'
 import utils from './utils'
 import pkg from '../package'
 import errors from './errors'
@@ -48,112 +48,106 @@ const shorthands = {
   'r': 'showLrc'
 }
 
+const localMhz = {
+  'localMhz': {
+    'seq_id': -99,
+    'abbr_en': 'localMhz',
+    'name': '本地电台',
+    'channel_id': -99,
+    'name_en': 'localMhz'
+  },
+  'privateMhz': {
+    'seq_id': -3,
+    'abbr_en': '',
+    'name': '红心兆赫',
+    'channel_id': -3,
+    'name_en': '',
+  },
+}
+
+const fs = Promise.promisifyAll(fsplus)
+const mkdir = Promise.promisifyAll(mkdirp)
+
 // Class Douban.fm
 export default class FM {
   constructor() {
     // Fetch user's home
-    this.USERHOME = home();
+    this.USERHOME = home()
 
     // Resolve config files' path
-    this.path = {};
-    this.path.profile = home.resolve('~/.douban.fm.profile.json');
-    this.path.history = home.resolve('~/.douban.fm.history.json');
+    this.path = {}
+    this.path.profile = home.resolve('~/.douban.fm.profile.json')
+    this.path.history = home.resolve('~/.douban.fm.history.json')
 
     // Read configs from JSON files
-    try {
-      this.profile = fs.readJSON(this.path.profile);
-    } catch (err) {
-      // Ingore missing profile
-    }
+    this.profile = utils.readJSON(this.path.profile)
 
     // Get music download folder as `this.home`
-    this.home = this.profile && this.profile.home ?
-      this.profile.home :
-      home.resolve('~/douban.fm');
-
-    // Get favourite music download folder
-    this.love = path.join(this.home, 'love');
+    this.home = this.profile.home || home.resolve('~/douban.fm')
 
     // Get `http_proxy` options
-    this.http_proxy = this.profile ?
-      this.profile.http_proxy :
-      null;
+    this.http_proxy = this.profile.http_proxy || null
 
     // Disable Lrc by default
-    this.isShowLrc = false;
+    this.isShowLrc = false
 
     // Update UI
-    template.updateTab('Douban FM');
-
-    // Ensure music download folder exists,
-    // If not, Mkdir of it.
-    try {
-      mkdirp.sync(this.love);
-    } catch (err) {
-      consoler.error(errors.setup_fail);
-      throw err;
-    }
+    template.updateTab('Douban FM')
   }
 
   /**
   *
   * Init douban.fm command line interface.
-  * @param {Function} callback [The callback function when all set done]
+  * @return {Promise}
   *
   **/
-  init(callback) {
-    fs.exists(self.home, (exist) => {
-      if (exist)
-        return this.createMenu(callback)
+  init() {
+    return fs.existAsync(this.home)
+      .then(exist => {
+        if (exist)
+          return this.createMenu()
 
-      mkdirp(this.love, (err) => {
-        if (err)
-          return consoler.error(errors.mkdir_fail);
-
-        return this.createMenu(callback)
+        // errors.mkdir_fail
+        return mkdirAsync(this.home)
+          .then(() => this.createMenu())
       })
-    })
   }
 
   /**
    * [Fetch songs and add them to playlist]
    * @param  {Object}   channel 
    * @param  {Object}   account 
-   * @param  {Function}   callback
-   * @return {Object}           
+   * @return {Promise}           
    */
-  fetch(channel, account, callback) {
-    var self = this;
+  fetch({ channel_id }, account) {
+    if (utils.isLocalChannel('local', channel_id)) {
+      return utils.locals({
+        localPath: this.home,
+        historyPath: this.path.history
+      })
+    }
 
-    var query = {
+    const query = {
       kbps: 192,
-      history: self.path.history,
-      channel: channel.channel_id,
-      local: isChannel('local', channel.channel_id) ? self.home : false,
+      channel: channel_id,
     }
 
-    // Replce this block with fn.merge()
     if (account) {
-      query.token = account.token
-      query.user_id = account.user_id
-      query.expire = account.expire
+      ;['token', 'user_id', 'expire'].forEach(item =>
+        query[item] = account[item])
     }
 
-    return sdk.songs(
-      query, 
-      utils.isFunction(callback) ? callback : cb
-    )
+    return douban.fm.fresh(query)
+      .then(({ body }) => {
+        if (body.length === 0) 
+          return Promise.reject(new Error('No songs fetched'))
+        if (!this.player)
+          return Promise.reject(new Error('No valid player'))
 
-    function cb(err, songs, result) {
-      if (err) 
-        return
-      if (!songs || songs.length === 0) 
-        return
-      if (!self.player) 
-        return
+        body.forEach(this.player.add)
 
-      songs.forEach(self.player.add)
-    }
+        return Promise.resolve(body)
+      })
   }
 
   /**
@@ -163,52 +157,50 @@ export default class FM {
   * @param {Function} callback [The callback function when all set done]
   *
   **/
-  createMenu(callback) {
+  createMenu() {
     // Fetch channels
-    sdk.fm.channels((err, list) => {
-      if (err)
-        consoler.error(errors.turn_to_local_mode)
-
+    // return a Promise
+    return douban.fm.channels(list => {
       // Fetch configs, Show user's infomation
-      fs.readJSON(this.path.profile, (e, user) => {
-        var vaildAccount = user && user.account && user.account.user_name
-        var account = vaildAccount ? user.account : null
+      return fs.readJSONAsync(this.path.profile)
+        .then(user => {
+          var vaildAccount = user && user.account && user.account.user_name
+          var account = vaildAccount ? user.account : null
 
-        // Init menu
-        this.menu = new termList()
-        this.menu.header(template.logo(account))
-        this.menu.adds(
-          [sdk.mhz.localMhz].concat(!err ? [sdk.mhz.privateMhz].concat(list) : [])
-        )
+          // Init menu
+          this.menu = new termList()
+          this.menu.header(template.logo(account))
+          this.menu.adds(
+            [sdk.mhz.localMhz].concat(!err ? [sdk.mhz.privateMhz].concat(list) : [])
+          )
 
-        // Bind keypress events
-        this.menu.on('keypress', (key, index) => {
-          if (!shorthands[key.name]) 
-            return false;
+          // Bind keypress events
+          this.menu.on('keypress', (key, index) => {
+            if (!shorthands[key.name]) 
+              return false;
 
-          return this[shorthands[key.name]](this.menu.items[index], account)
+            return this[shorthands[key.name]](this.menu.items[index], account)
+          })
+
+          this.menu.on('empty', () => {
+            this.menu.stop()
+          })
+
+          // Check last played channel,
+          // If it existed, play this channel instantly.
+          if (user && user.lastChannel) {
+            this.play(user.lastChannel, account)
+            this.menu.start(user.lastChannel.index)
+            return false
+          }
+
+          // Start menu at line 2,
+          // Which below the logo.
+          this.menu.start(1)
         })
-
-        this.menu.on('empty', () => {
-          this.menu.stop()
-        })
-
-        // Check last played channel,
-        // If it existed, play this channel instantly.
-        if (user && user.lastChannel) {
-          this.play(user.lastChannel, account)
-          this.menu.start(user.lastChannel.index)
-          return false
-        }
-
-        // Start menu at line 2,
-        // Which below the logo.
-        this.menu.start(1)
-      })
+    }).catch(err => {
+      console.log(errors.turn_to_local_mode)
     })
-
-    // Trigger callback if necessary.
-    return callback && callback();
   }
 
   /**
@@ -221,7 +213,7 @@ export default class FM {
     var self = this
     var menu = this.menu
     var isVaildAccount = account && account.token
-    var privateMhz = isChannel('private', channel.channel_id) && !isVaildAccount
+    var privateMhz = isLocalChannel('private', channel.channel_id) && !isVaildAccount
 
     // Check if this kind of mHz is private
     if (privateMhz)
@@ -252,12 +244,7 @@ export default class FM {
     } catch (err) {};
 
     // Start fetching songs
-    this.fetch(channel, account, (err, songs, result) => {
-      if (err) {
-        this.status = 'error';
-        return menu.update(channel.index, color.red(err.toString()));
-      }
-
+    this.fetch(channel.channel_id, account, ({songs, result}) => {
       // Mark a `PRO` label on logo
       if (result && !result.warning) 
         menu.update('header', color.inverse(' PRO '));
@@ -322,6 +309,13 @@ export default class FM {
 
         return self.fetch(channel, account);
       }
+    }).catch(err => {
+      this.status = 'error'
+
+      return menu.update(
+        channel.index, 
+        color.red(err.toString())
+      )
     })
   }
 
@@ -374,44 +368,38 @@ export default class FM {
   *
   **/
   loving(channel, account) {
-    if (!this.player)
-      return
     if (!this.player.playing)
-      return
+      return Project.reject(new Error('No song is playing'))
     if (!this.player.playing.sid)
       return this.menu.update('header', errors.love_fail)
     if (!account)
       return this.menu.update('header', errors.account_missing)
 
-    var self = this
-    var menu = self.menu
-    var song = self.player.playing
+    var menu = this.menu
+    var song = this.player.playing
     var query = {
       sid: song.sid,
-      channel: self.channel,
+      channel: this.channel,
       user_id: account.user_id,
       expire: account.expire,
       token: account.token
     }
 
-    if (song.like)
-      query.type = 'u'
-
     menu.update('header', '正在加载...')
 
-    sdk.love(query, (err, result) => {
+    douban.fm[ song.like ? 'unrete': 'rate'](query, result => {
       menu.clear('header')
 
-      if (err)
-        menu.update('header', errors.normal)
-      if (!err)
-        self.player.playing.like = !song.like
+      this.player.playing.like = !song.like
 
       return menu.update(
-        self.channel,
+        this.channel,
         // keep silence, do not notify
-        template.song(self.player.playing, null, true) 
+        template.song(this.player.playing, null, true) 
       )
+    }).catch(err => {
+      menu.clear('header')
+      menu.update('header', errors.normal)
     })
   }
 
@@ -422,29 +410,28 @@ export default class FM {
   * @param account {Object}
   *
   **/
-  showLrc(channel, account) {
-    if (channel.channel_id == -99)
-      return
+  showLrc({ channel_id }) {
+    if (channel_id == -99)
+      return Promise.reject('It is a local channel')
 
     this.isShowLrc = !!!this.isShowLrc
     this.menu.clear('header')
     this.menu.update('header', this.isShowLrc ? '歌词开启' : '歌词关闭')
 
-    return false
+    return Promise.resolve(this.isShowLrc)
   }
 
   /**
   *
   * [Goto the music album page when pressing `G`]
   * @param {Object} channel
-  * @param {Object} account
   *
   **/
-  go(channel, account) {
-    if (!this.player || !this.player.playing)
-      return
-    if (channel.channel_id == -99)
-      return
+  go({ channel_id }) {
+    if (channel_id === -99)
+      return Project.reject(new Error('It is a local channel'))
+    if (!this.player.playing)
+      return Project.reject(new Error('No song is playing'))
 
     return open(
       utils.album(this.player.playing.album)
@@ -458,9 +445,9 @@ export default class FM {
   * @param account {Object}
   *
   **/
-  share(channel, account) {
-    if (!this.player || !this.player.playing)
-      return false
+  share() {
+    if (!this.player.playing)
+      return Project.reject(new Error('No song is playing'))
 
     return open(
       template.share(this.player.playing)
@@ -477,19 +464,4 @@ export default class FM {
     this.menu.stop()
     return process.exit()
   }
-}
-
-/**
- * [Check if a object is channel object]
- * @param  {String}  alias [The channel type]
- * @param  {Int}     id    [The channel ID]
- * @return {Boolean}
- */
-function isChannel(alias, id) {
-  if (alias === 'local' && id == -99)
-    return true
-  if (alias === 'private' && (id == 0 || id == -3))
-    return true
-
-  return false
 }

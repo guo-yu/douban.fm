@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-var doubanFM = require('../libs/fm');
-var commands = require('../libs/commands');
+var doubanFM = require('../dist/fm')
+var commands = require('../dist/commands')
 
-var fm = new doubanFM();
-var command = process.argv[2];
+var fm = new doubanFM()
+var command = process.argv[2]
 
 if (!command) 
-  return fm.init(commands.ready);
+  return fm.init().then(commands.ready)
 
 if (command === 'help') 
-  return commands.help();
+  return commands.help()
 
-return commands.config(fm, process.argv);
+return commands.config(fm, process.argv)
